@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bookstore xmlns="http://chinaunicom.com/yang/interface/ethinterface/chinaunicom-ethif-phy">
+<name>
+<name2>zhang</name2>
+</name>
+<book id="1"/>
+</bookstore>

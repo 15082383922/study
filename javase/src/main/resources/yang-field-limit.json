@@ -1,0 +1,152 @@
+{
+    "limit": [
+        {
+            "leaf_path": "/mpls:mpls/mpls:explicit-paths/mpls:explicit-path/mpls:nexthop/mpls:include/mpls:type",
+            "limit": [
+                {
+                    "type": "enumeration",
+                    "values": [
+                        "label"
+                    ]
+                }
+            ]
+        },
+        {
+            "leaf_path": "/mpls:mpls/mpls:explicit-paths/mpls:explicit-path/mpls:nexthop/mpls:constraint",
+            "limit": [
+                {
+                    "type": "enumeration",
+                    "values": [
+                        "include"
+                    ]
+                }
+            ]
+        },
+        {
+            "leaf_path": "/bfd:static-link/bfd:bfd-link-ipv4/bfd:min-tx-interval",
+            "limit": [
+                {
+                    "type": "range",
+                    "values": [
+                        "3|10|20|50|100|1000"
+                    ]
+                }
+            ]
+        },
+        {
+            "leaf_path": "/bfd:static-link/bfd:bfd-link-ipv4/bfd:min-rx-interval",
+            "limit": [
+                {
+                    "type": "range",
+                    "values": [
+                        "3|10|20|50|100|1000"
+                    ]
+                }
+            ]
+        },
+        {
+            "leaf_path": "/bfd:static-link/bfd:bfd-link-ipv6/bfd:min-tx-interval",
+            "limit": [
+                {
+                    "type": "range",
+                    "values": [
+                        "3|10|20|50|100|1000"
+                    ]
+                }
+            ]
+        },
+        {
+            "leaf_path": "/bfd:static-link/bfd:bfd-link-ipv6/bfd:min-rx-interval",
+            "limit": [
+                {
+                    "type": "range",
+                    "values": [
+                        "3|10|20|50|100|1000"
+                    ]
+                }
+            ]
+        },
+        {
+            "leaf_path": "/bfd:static-bfd-lsp/bfd:bfd-for-lsp/bfd:min-tx-interval",
+            "limit": [
+                {
+                    "type": "range",
+                    "values": [
+                        "3|10|20|50|100|1000"
+                    ]
+                }
+            ]
+        },
+        {
+            "leaf_path": "/bfd:static-bfd-lsp/bfd:bfd-for-lsp/bfd:min-rx-interval",
+            "limit": [
+                {
+                    "type": "range",
+                    "values": [
+                        "3|10|20|50|100|1000"
+                    ]
+                }
+            ]
+        },
+        {
+            "leaf_path": "/isis:isis/isis:isis-instances/isis:isis-instance/isis:lsp-mtu",
+            "limit": [
+                {
+                    "type": "range",
+                    "values": [
+                        "512..1492"
+                    ]
+                }
+            ]
+        },
+        {
+            "leaf_path": "/isis:isis/isis:isis-instances/isis:isis-instance/isis:metric-style/isis:style",
+            "limit": [
+                {
+                    "type": "range",
+                    "values": [
+                        "wide-metric-style",
+                        "wide-metirc-style"
+                    ]
+                }
+            ]
+        },
+        {
+            "leaf_path": "/mpls:mpls/mpls:mpls-te/mpls:tunnel-te/mpls:bind-path/mpls:type",
+            "limit": [
+                {
+                    "type": "range",
+                    "values": [
+                        "explicit-path"
+                    ]
+                }
+            ]
+        },
+        {
+            "leaf_path": "/bgpd:bgp/bgpd:bgp-instances/bgpd:bgp-instance/bgpd:with-vrf/bgpd:vrf-af/bgpd:redistribute/bgpd:protocol-type",
+            "limit": [
+                {
+                    "type": "range",
+                    "values": [
+                        "static",
+                        "connected",
+                        "rip",
+                        "isis",
+                        "ospf"
+                    ]
+                }
+            ]
+        },
+        {
+            "leaf_path": "/device:device/device:system-name-cfgs/device:system-name",
+            "limit": [
+                {
+                    "type": "length",
+                    "values": [
+                        "[1..64]"
+                    ]
+                }
+            ]
+        }
+    ]
+} 

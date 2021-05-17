@@ -1,0 +1,302 @@
+module utstarcom-common {
+	namespace "urn:utstarcom:platform:common";
+	prefix "ut-common";
+
+	revision 2016-01-01 {
+		description "Initial revision";
+	}
+
+	typedef node_ems_link_status {
+		type enumeration {
+			enum Connected {
+				value 0;
+				description 'ICMP ping node successfully.';
+			}
+			enum Disconnected {
+				value 1;
+				description 'ICMP ping node failed.';
+			}
+		}
+	}
+
+	typedef node_ems_management_status {
+		type enumeration {
+			enum OK {
+				value 1;
+				description 'OK';
+			}
+			enum Failure {
+				value 0;
+				description 'Failure';
+			}
+		}
+	}
+
+	grouping general_return {
+		leaf return_code {
+			description '1 :success, 2 :failed, 3 :partly failed, 4 :error ...';
+			type uint32;
+		}
+		leaf handle {
+			description 'return the object key.';
+			type string;
+		}
+		leaf return_message_cn {
+			description 'detail cn message for this operation';
+			type string;
+		}
+		leaf return_message_en {
+			description 'detail en message for this operation';
+			type string;
+		}
+	}
+
+	grouping general_return_list {
+		list return_message_list {
+			key handle;
+			leaf return_code {
+				description '1 :success, 2 :failed, 3 :partly failed, 4 :error ...';
+				type uint32;
+			}
+			leaf handle {
+				type string;
+			}
+			leaf return_message_cn {
+				description 'detail cn message for this operation';
+				type string;
+			}
+			leaf return_message_en {
+				description 'detail en message for this operation';
+				type string;
+			}
+		}
+	}
+
+	typedef if_admin_status {
+		type enumeration {
+			enum up {
+				value 1;
+				description "Ready to pass packets.";
+			}
+			enum down {
+				value 2;
+				description "Not ready to pass packets and not in some test mode.";
+			}
+			enum testing {
+				value 3;
+				description "In some test mode.";
+			}
+		}
+	}
+
+	typedef if_oper_status {
+		type enumeration {
+			enum up {
+				value 1;
+				description "Ready to pass packets.";
+			}
+			enum down {
+				value 2;
+				description "The interface does not pass any packets.";
+			}
+			enum testing {
+				value 3;
+				description "In some test mode. No operational packets can be passed.";
+			}
+			enum unknown {
+				value 4;
+				description "Status cannot be determined for some reason.";
+			}
+		}
+	}
+
+	typedef def_node_name {
+		description "Operator name it to identify the device in network";
+		type string {
+			length "1..128";
+		}
+	}
+
+	typedef def_snmp_community {
+		type string {
+			length "0..64";
+		}
+	}
+
+	typedef def_node_type {
+		description "Device Type. For snmp node, can be read from sysDesc";
+		type string {
+			length "0..64";
+		}
+	}
+
+
+	typedef alarm_severity {
+		type enumeration {
+			enum Critical {
+				value 1;
+			}
+			enum Major {
+				value 2;
+			}
+			enum Minor {
+				value 3;
+			}
+			enum Warning {
+				value 4;
+			}
+			enum Indeterminate {
+				value 5;
+			}
+			enum Clear {
+				value 6;
+			}
+			enum NoAlarm {
+				value 99;
+				description 'No Alarm';
+			}
+		}
+	}
+
+	typedef alarm_category {
+		type enumeration {
+			enum Equipment {
+				value 1;
+			}
+			enum QoS {
+				value 2;
+			}
+			enum Communication {
+				value 3;
+			}
+			enum Environment {
+				value 4;
+			}
+			enum ProcessingError {
+				value 5;
+			}
+			enum Transmission {
+				value 6;
+			}
+		}
+	}
+
+	typedef entity_alarm_status {
+		type enumeration {
+			enum Unknown {
+				value 0;
+			}
+			enum UnderRepair {
+				value 1;
+			}
+			enum Critical {
+				value 2;
+			}
+			enum Major {
+				value 3;
+			}
+			enum Minor {
+				value 4;
+			}
+			enum Warning {
+				value 5;
+			}
+			enum Indeterminate {
+				value 6;
+			}
+			enum Clear {
+				value 7;
+			}
+			enum NoAlarm {
+				value 99;
+				description 'ut extended:No alarm';
+			}
+		}
+		reference "RFC 4268, EntityAlarmStatus";
+	}
+
+	typedef user_name {
+		type string {
+			length "0..64";
+		}
+	}
+
+	typedef password {
+		type string {
+			length "0..64";
+		}
+	}
+
+	typedef role_level {
+		type enumeration {
+			enum "Administrator" {
+				value 1;
+				description "Adminstrator";
+			}
+			enum "GeneralUser" {
+				value 2;
+				description "General User";
+			}
+		}
+	}
+
+	typedef running_mode {
+		type enumeration {
+			enum Directly {
+				value 1;
+				description "VGS acess VBG/VEG directly.";
+			}
+			enum Proxy {
+				value 2;
+				description "VGS acess VBG/VEG by proxy.";
+			}
+		}
+	}
+
+	typedef user_status {
+		type enumeration {
+			enum Normal {
+				value 1;
+				description "user status is normal.";
+			}
+			enum Locked {
+				value 2;
+				description "user status is locked, must unlock then can login.";
+			}
+			enum Expired {
+				value 3;
+				description "user status is expired, such as user password has expired.";
+			}
+		}
+	}
+
+	typedef log_category {
+		type enumeration {
+			enum "System Log" {
+				value 1;
+				description "indicate the log is system log";
+			}
+			enum "Operation Log" {
+				value 2;
+				description "indicate the log is operation log";
+			}
+			enum "ConfigChanges Log" {
+				value 3;
+				description "indicate the log is device configuration has changed log";
+			}
+		}
+	}
+
+	typedef result {
+		type enumeration {
+			enum Success {
+				value 1;
+				description "the operation result is success";
+			}
+			enum Failure {
+				value 2;
+				description "the operation result is failure";
+			}
+		}
+	}
+}
