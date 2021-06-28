@@ -1,0 +1,318 @@
+module chinaunicom-mac {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+  namespace "http://chinaunicom.com/yang/linkprotocol/chinaunicom-mac";
+  prefix "mac";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  import ietf-inet-types { prefix "inet"; }
+  import ietf-yang-types { prefix "yang"; }
+  import chinaunicom-interface-common  { prefix "if"; }
+  import chinaunicom-l2vpn  { prefix "l2vpn"; }
+  import chinaunicom-bd  { prefix "bd"; }
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Communications Techlonogy Co., Ltd.
+
+     Postcode: 430073
+     Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+
+     E-mail: ykou@fiberhome.com";
+
+  description
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicomV5 mac package configuration.
+
+     This module contains definitions
+     for the following management objects:
+       mac: Static mac configuration
+
+     Copyright (c) 2013-2016 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision 2019-02-13 {
+    description
+     "Initial version.";
+  }
+
+  /* typedefs */
+  typedef mac-limit-action {
+    type enumeration {
+      enum none    { value 0; }
+      enum discard { value 1; }
+      enum forward { value 2; }
+    }
+  }
+
+  typedef l2vpn-port-type {
+    type enumeration {
+      enum ac { value 1; }
+      enum pw { value 2; }
+    }
+  }
+
+  typedef macs-if-encap {
+    type enumeration {
+      enum untag { value 2; }
+      enum dot1q { value 3; }
+      enum qinq  { value 4; }
+    }
+  }
+
+  typedef if-ref {
+    type union {
+      type if:ethphy-name;
+      type if:ethvir-name;
+      type if:ethlag-name;
+      type if:ethsub-name;
+      type if:veth-name;
+      type if:flexetunnel-name;
+    }
+  }
+
+  /*** CONTAINERS ***/
+  container mac
+  {
+
+    container mac-global
+    {
+      leaf aging-time {
+        description "The aging-time of MAC. 0s represent the MAC never being aged";
+        type uint32 {
+          range "0 | 60..1000000";
+        }
+        default "1800";
+        units "second";
+      }
+    }
+
+    container bd-mac-statics
+    {
+      description "The static of MAC for EVPN-BD.";
+      list bd-mac-static
+      {
+        key "bd-id mac-addr";
+
+        leaf bd-id {
+          description "bd-id";
+          type uint32;
+        }
+
+        leaf mac-addr {
+          description "mac-address";
+          type yang:mac-address;
+        }
+
+        leaf if-name {
+          description "interface name";
+          type mac:if-ref;
+        }
+
+        leaf if-encap {
+          description "interface encap";
+          type mac:macs-if-encap;
+        }
+
+        container dot1q {
+          must "../if-encap='dot1q'";
+
+          leaf pevid {
+            description "svlan id";
+            type uint16 {
+              range "1..4094";
+            }
+          }
+        }
+
+        container qinq {
+          must "../if-encap='qinq'";
+
+          leaf pevid {
+            description "svlan id";
+            type uint16 {
+              range "1..4094";
+            }
+          }
+
+          leaf cevid {
+            description "cvlan id";
+            type uint16 {
+              range "1..4094";
+            }
+          }
+        }
+      }
+    }
+
+    container vpls-mac-statics
+    {
+      description "The static of MAC for VPLS.";
+      list vpls-mac-static
+      {
+        key "vpls-name mac-addr";
+
+        leaf vpls-name {
+          description "vpls-name";
+          type l2vpn:vpls-name;
+        }
+
+        leaf mac-addr {
+          description "mac-address";
+          type yang:mac-address;
+        }
+
+        leaf port-type {
+          description "port-type";
+          type mac:l2vpn-port-type;
+        }
+
+        container port-ac
+        {
+          description "port-info when port-type is ac.";
+          must "../port-type='ac'";
+
+          leaf if-name {
+            description "interface name";
+            type mac:if-ref;
+          }
+
+          leaf if-encap {
+            description "interface encap";
+            type mac:macs-if-encap;
+          }
+
+          container dot1q {
+            must "../if-encap='dot1q'";
+
+            leaf pevid {
+              description "svlan id";
+              type uint16 {
+                range "1..4094";
+              }
+            }
+          }
+
+          container qinq {
+            must "../if-encap='qinq'";
+
+            leaf pevid {
+              description "svlan id";
+              type uint16 {
+                range "1..4094";
+              }
+            }
+
+            leaf cevid {
+              description "cvlan id";
+              type uint16 {
+                range "1..4094";
+              }
+            }
+          }
+        }
+
+        container port-pw
+        {
+          description "port-info when port-type is pw.";
+          must "../port-type='pw'";
+
+          leaf peer-ip {
+            type inet:ip-address-no-zone;
+          }
+
+          leaf vc-id {
+            type uint32;
+          }
+        }
+      }
+    }
+  }
+
+  augment "/bd:bd/bd:bridge-domains/bd:bridge-domain"
+  {
+    container mac-cfg-bd
+    {
+      leaf aging-time {
+        description "The aging-time of MAC for EVPN-BD. 0s represent the MAC never being aged";
+
+        type uint32 {
+          range "0 | 60..1000000";
+        }
+        default "1800";
+        units "second";
+      }
+
+      container mac-limit {
+        description "The mac-limit of MAC for EVPN-BD.";
+
+        leaf limit {
+          type uint32;
+          default "0";
+        }
+
+        leaf action {
+          type mac:mac-limit-action;
+          default "none";
+        }
+
+        leaf alarm-disable {
+          type boolean;
+          default "false";
+        }
+      }
+    }
+  }  
+  
+  augment "/l2vpn:l2vpn/l2vpn:vpls/l2vpn:vpls-list/l2vpn:accessif-list"
+  {
+    container mac-cfg-ac
+    {
+      leaf learn-disable {
+        description "The learn-disable of MAC for VPLS-AC.";
+        type boolean;
+        default "false";
+      }
+
+      leaf learn-priority {
+        description "The learn-priority of MAC for VPLS-AC.";
+        type uint8 {
+          range "0..3";
+        }
+        default "0";
+      }
+
+      leaf learn-limit {
+        description "The learn-limit of MAC for VPLS-AC.";
+        type uint32;
+      }
+    }
+  }
+
+  augment "/l2vpn:l2vpn/l2vpn:vpls/l2vpn:vpls-list/l2vpn:pw-list"
+  {
+    container mac-cfg-pw
+    {
+      leaf learn-disable {
+        description "The learn-disable of MAC for VPLS-PW.";
+        type boolean;
+        default "false";
+      }
+
+      leaf learn-priority {
+        description "The learn-priority of MAC for VPLS-PW.";
+        type uint8 {
+          range "0..3";
+        }
+        default "0";
+      }
+
+      leaf learn-limit {
+        description "The learn-limit of MAC for VPLS-PW.";
+        type uint32;
+      }
+    }
+  }
+}
+

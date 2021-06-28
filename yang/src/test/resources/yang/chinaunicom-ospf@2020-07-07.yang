@@ -1,0 +1,909 @@
+module chinaunicom-ospf {
+
+    /*** NAMESPACE / PREFIX DEFINITION ***/
+
+    namespace "http://chinaunicom.com/yang/ipprotocol/routing/chinaunicom-ospf";  
+
+    prefix "ospf";
+
+    /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+    import ietf-yang-types {	revision-date 2013-07-15; prefix "yang"; }
+	
+    import ietf-inet-types {	revision-date 2013-07-15;prefix "inet"; }
+    
+	import chinaunicom-ipprefix {	revision-date 2017-01-01; prefix "ipprefix"; }
+
+	import chinaunicom-routemap {	revision-date 2019-12-30; prefix "routemap"; }
+	
+	import chinaunicom-ospf-type {	revision-date 2020-01-02; prefix "ospf-type"; }
+	
+	import chinaunicom-datatype-common {	revision-date 2020-08-14;prefix "co-type"; }
+	
+	
+    organization "Fiberhome Systems, Inc.";
+
+    contact
+    "Fiberhome Communications Techlonogy Co., Ltd.
+     
+      Postcode: 430073
+      Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+     
+      E-mail: yang- author@fiberhome.com";
+
+    description
+    "This module contains a collection of YANG definitions
+      for Fiberhome  ospf package configuration.
+     
+      This module contains definitions
+      for the following management objects:
+        ospf:  configuration
+     
+      Copyright (c) 2013-2020 by Fiberhome Systems, Inc.
+      All rights reserved.";
+	
+	revision 2020-07-07 {
+    description
+		"1.add leaf instance-id";
+    }
+	
+	revision 2020-05-16 {
+    description
+		"1.add container distribute-list";
+    }
+	
+	revision 2020-04-24 {
+	description
+		"1.change virtual-link retransmit-interval from 1..65535 to 1..3600
+		 2.change virtual-link transmit-delay-interval from 1..65535 to 1..3600";
+    }
+    
+    revision 2020-01-02 {
+    description
+		"In order to support for configuration inversion
+			1.change auth-key from 1..8 to 1..24
+			2.change md5-key from 1..16 to 1..24
+			3.add leaf auth-key-type
+			4.add leaf md5-key-type
+			5.change leaf route-id type from inet:ipv4-address-no-zone to yang:dotted-quad
+			6.change leaf area-id type from inet:ipv4-address-no-zone to yang:dotted-quad
+			7.change leaf neighbor-id type from inet:ipv4-address-no-zone to yang:dotted-quad";
+    }
+	
+    revision 2018-07-27 {
+    description
+		"Initial version.";
+    } 
+    
+	grouping ospf-auth {
+		container ospf-auth{
+		description "ospf auth info";
+			
+			leaf auth-mode {
+				type ospf-type:auth-type;
+				default "none";
+				description "auth mode";
+			}	
+
+			leaf auth-key {
+				type string{
+				length "1..24";
+				}
+				description "The auth-key is a string ranging from 1 to 8 characters for a plaintext password,
+				             and 24 characters for a ciphertext password(eg.4uEX6m+ccI4jVcceEUxpVQ==).";
+			}	
+
+			leaf auth-key-type {
+				type ospf-type:key-type;
+				default "none";
+				description "Plaintexts and ciphertexts are supported.";
+			}	
+
+			leaf md5-key-id{
+				  type uint8{
+				  range "1..255";
+				  }
+				  description "md5 key id";
+			   }
+			   
+			leaf md5-key {
+				type string{
+				length "1..24";
+				}
+				description "The md5-key is a string ranging from 1 to 16 characters for a plaintext password,
+				             and 24 characters for a ciphertext password(eg.G9xGPNI5aL82L6/3zqbRuw==).";
+			}				
+		
+			leaf md5-key-type {
+				type ospf-type:key-type;
+				default "none";
+				description "Plaintexts and ciphertexts are supported.";
+			}
+		}
+
+	}
+
+	container ospf{
+		description "ospf container";
+		container ospf-global{
+			description "ospf global container";
+			container ospf-gr{
+			   
+			   leaf capability-gr{
+				  type co-type:is-enable;
+				  default "disable";
+				  description "gr capability";
+			   }    
+
+			   leaf helper-never{
+				  type co-type:is-enable;
+				   default "disable";
+				  description "helper never flag";
+			   }   
+
+			   leaf helper-max-peroid{
+				  type uint16{
+				  range "1..1800";
+				  }
+				  default 300;
+				  description "helper max peroid";
+			   }
+			   
+			   leaf gr-restarter-peroid{
+				  type uint16{
+				  range "1..1800";
+				  }
+				  default 120;
+				  description "gr restarter peroid";
+			   }    
+			}    
+			
+			container srlb-dynamic-ranges{
+				list srlb-dynamic-range{
+					key "lower-bound upper-bound";
+					leaf lower-bound{
+					  type uint32{
+					  range "16..1048575";
+					  }
+					
+					  description "lower boundn";
+					}    
+				   
+				   leaf upper-bound{
+					  type uint32{
+					  range "16..1048575";
+					  }
+					 
+					  description "upper bound";
+				   }     
+				}	
+			}
+			
+			container static-adj {
+			    container sid-range {
+					leaf lower-bound {
+							type uint32 {
+							range "16..1048575";
+						}
+					}
+					leaf upper-bound {
+							type uint32 {
+							range "16..1048575";
+						}
+					}
+				}
+				
+				list adj-sids{ 
+				key "adjacency-sid";
+					leaf local-ip{
+						type inet:ipv4-address-no-zone;
+						description "local ip";
+					} 			
+
+					leaf remote-ip{
+						type inet:ipv4-address-no-zone;
+						description "remote ip";
+					} 
+					
+					leaf adjacency-sid{
+						type uint32{	
+							range "16..1048575"; 
+						}
+						
+						description "adjacency sid ,must in the range of sid-range.must (../../sid-range/lower-bound<=../adjacency-sid and ../../sid-range/upper-bound>=../adjacency-sid)";
+					} 
+					
+					leaf backup {
+						type co-type:is-enable;
+						description "if set Backup Flag in Packet.";
+					}
+			
+				}	
+			}
+
+		}
+		
+		container ospf-processes{
+		description "ospf process";
+			list ospf-process{
+				   key "process-id";
+				   description "list ospf process";
+			  
+				leaf process-id{
+					type uint32{
+					range "1..65535";
+					}
+					
+				}  
+			  
+				leaf vrf-name{
+				   type co-type:vpn-name-with-global;
+				   description "name of a VPN instance";
+				}
+
+				list ospf-redistribute{
+				    description
+					"To import the routes learned from other routing protocols.";
+					key "protocol ospf-process-id isis-process-name";
+					leaf protocol{
+					   type ospf-type:import-route-protocol;
+					   description "redistribute protocol type: in type of isis or ospf ,import routes filter by process info. in type of bgp  connect or static,only the routes from the same vrf of this ospf process can be import.";
+					}    
+				   
+					leaf isis-process-name{
+					   type ospf-type:redistribute-instance-name;
+					must "(../protocol='isis') or (../protocol='bgp' and ../isis-process-name='nil') or (../protocol='connect' and ../isis-process-name='nil') or (../protocol='static' and ../isis-process-name='nil') or (../protocol='ospf' and ../isis-process-name='nil')";
+					description
+						"It needs to be set only when the protocol is isis. other type must be pattern nil.";
+					   
+					}   
+					
+					leaf ospf-process-id{
+					   type uint16{
+					   range "0..65535";
+					   }
+					must "(../protocol='ospf' and ../ospf-process-id>0 and ../ospf-process-id<65536) or (../protocol='bgp' and ../ospf-process-id=0) or (../protocol='connect' and ../ospf-process-id=0) or (../protocol='static' and ../ospf-process-id=0) or (../protocol='isis' and ../ospf-process-id=0)";
+					description
+						"Process ID of the routing protocol whose routes are imported. It needs to be set only when the protocol is OSPF. The value is an integer ranging from 0 to 65535. ospf range from 1 - 65535,others value is 0.";
+					   
+					}    
+
+					leaf route-policy-name{
+					   type routemap:policy-name;
+					   description "route policy name";
+					}  
+
+					leaf cost{
+					   type uint32{
+					   range "0..16777214";
+					   }
+					   default 1;
+					   description "cost value";
+					}       
+				   
+					leaf type{
+					   type ospf-type:metric-type{
+					   }
+					   default "Type2";
+					   description "metric type";
+					}    	
+
+					leaf tag{
+					   type uint32{
+					   range "0..4294967295";
+					   }
+					   default 1;
+					   description "tag value ";
+					}  					
+				}				  
+					  
+				leaf capablity-te{
+				   type co-type:is-enable{
+				   }
+				   default "disable";
+				}   
+
+				leaf capability-shortcut{
+				   type co-type:is-enable{
+				   }
+				   default "disable";
+				}   
+
+				leaf compatible-rfc1583{
+				   type co-type:is-enable{
+				   }
+				   default "disable";
+				}   
+
+				leaf capability-opaque{
+				   type co-type:is-enable{
+				   }
+				   default "disable";
+				}   
+
+				leaf capability-cspf{
+				   type co-type:is-enable{
+				   }
+				   default "disable";
+				}   
+
+				leaf capability-vrf-simple{
+				   type co-type:is-enable{
+				   }
+				   default "disable";
+				}   	   
+					  
+				leaf route-id{
+				   type yang:dotted-quad;
+				   description "route id";
+				}    
+
+				leaf max-ecmp-path{
+				   type uint32{
+				   range "1..16";
+				   }
+				   default 4;
+				   description "max ecmp path";
+				}    	   
+				  
+				container distance{
+					leaf admin-distance{
+					   type uint8{
+					   range "1..255";
+					   }
+					   default 110;
+					   description "admin distance ,defaule is 110";
+					}    
+
+					leaf intra-distance{
+					   type uint8{
+					   range "1..255";
+					   }
+					   default 110;
+					   description "intra distance";
+					}    
+				   
+					leaf inter-distance{
+					   type uint8{
+					   range "1..255";
+					   }
+					   default 110;
+					   description "inter- istance";
+					}     
+
+					leaf external-distance{
+					   type uint8{
+					   range "1..255";
+					   }
+					   default 110;
+					   description "external distance";
+					}    
+				}				  
+				  
+				container spf-intelligent-timer{
+					leaf spf-start-interval{
+					   type uint32{
+					   range "0..600000";
+					   }
+						default 500;
+					   description "spf start interval";
+					}    
+
+					leaf spf-hold-interval{
+					   type uint32{
+					   range "0..600000";
+					   }
+						default 500;
+					   description "spf hold interval";
+					}    
+				   
+					leaf spf-max-wait-interval{
+					   type uint32{
+					   range "0..600000";
+					   }
+						default 5000;
+					   description "spf max wait interval";
+					}      
+				   
+				}				  
+				
+				container srgb{
+					leaf lower-bound{
+						type uint32{
+						range "16..1048575";
+						}
+						description "srgb lower bound";
+					}    
+
+					leaf upper-bound{
+						type uint32{
+						range "16..1048575";
+						}
+						description "srgb upper bound";
+					}    
+				}				 	   
+
+				leaf sr-mpls-enable{
+					type co-type:is-enable{
+					}
+					 default "disable";
+					description "if enable mpls segment routing";
+				}   
+
+				container sr-prefer{
+					leaf sr-prefer-enable{
+						type co-type:is-enable;
+						default "disable";
+						description "if enable mpls segment routing prefer";
+					} 
+					
+					leaf prefix-list-name{
+						type string {
+							length "1..15";
+						}
+						description "prefix filter list name";
+					}    				   
+				}
+				   
+				list area{
+				key "area-id";
+					leaf area-id{
+					   type yang:dotted-quad;
+					   description "area id in IPV4 address format";
+					}    
+
+					leaf area-type{
+					   type ospf-type:ospf-area-type;
+					   default "normal";
+					   description "area type";
+					}    
+				   
+					list abr-summary{
+					    key "summary-prefix";
+						leaf summary-prefix{
+							   type inet:ipv4-prefix;
+							   description "ipv4 prefix";
+							}   
+							
+						leaf not-advertise{
+						   type boolean;
+							default "false";
+						}     
+				
+					}
+
+					leaf stub-no-summary{
+					when "../area-type = 'stub'";
+						type boolean;
+						 default "false";
+					}    
+					
+					container nssa{
+					 when "../area-type = 'nssa'";
+
+						leaf translator-role{
+						   type ospf-type:translator-role;
+						   default "candidate";
+						   description "translator role";
+						}    
+						
+						leaf default-enable{
+						   type co-type:is-enable;
+						   default "disable";
+						   description "default condfig enable";
+						}    
+					   
+						leaf type{
+						   type ospf-type:metric-type	{
+						   }
+						   default "Type2";
+						   description "the type of metric";
+						}     
+				 
+						leaf cost{
+						   type uint32{
+						   range "0..16777214";
+						   }
+						   default 1;
+						   description "cost value";
+						}    
+
+						leaf no-summary{
+							type boolean;
+							default "false";
+							description "no summary";
+						}  
+					
+					}
+
+					list virtual-link{
+						key "neighbor-id";
+						leaf neighbor-id{
+						   type yang:dotted-quad;
+						   description "neighbor ip addr";
+						}    
+						
+						leaf dead-interval{
+						   type uint16{
+						   range "1..65535";
+						   }
+						   default 40;
+						   description "dead interval";
+						}    
+					   
+						leaf retransmit-interval{
+						   type uint16{
+						   range "1..3600";
+						   }
+						   default 5;
+						   description "retransmit intervall";
+						}      
+				 
+						leaf transmit-delay-interval{
+						   type uint16{
+						   range "1..3600";
+						   }
+						   default 1;
+						   description "transmit delay interval";
+						}    
+
+						leaf hello-interval{
+						   type uint32{
+						   range "1..65535";
+						   }
+						   default 10;
+						   description "hello interva";
+						}       
+						
+						uses ospf-auth{
+						}
+						
+					}
+
+					list ospf-interface{
+						key "if-name";
+
+						leaf if-name{
+						   type ospf-type:if-name-ref;
+						   description "interface name";
+						}    
+									
+						leaf instance-id{
+							type uint16{
+							range "0..255";
+							}
+							default 0;
+						  description "instance id";
+						} 
+			
+						leaf cost{
+						   type uint16{
+						   range "1..65535";
+						   }
+						   default 1;
+						   description "cost value";
+						}    
+					   
+						leaf dead-interval{
+						   type uint16{
+						   range "1..65535";
+						   }
+						   default 40;
+						   description "dead interval";
+						}      
+				 
+						leaf mtu-ignore{
+						   type boolean;
+						   description "intf mtu ignore";
+						   default "false";
+						}   
+						
+						leaf network-type{
+						   type ospf-type:network-type;
+						   description "network type";
+						}   		
+
+						leaf dr-priority{
+						   type uint8{
+						   range "0..255";
+						   }
+						   default 1;
+						   description "dr priority";
+						}      
+								
+						leaf retransmit-interval{
+						   type uint16{
+						   range "1..65535";
+						   }
+						   default 5;
+						   description "retransmit interval";
+						}      		
+						
+						leaf transmit-delay{
+						   type uint16{
+						   range "1..65535";
+						   }
+						   default 1;
+						   description "transmit delay1";
+						}      
+								
+						leaf hello-interval{
+						   type uint16{
+						   range "1..65535";
+						   }
+						   default 10;
+						   description "hello interval";
+						}   
+
+						leaf passive-interface{
+						   type co-type:is-enable;
+						   description "passive interface";
+						   default "disable";
+						}    
+
+						leaf database-filter{
+						   type boolean;
+						   description "database filter";
+						   default "false";
+						}    
+						
+						uses ospf-auth{
+						}
+							
+				        leaf frr-candidate{
+							type co-type:is-enable;
+							description "interface is possible to become a frr nexthop";
+							default "disable";
+                        }	
+					
+						container sr-interface{ 
+							leaf prefix-sid-type{
+								type  ospf-type:ospf-prefix-sid-type;	
+								description "prefix sid type";
+							} 
+						   
+						   leaf absolute-id{
+						   when "../prefix-sid-type = 'absolute'";
+							  type uint32{
+								range "16..1048575";
+							  }
+							
+							  description "The absolute label value for the interface .absolute-id must be in
+								the range of srgb in ospf process or the range of srgb in segmentrouting
+								srgb.preference is srgb in ospf process.lower-bound<=absolute-id and
+								upper-bound>=absolute-id";
+						   }
+						   
+						   leaf index-id{
+						   when "../prefix-sid-type = 'index'";
+							  type uint32{
+								range "0..1048560";
+							  }
+							  description "The relative ID value for the interface. index-id must be in the
+								range of srgb in ospf process or the range of srgb in segmentrouting
+								srgb,preference is srgb in ospf process.upper-bound - lower-bound >= index-id";
+						   } 
+					 
+							leaf php{
+								type co-type:is-enable;
+								description "php type";
+								default "enable";
+							}    
+
+							leaf node-flag-clear{
+								type co-type:is-enable;
+								description "node flag clear";
+								default "disable";
+							}    
+							
+							leaf explicit-null{
+								type co-type:is-enable;
+								description "explicit null";
+								default "disable";
+							}   		
+							must "not (php = 'enable' and explicit-null = 'enable')" 
+							{
+                                error-message "you cannot enable explicit-null and php at the same time";
+							} 
+						}
+						
+						container igp-ldp-sync {
+							description "ldp sync for ospf";
+						   
+							leaf igp-ldp-sync-enable{
+								type co-type:is-enable;
+								description "igp ldp sync";
+								default "disable";
+							}
+						  
+							leaf ldp-sync-holdtime{
+									type uint32{
+									range "1..2147483";
+								}
+								default 7000;
+								description "ldp sync holdtime";
+							}   
+						}
+					}
+					
+					container authentication{ 
+
+						leaf auth-mode{
+							type ospf-type:auth-type;
+							description "auth mode";
+							default "none";
+						}    
+					
+					}
+
+					container filter{ 
+						leaf prefix-name{
+							type ipprefix:list-name;
+							description "prefix name";
+						} 
+
+						leaf filter-type{
+							type ospf-type:filter-type;
+							description "filter type";
+							default "in";
+						}    
+					
+					}				
+				}
+				
+				list asbr-summary{ 
+					key "summary-prefix";
+					leaf summary-prefix{
+						   type inet:ipv4-prefix;
+						   description "summary prefix";
+						}    
+						
+					leaf not-advertise{
+						type boolean;
+						description "not advertise";
+						default "false";
+					}   
+				}	        
+
+				container default-advertise{ 
+					leaf default-advertise-enable{
+						type co-type:is-enable;
+						default "disable";
+						description "default advertise enable";
+					}    
+
+					leaf cost{
+						type uint32{	
+							range "0..16777214"; 
+						}
+						default 0;
+						description "cost value";
+					} 
+
+					leaf type{
+						type ospf-type:metric-type;
+						default "Type2";
+						description "metric type";
+					}    
+					
+					leaf route-policy-name{
+						type routemap:policy-name;
+						description "route policy name";
+					} 
+
+					leaf always{
+						type boolean;
+						default "false";
+						description "always advertise default route";
+					}   		
+				}	
+
+				list ospf-neighbor{ 
+					key "address";
+					leaf address{
+						type inet:ipv4-address-no-zone;
+						description "neighbor address";
+					} 
+
+					leaf priority{
+						type uint16{	
+							range "0..255"; 
+						}
+						default 1;
+						description "priority";
+					} 
+
+					leaf poll-interval{
+						type uint32{	
+							range "1..65535"; 
+						}
+						default 120;
+						units "second";
+						description "poll interval,in seconds";
+					} 
+					
+					leaf cost{
+						type uint32{	
+							range "1..65535"; 
+						}
+						default 1;
+						description "cost value";
+					} 				
+				}			
+
+				container bgp-ls{ 
+					leaf bgp-ls-enable{
+						type co-type:is-enable;
+						default "disable";
+						description "bgp ls enable flag";
+					} 
+
+					leaf bgp-ls-time{
+						type uint8{	
+							range "5..20"; 
+						}
+						default 5;
+						description "bgp ls time";
+					} 
+			
+				}	
+		 
+				container ospf-frr{ 
+					leaf lfa-flag{
+						type co-type:is-enable;
+						default "disable";
+						description "lfa flag";
+					} 			
+
+					leaf rlfa-flag{
+						type co-type:is-enable;
+						default "disable";
+						description "rlfa flag";
+					} 
+					
+					leaf tilfa-flag{
+						type co-type:is-enable;
+						default "disable";
+						description "tilfa flag";
+					} 
+					
+					leaf protect-type{
+						type ospf-type:frr-protect-type;	 
+						default "link-protect";
+						description "protect type";
+					} 
+			
+				}
+				
+				container micro-loop-avoidance{
+					leaf avoidance-flag{
+						type co-type:is-enable;
+						default "disable";
+						description "micro loop avoidance flag";
+					}
+				}
+				
+				container sid-map-receive{
+					leaf enable{
+						type co-type:is-enable;
+						description "open the prefix-sid-map receive switch";
+					}
+				}
+				
+				container sid-map-advertise-local{
+					leaf enable{
+						type co-type:is-enable;
+						description "open the advertise-local switch";
+					}
+				}
+				
+				container distribute-list{
+					leaf prefix-list-name{
+						type ipprefix:list-name;
+						description "prefix name";
+					}
+				}
+			}			
+		}
+	}	     
+}

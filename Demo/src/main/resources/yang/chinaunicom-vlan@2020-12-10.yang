@@ -1,0 +1,553 @@
+module chinaunicom-vlan {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/ethernetservice/chinaunicom-vlan";
+
+
+  prefix "vlan";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  import chinaunicom-interface-common{	revision-date 2020-12-31; prefix "if"; }
+  
+  import chinaunicom-interface-l2l3common {	revision-date 2020-07-03; prefix "l2l3if"; }
+
+
+  /*** META INFORMATION ***/
+
+  organization "UTStarcom Telecom Co., Ltd.";
+
+  contact
+    "UTStarcom Telecom Co., Ltd.
+     
+     Postcode: 310053 
+     Address: 368 Liuhe Road, Binjiang District,Hangzhou, Zhejiang
+
+     E-mail: sheng.yu@utstar.com";
+
+  description 
+    "This module contains a collection of YANG definitions
+     for UTStarcom IPRAN ethernet package configuration.
+
+     This module contains definitions for vlan management objects.
+
+     Copyright (c) 2013-2020 by UTStarcom Telecom Co., Ltd.
+     All rights reserved.";
+
+  revision "2020-12-10" 
+  {
+    description
+      "Add description for switched-vlan-cfg/switched-port-vlan-list, to clarify that 
+      the vlan mappling list row for port untagged mode is optional.";
+  }
+  
+    typedef vlan-type-enum {
+		type enumeration {
+			  enum dot1q {
+				value 0;
+				description "802.1q";
+			  }
+			  enum dot1q-termination {
+				value 1;
+				description "802.1q termination";
+			  }
+			  enum qinq-termination {
+				value 2;
+				description "802.1q-in-802.1q termination";
+			  }  
+			  enum qinq-stacking {
+				value 3;
+				description "qinq stacking";
+			  }   			  
+		}
+		description "vlan type mode";
+    }
+  
+    typedef evc-vlan-type-enum {
+		type enumeration {  
+			  enum evc-default {
+				value 6;
+				description "evc-default";
+			  }	  
+			  enum evc-untag {
+				value 7;
+				description "evc-untag";
+			  }	  
+			  enum evc-dot1q {
+				value 8;
+				description "evc-dot1q";
+			  }	  
+			  enum evc-qinq {
+				value 9;
+				description "evc-qinq";
+			  }	  
+		}
+		description "evc vlan type mode";
+    }
+  
+    typedef sym-type-enum {
+    type enumeration {
+      enum sym {
+        value 1;
+        description "sym type";
+      }
+      enum asym {
+        value 2;
+        description "asym type";
+      }
+    }
+    description "qinq-termination sym or asym type";
+  }
+  
+    typedef vlan-mode-type {
+		type enumeration {
+			enum hybrid {
+				value 0;
+				description
+                "Hybrid port that accepts packets with or without VLAN tags.";
+			}
+			enum trunk {
+				value 1;
+				description
+                "Trunk port that accepts packets with VLAN tags.";
+			}
+			
+			enum access {
+				value 2;
+				description
+                "Access port that accepts packets without VLAN tags.";
+			}
+			
+			enum dot1q-tunnel {
+				value 3;
+				description
+                "Dot1q tunnel port that accepts packets with double tags.";
+			}
+		}
+		description "";
+	}
+	
+	typedef tag-mode {
+		type enumeration {
+			enum untagged {
+				value 1;
+				description "port that forwards packets without VLAN tags.";
+			}
+			enum tagged {
+				value 2;
+				description "port that forwards packets with VLAN tags.";
+			}
+		}
+		description "";
+	}
+    
+    typedef vlan-range {
+        type string {
+            length "1..9680";
+            pattern '((409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|[1-9][0-9]{1,2}|[1-9])?(-(409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|[1-9][0-9]{1,2}|[1-9]))?(,((409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|[1-9][0-9]{1,2}|[1-9])(-(409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|[1-9][0-9]{1,2}|[1-9]))?))*)|((([\+|\-](409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|[1-9][0-9]{1,2}|[1-9]))|([\+|\-]\((409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|[1-9][0-9]{1,2}|[1-9])-(409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|[1-9][0-9]{1,2}|[1-9])\)))?(,(([\+|\-](409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|[1-9][0-9]{1,2}|[1-9]))|([\+|\-]\((409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|[1-9][0-9]{1,2}|[1-9])-(409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|[1-9][0-9]{1,2}|[1-9])\))))*)';
+        }
+        description
+        "vlan id list";
+    }
+	
+	typedef rewrite-enum {
+		type enumeration {
+			  enum null {
+				value 0;
+				description "null";
+			  }
+			  enum pop1 {
+				value 1;
+				description "pop outer vlan tag";
+			  }
+			  enum pop2 {
+				value 2;
+				description "pop double vlan tags";
+			  }
+			  enum push1 {
+				value 3;
+				description "push a new vlan tag";
+			  }
+			  enum translate1to1 {
+				value 4;
+				description "translate outer vlan tag into a new one";
+			  }
+			  enum translate1to2 {
+				value 5;
+				description "translate outer vlan tag into two new ones";
+			  }
+			  enum translate2to1 {
+				value 6;
+				description "translate outer two vlan tags into a new one";
+			  }
+			  enum translate2to2 {
+				value 7;
+				description "translate outer two vlan tags into two new ones";
+			  }
+			  enum swap {
+				value 8;
+				description "swap outer two vlan tags";
+			  }
+			  enum push2 {
+				value 9;
+				description "push two vlan tags";
+			  }
+			  enum vma {
+				value 10;
+				description "push-or-map";
+			  }
+		}
+		description "Flow action type enum";
+	}
+    
+    container switched-vlan-cfg {
+        container switched-vlans{
+            list switched-vlan {
+                description "switch vlan configurations";
+                key vlan-id;
+                leaf vlan-id {
+                    type uint16 {
+                        range "1..4094";
+                    }
+                    description "vlan id";
+                }
+                leaf vlan-name {
+                    type string {
+                        length "1..31";
+                        pattern '[^\s]+';
+                    }
+                    description "vlan name.";
+                }
+            }
+        }
+    }
+  
+  augment "/if:if/if:interfaces/if:interface" 
+  {
+  
+	container if-vlan-cfg {
+		description "if vlan configurations";
+		when "../if:type = 'ETH-SUBIF' or ../if:type = 'DCN'";	
+		presence "";
+		
+		leaf termination_type{
+			type vlan-type-enum;
+			description "The termination_type of this interface";
+			mandatory true;
+		}
+		
+		container vlan-sub-cfg {
+			description "vlan-sub-interface configurations";
+			when "../termination_type='dot1q'";
+			
+			leaf svlan_min {
+				type uint16{
+					range "1..4094";
+				}
+				description "provider defined vlan";
+			}
+
+		}
+
+		container dot1q-termination-vlan-cfg {
+
+			description "dot1q termination vlan configurations";
+			when "../termination_type='dot1q-termination'";
+				
+			list vlan-tag-list{
+				key "svlan_min svlan_max";
+				description "The termination vlan range of this interface";
+
+				leaf svlan_min {
+					type uint16{
+						range "1..4094";
+					}
+					description "minimum if provider defined vlan";
+				}
+				leaf svlan_max {
+					type uint16{
+						range "1..4094";
+					}
+					description "maximum if provider defined vlan";
+				}
+
+			}
+
+		}
+
+		container qinq-termination-vlan-cfg {
+			description "qinq termination vlan configurations";
+			when "../termination_type='qinq-termination'";
+				
+			list vlan-tag-list{
+				key "svlan_min svlan_max cvlan_min cvlan_max";
+				description "The termination vlan range of this interface";
+
+				leaf svlan_min {
+					type uint16{
+						range "1..4094";
+					}
+					description "minimum if provider defined vlan";
+				}
+				leaf svlan_max {
+					type uint16{
+						range "1..4094";
+					}
+					description "maximum if provider defined vlan";
+				}
+				leaf cvlan_min {
+					type uint16{
+						range "1..4094";
+					}
+					description "minimum if customer defined vlan";
+				}
+				leaf cvlan_max {
+					type uint16{
+						range "1..4094";
+					}
+					description "maximum if customer defined vlan";
+				}
+
+			}
+			
+			leaf sym_type{
+				type sym-type-enum;
+				default "asym";
+				description "The sym-type of this interface";
+			}
+		}
+		
+		container qinq-stacking-vlan-cfg {
+			description "qinq stacking vlan configurations";
+			when "../termination_type='qinq-stacking'";
+				
+			list vlan-tag-list{
+				key "cvlan_min cvlan_max";
+				description "The qinq stacking vlan range of this interface";
+
+				leaf cvlan_min {
+					type uint16{
+						range "1..4094";
+					}
+					description "minimum if customer defined vlan";
+				}
+				leaf cvlan_max {
+					type uint16{
+						range "1..4094";
+					}
+					description "maximum if customer defined vlan";
+				}
+
+			}
+			
+			leaf pe_vid {
+				type uint16{
+					range "1..4094";
+				}
+				description "add outer vlan tag";
+			}
+		}
+	}
+    
+    container switched-vlan-cfg {
+        description "if l2 vlan configurations";
+
+        container switched-port-vlan {
+            when "(../../if:type = 'ETH-PHY' or ../../if:type = 'ETH-LAG')
+                and (../../l2l3if:transport-layer = 'layer-2-switch')";
+            leaf pvid {
+                type uint16 {
+                    range "1..4094";
+                }
+                description "L2 Port Default VLAN ID.";
+            }
+            leaf interface-mode {
+                type vlan-mode-type;
+                default "hybrid";
+                description "interface mode";
+            }
+            list switched-port-vlan-list {
+                when "(../interface-mode = 'trunk') or (../interface-mode = 'hybrid')";
+                key "tag-mode";
+                leaf vlan-tbl {
+                    type vlan-range;
+                    description "VLAN map table";
+                }
+                leaf tag-mode {
+                    type tag-mode;
+                    description "Whether port that forwards packets with VLAN tags or not.";
+                }
+		description "The vlan-list for untagged mode is optional.";
+            }
+        }
+        
+        container vlan-stacking-cfgs {
+            list vlan-stacking-cfg {
+                when "(../../../if:type = 'ETH-PHY' or ../../../if:type = 'ETH-LAG')
+                    and (../../switched-port-vlan/interface-mode = 'trunk' or ../../switched-port-vlan/interface-mode = 'hybrid')
+                    and (../../../l2l3if:transport-layer = 'layer-2-switch')";
+                key "service-name";
+                leaf matched-vlan-min {
+                    type uint16 {
+                        range "1..4094";
+                    }
+                    description "The minimum value of vlan tag that user specify.";
+                }
+                leaf matched-vlan-max {
+                    type uint16 {
+                        range "1..4094";
+                    }
+                    description "The maximum value of vlan tag that user specify.";
+                }
+                leaf stacking-vid {
+                    type uint16 {
+                        range "1..4094";
+                    }
+                    description "VLAN ID in the outer VLAN tag after VLAN stacking is performed.";
+                }
+                leaf service-name {
+                    type string {
+                        length "1..31";
+                        pattern '[^\s]+';
+                    }
+                    description "Name of this configuration.";
+                }
+            }
+        }
+        
+        container switched-tpids {
+            when "../../if:type = 'ETH-PHY' or ../../if:type = 'ETH-LAG'";
+            leaf outer-tpid {
+                type uint16 {
+                    range "1536..65535";
+                }
+                description "Outer Tag Protocol Identifier";
+            }
+        }
+    }
+	
+	container evc-vlan-cfg {
+		description "interface evc vlan configurations";
+		when "../l2l3if:transport-layer = 'layer-2-switch'";
+		
+		container evc-encap-cfg {
+			description "evc vlan-sub-interface encap configurations";
+			when "../../if:type = 'ETH-SUBIF'";
+			presence "";
+			
+			leaf encap-type {
+				type evc-vlan-type-enum;
+				description "evc vlan encap type of this interface";
+				mandatory true;
+			}
+			
+			container encap-dot1q-lists {
+				description "The evc mode encap dot1q vlan range of this interface";
+				when "../encap-type='evc-dot1q'";
+				
+				list encap-dot1q-list{
+					key "outer-range-low outer-range-high";
+					description "The evc mode encap dot1q vlan range of this interface";
+									
+					leaf outer-range-low {
+						type uint16{
+							range "1..4094";
+						}
+						description "minimum if provider defined vlan";
+					}
+					leaf outer-range-high {
+						type uint16{
+							range "1..4094";
+						}
+						description "maximum if provider defined vlan";
+					}
+				}
+			}
+			
+			container encap-qinq-lists {
+				description "The evc mode encap qinq vlan range of this interface";
+				when "../encap-type='evc-qinq'";
+				
+				list encap-qinq-list{
+					key "outer-range-low outer-range-high inner-range-low inner-range-high";
+					description "The evc mode encap qinq vlan range of this interface";
+										
+					leaf outer-range-low {
+						type uint16{
+							range "1..4094";
+						}
+						description "minimum if provider defined vlan";
+					}
+					leaf outer-range-high {
+						type uint16{
+							range "1..4094";
+						}
+						description "maximum if provider defined vlan";
+					}
+					leaf inner-range-low {
+						type uint16{
+							range "1..4094";
+						}
+						description "minimum if customer defined vlan";
+					}
+				
+					leaf inner-range-high {
+						type uint16{
+							range "1..4094";
+						}
+						description "maximum if customer defined vlan";
+					}
+				}
+			}
+		}
+		
+		container evc-rewrite-cfg {
+			description "rewrite configurations";
+			presence "";
+			
+			leaf rewrite-type {
+				type rewrite-enum;
+				description "The flow action of this interface";
+				mandatory true;
+			}
+			
+			container evc-rewrite-sub-cfg {
+				description "evc sub interface rewrite configurations";
+				when "../../../if:type = 'ETH-SUBIF' and ../rewrite-type != 'vma'";
+				
+				leaf outer-tag-value {
+					type uint16{
+						range "1..4094";
+					}
+					when "../../rewrite-type='push1' or ../../rewrite-type='push2' or ../../rewrite-type='translate1to1' or ../../rewrite-type='translate1to2' or ../../rewrite-type='translate2to1' or ../../rewrite-type='translate2to2'";
+					description "Modified outer VLAN ID.";
+				}
+				
+				leaf outer-tag-8021p {
+					type uint8{
+						range "0..7";
+					}
+					description "Modified outer 802.1p.";
+					when "../../rewrite-type='push1' or ../../rewrite-type='push2' or ../../rewrite-type='translate1to1' or ../../rewrite-type='translate1to2' or ../../rewrite-type='translate2to1' or ../../rewrite-type='translate2to2'";
+				}
+				
+				leaf inner-tag-value {
+					type uint16{
+						range "1..4094";
+					}
+					description "Modified outer VLAN ID.";
+					when "../../rewrite-type='push2' or ../../rewrite-type='translate1to2' or ../../rewrite-type='translate2to2'";
+				}
+				
+				leaf inner-tag-8021p {
+					type uint8{
+						range "0..7";
+					}
+					description "Modified inner 802.1p.";
+					when "../../rewrite-type='push2' or ../../rewrite-type='translate1to2' or ../../rewrite-type='translate2to2'";
+				}
+			}
+		}
+	}
+  }
+}

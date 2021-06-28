@@ -1,0 +1,34 @@
+module chinaunicom-ethif-sub
+{
+    namespace "http://chinaunicom.com/yang/interface/ethinterface/chinaunicom-ethif-sub";
+    prefix "ethsubif";
+    import chinaunicom-interface-common 
+    {
+	revision-date 2020-12-31;
+        prefix if;
+    }
+
+    description
+        "The module defined to config the ethernet sub interface configures";
+	
+		   
+  revision 2020-07-03
+  {
+    description
+      "Absolute path modified to relative path. Modify ip-perfix type";
+  }
+ 
+    revision 2018-04-11
+    {
+        description
+            "version 1.0";
+    }
+	
+	
+	augment "/if:if/if:interfaces/if:interface"
+	{
+		when "type = 'ETH-SUBIF'";
+		container ethsub-interface{
+	  }
+  }
+}

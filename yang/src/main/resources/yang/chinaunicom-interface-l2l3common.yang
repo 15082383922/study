@@ -1,0 +1,379 @@
+module chinaunicom-interface-l2l3common {
+
+  namespace "http://chinaunicom.com/yang/interface/chinaunicom-interface-l2l3common";
+  prefix "l2l3if";
+  import ietf-inet-types 
+  {
+	prefix inet;
+  }
+  import chinaunicom-interface-common 
+  {
+	prefix if;
+  }
+  
+  
+  import chinaunicom-datatype-common { prefix "co-type"; }
+  
+  description
+   "Common l2l3 Interface config in chinaunicomv5.";
+		   
+  revision 2020-07-03
+  {
+    description
+      "Absolute path modified to relative path. Modify ip-perfix type";
+  }
+    
+  revision 2020-04-24
+  {
+    description
+     "support l2l3common configuration for DCN";
+  }
+
+  revision 2019-11-06
+  {
+    description
+     "support ipv4 mss config and ipv6 mss config";
+  }
+
+  revision 2018-04-09 
+  {
+    description
+     "interface l2l3common config";
+    reference
+     "l2l3Common Interface YANG Data Types";
+  }
+
+  typedef if-ref {
+    type union 
+	{
+      type if:lb-name;
+	  type if:mgmt-name;
+	}
+  }
+  
+  /*typedef l2-transport {
+    type enumeration {
+	enum switch {
+		value 1;
+		description "switch port";
+	}
+	enum route {
+		value 2;
+		description "route port";
+	}
+	enum cbr {
+		value 3;
+		description "Constant Bit Rate";
+	}
+    }
+  }*/
+  
+  typedef transport-layer-type {
+    type enumeration {
+      enum layer-1-cbr {
+        value 3;
+        description "Constant Bit Rate";
+      }
+      enum layer-2-switch {
+        value 1;
+        description "switch port";
+      }
+      enum layer-3-route {
+        value 2;
+        description "route port";
+      }
+    }
+    description
+      "The transport layer at which the interface is operating at";
+  }
+  
+  typedef linklocal-type {
+    type enumeration {
+	enum auto {
+		value 1;
+		description "auto linklocal address";
+	}
+	enum manual {
+		value 2;
+		description "manual linklocal address";
+	}
+    }
+  }
+  
+  typedef ipaddress-flag {
+    type enumeration {
+	enum mast {
+		value 0;
+		description "main address";
+	}
+	enum sub {
+		value 1;
+		description "secondry address";
+	}
+    }
+  }
+  
+  typedef enable-flag {
+    type enumeration {
+		enum disable {
+			value 1;
+			description "disable";
+		}
+		enum enable {
+			value 2;
+			description "enable";
+		}
+    }
+  }
+ 
+  
+	grouping ipv4-address 
+	{
+	  list ipv4-address-list{
+	    key "ipv4-address";
+		leaf ipv4-address 
+		{
+			type co-type:ipv4-address-with-mask;
+			description
+				"The ipv4-prefix";
+		}
+		
+		leaf secondry-use 
+		{
+			type l2l3if:ipaddress-flag;
+			default "mast";
+			description
+				"The ipv4-address main or secondry flag";
+		}
+	  }
+	}
+	
+	grouping transport-layer-grouping 
+	{
+		leaf transport-layer 
+		{
+			type l2l3if:transport-layer-type;
+			default "layer-3-route";
+			description 
+				"The transport layer at which the interface is operating at";
+		}		
+	}
+	
+	grouping ip-level-info 
+	{
+		leaf ipv4-mtu 
+		{
+			type uint32{
+			  range "46..16000";
+			}
+			default "1500";
+			description 
+				"Set the max transmission unit size in octets
+			for the interface.  If this is not set, the mtu is
+			set to the operational default -- e.g., 1500 bytes on an
+			Ethernet interface.";
+		}		
+	}
+
+	grouping ip-unnumbered 
+	{
+		leaf unnumbered-ref-ifname 
+		{
+			type l2l3if:if-ref;
+			description 
+				"the interface name be borrowed ip address.";
+		}		
+	}
+	
+	grouping bandwidth 
+	{
+		leaf bandwidth 
+		{
+			type uint32{
+			  range "1..1000000";
+			}
+			description 
+				"the interface bandwidth.";
+		}		
+	}
+	
+	grouping ipv4-mss 
+	{
+		leaf ipv4-mss 
+		{
+			type uint32{
+			  range "1..9600";
+			}
+			default "1460";
+			description 
+				"Set the max segment size .";
+		}		
+	}
+
+	grouping ipv6-mss
+	{
+		leaf ipv6-mss
+		{
+			type uint32{
+				range "1..9600";
+			}
+			default "1460";
+			description 
+				"Set the max segment size for ipv6 version.";
+		}
+	}
+
+	augment "/if:if/if:interfaces/if:interface"
+	{
+
+      uses transport-layer-grouping{
+      	when "type = 'ETH-PHY' or
+			     type = 'ETH-LAG' or
+			     type = 'ETH-SUBIF' or
+			     type = 'V-ETH' or
+			     type = 'FLEXE-TUNNEL'";
+      }
+      
+      uses bandwidth{
+      	when "type = 'ETH-PHY' or
+			     type = 'ETH-LAG' or
+			     type = 'ETH-SUBIF' or
+			     type = 'V-ETH' or
+			     type = 'ETH-VIR' or
+			     type = 'TUNNEL' or
+			     type = 'FLEXE-TUNNEL'";
+			     
+      }
+
+   container ip{
+     
+			uses ip-level-info{
+      	when "/if:if/if:interfaces/if:interface/if:type = 'ETH-PHY' or
+			     /if:if/if:interfaces/if:interface/if:type = 'ETH-LAG' or
+			     /if:if/if:interfaces/if:interface/if:type = 'ETH-SUBIF' or
+			     /if:if/if:interfaces/if:interface/if:type = 'V-ETH' or
+			     /if:if/if:interfaces/if:interface/if:type = 'ETH-VIR' or
+			     /if:if/if:interfaces/if:interface/if:type = 'TUNNEL' or
+			     /if:if/if:interfaces/if:interface/if:type = 'FLEXE-TUNNEL' or
+			     /if:if/if:interfaces/if:interface/if:type = 'BDIF' or
+				 /if:if/if:interfaces/if:interface/if:type = 'WLAN' or
+				 /if:if/if:interfaces/if:interface/if:type = 'LTE' or
+				 /if:if/if:interfaces/if:interface/if:type = 'VLANIF' or
+				 /if:if/if:interfaces/if:interface/if:type = 'DCN'";
+			     
+      } 
+			uses ipv4-address{
+      	when "/if:if/if:interfaces/if:interface/if:type = 'ETH-PHY' or
+			     /if:if/if:interfaces/if:interface/if:type = 'ETH-LAG' or
+			     /if:if/if:interfaces/if:interface/if:type = 'ETH-SUBIF' or
+			     /if:if/if:interfaces/if:interface/if:type = 'V-ETH' or
+			     /if:if/if:interfaces/if:interface/if:type = 'ETH-VIR' or
+			     /if:if/if:interfaces/if:interface/if:type = 'TUNNEL' or
+			     /if:if/if:interfaces/if:interface/if:type = 'LOOPBACK' or
+			     /if:if/if:interfaces/if:interface/if:type = 'MGMT' or
+			     /if:if/if:interfaces/if:interface/if:type = 'FLEXE-TUNNEL' or
+			     /if:if/if:interfaces/if:interface/if:type = 'BDIF' or
+				 /if:if/if:interfaces/if:interface/if:type = 'WLAN' or
+				 /if:if/if:interfaces/if:interface/if:type = 'LTE' or
+				 /if:if/if:interfaces/if:interface/if:type = 'VLANIF' or
+				 /if:if/if:interfaces/if:interface/if:type = 'DCN'";
+				 
+			     
+      }
+			
+			uses ip-unnumbered{
+      	when "/if:if/if:interfaces/if:interface/if:type = 'ETH-PHY' or
+			     /if:if/if:interfaces/if:interface/if:type = 'ETH-SUBIF' or
+			     /if:if/if:interfaces/if:interface/if:type = 'V-ETH' or
+			     /if:if/if:interfaces/if:interface/if:type = 'TUNNEL' or
+			     /if:if/if:interfaces/if:interface/if:type = 'DCN'";
+			     
+      }
+
+			uses ipv4-mss{
+			when "/if:if/if:interfaces/if:interface/if:type = 'ETH-PHY' or
+					/if:if/if:interfaces/if:interface/if:type = 'ETH-LAG' or
+					/if:if/if:interfaces/if:interface/if:type = 'ETH-SUBIF' or
+					/if:if/if:interfaces/if:interface/if:type = 'ETH-VIR' or
+					/if:if/if:interfaces/if:interface/if:type = 'BDIF' or
+					/if:if/if:interfaces/if:interface/if:type = 'VLANIF'";
+			}
+		}
+		
+		container ipv6{
+      	when "/if:if/if:interfaces/if:interface/if:type = 'ETH-PHY' or
+			     /if:if/if:interfaces/if:interface/if:type = 'ETH-LAG' or
+			     /if:if/if:interfaces/if:interface/if:type = 'ETH-SUBIF' or
+			     /if:if/if:interfaces/if:interface/if:type = 'V-ETH' or
+			     /if:if/if:interfaces/if:interface/if:type = 'ETH-VIR' or
+			     /if:if/if:interfaces/if:interface/if:type = 'TUNNEL' or
+			     /if:if/if:interfaces/if:interface/if:type = 'LOOPBACK' or
+			     /if:if/if:interfaces/if:interface/if:type = 'MGMT' or
+			     /if:if/if:interfaces/if:interface/if:type = 'FLEXE-TUNNEL' or
+			     /if:if/if:interfaces/if:interface/if:type = 'BDIF' or
+				 /if:if/if:interfaces/if:interface/if:type = 'WLAN' or
+				 /if:if/if:interfaces/if:interface/if:type = 'LTE' or
+				 /if:if/if:interfaces/if:interface/if:type = 'VLANIF' or
+				 /if:if/if:interfaces/if:interface/if:type = 'DCN'";
+
+	
+        
+		leaf ipv6-enable
+		{
+			type l2l3if:enable-flag;
+			default "disable";
+			description 
+				"enable the interface ipv6 function";
+		}
+		leaf ipv6-mtu 
+		{
+			type uint32{
+			  range "1280..9600";
+			}
+			default "1500";
+			description 
+				"Set the max transmission unit size in octets
+			for the interface.  If this is not set, the ipv6 mtu is
+			set to the operational default -- e.g., 1500 bytes on an
+			Ethernet interface.";
+		}		
+
+		uses ipv6-mss
+		{
+			when "/if:if/if:interfaces/if:interface/if:type = 'ETH-PHY' or
+			/if:if/if:interfaces/if:interface/if:type = 'ETH-LAG' or
+			/if:if/if:interfaces/if:interface/if:type = 'ETH-SUBIF' or
+			/if:if/if:interfaces/if:interface/if:type = 'ETH-VIR' or
+			/if:if/if:interfaces/if:interface/if:type = 'BDIF' or
+			/if:if/if:interfaces/if:interface/if:type = 'VLANIF'";
+		}
+		
+        container linklocal-config
+		{
+			leaf config-type 
+			{
+				type l2l3if:linklocal-type;
+				description
+					"auto linklocal or manual linklocal";
+			}
+			
+			leaf linklocal-address 
+			{
+				type inet:ipv6-address;
+				description
+					"The linklocal address";
+			}
+		}
+		list ipv6-address-list 
+		{
+		    key "ipv6-address";
+			leaf ipv6-address 
+			{
+				type co-type:ipv6-address-with-mask;
+				description
+					"The ipv6-prefix";
+			}
+		}	
+		}
+  }
+}

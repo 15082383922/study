@@ -1,0 +1,373 @@
+module chinaunicom-qos-type {
+/*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/qos/chinaunicom-qos-type";
+
+  prefix "qos-type";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+   
+  import chinaunicom-interface-common  {	revision-date 2020-12-31; prefix "if"; }
+   
+  import chinaunicom-acl  {	revision-date 2020-12-29; prefix "acl"; }
+  
+  import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type"; }
+  
+  revision "2019-11-12" {
+    description
+      "change redir-type.";
+  }
+  
+  revision "2019-09-26" {
+    description
+      "support  lte/wlan-name.";
+  }
+  
+  revision "2019-09-06" {
+    description
+      "add  bdif-name.";
+  }
+  
+  /*submodule chinaunicom-qos-type {
+  /*belongs-to chinaunicom-qos {
+    prefix "qos";
+  }*/
+  /* typedefs */
+  typedef if-ref {
+     type union {
+        type if:ethphy-name;
+        type if:ethvir-name;
+        type if:ethlag-name;
+        type if:veth-name;
+        type if:ethsub-name;
+        type if:flexetunnel-name;
+        type if:bdif-name;
+        type if:lte-name;
+        type if:wlan-name;
+     }
+  }
+  typedef vrf-ref{
+    type union {
+        type co-type:vpn-name;
+        type string {
+            pattern '_public_';
+        }
+    }
+  } 
+  
+  typedef acl-name {
+    type union {
+        type acl:acl-name;
+    }
+  }
+  
+  typedef time-range-name {
+    type union {
+        type acl:time-range;
+    }
+  }
+  
+  typedef class-name {
+    type string {
+        length "1..32";
+    }
+  }
+  
+  typedef policy-name {
+    type string {
+        length "1..32";
+    }
+  }
+  
+  
+  typedef user-group-name {
+    type string {
+        length "1..32";
+    }
+  }
+  
+  typedef lsp-type {
+    type enumeration {
+        enum primary {
+            value 0;
+        }
+        enum backup {
+            value 1;
+        }
+    }
+  }
+  
+  
+  typedef wred-name {
+    type string {
+        length "1..32";
+    }
+  }
+  
+  typedef diffserv-name {
+    type string {
+        length "1..32";
+    }
+  }
+  
+  typedef phb-value {
+    type enumeration {
+        enum be {
+            value 0;
+        }
+        enum af1 {
+            value 1;
+        }
+        enum af2 {
+            value 2;
+        }
+        enum af3 {
+            value 3;
+        }
+        enum af4 {
+            value 4;
+        }
+        enum ef {
+            value 5;
+        }
+        enum cs6 {
+            value 6;
+        }
+        enum cs7 {
+            value 7;
+        }
+    }
+  }
+  
+  typedef color {
+    type enumeration {
+        enum green {
+            value 0;
+        }
+        enum yellow {
+            value 1;
+        }
+        enum red {
+            value 2;
+        }
+    }
+  }
+  
+  typedef priority-type {
+    type enumeration {
+        enum dscp {
+            value 1;
+        }
+        enum 8021p {
+            value 2;
+        }
+        enum exp {
+            value 3;
+        }
+        enum prece {
+            value 4;
+        }
+    }
+  }
+  
+  typedef tpl-action {
+    type enumeration {
+         enum pass {
+            value 0;
+        }   
+        enum drop {
+            value 1;
+        }
+    }
+  }
+  
+
+  
+  typedef direction-type {
+    type enumeration {
+        enum in {
+            value 0;
+        }
+        enum out {
+            value 1;
+        }
+    }
+  }
+  
+
+  
+  typedef car-mode {
+    type enumeration {
+        enum rfc-mef {
+            value 1;
+        }
+        enum rfc2697-trtcm {
+            value 2;
+        }
+        enum  rfc2698-srtcm {
+            value 3;
+        }
+    }
+  }
+  
+  typedef car-action {
+    type enumeration {
+        enum pass {
+            value 1;
+        }
+        enum service-class {
+            value 2;
+        }
+        enum  drop {
+            value 3;
+        }
+    }
+  }
+  
+  typedef color-aware {
+    type enumeration {
+        
+        enum blind {
+            value 1;
+        }
+		enum aware {
+            value 2;
+        }
+    }
+  }
+  
+
+  
+  typedef scheduling-mode {
+    type enumeration {
+        enum sq {
+            value 1;
+        }
+        enum wfq {
+            value 2;
+        }
+    }
+  }
+  
+  typedef congestion-mode {
+    type enumeration {
+        enum tail {
+            value 1;
+        }
+        enum wred {
+            value 2;
+        }
+    }
+  }
+  
+  typedef trust-type {
+    type enumeration {
+        enum dscp {
+            value 1;
+        }
+        enum 8021p {
+            value 2;
+        }
+		enum exp {
+            value 3;
+        }
+		enum inner-8021p {
+            value 4;
+        }
+    }
+  }
+  
+
+  typedef in-map-type {
+    type enumeration {
+        enum map {
+            value 1;
+        }
+        enum remark {
+            value 2;
+        }
+    }
+  }
+  
+  typedef out-map-type {
+    type enumeration {
+        enum map {
+            value 1;
+        }
+        enum remark-dscp {
+            value 2;
+        }
+        enum remark-8021p {
+            value 3;
+        }
+		enum remark-dscp-and-8021p {
+            value 4;
+        }
+        enum remark-exp {
+            value 5;
+        }
+    }
+  }
+  
+  typedef sup-type {
+    type enumeration {
+        enum mc {
+            value 1;
+            description "muliticast";
+        }
+        enum bc {
+            value 2;
+            description "broadcast";
+        }
+        enum uu {
+            value 3;
+            description "unknown unicast";
+        }
+    }
+  }
+  
+  typedef mirror-to-type {
+    type enumeration {
+        enum cpu {
+            value 1;
+        }
+        enum interface {
+            value 2;
+        }
+    }
+  }
+  
+  typedef redir-type {
+    type enumeration {
+        enum if {
+            value 2;
+        }
+        enum ipv4 {
+            value 3;
+        }
+        enum ipv6 {
+            value 4;
+        }
+    }
+  }
+  
+  typedef fragment-type {
+    type enumeration {
+        enum non-fragment {
+            value 1;
+        }
+        enum fragment-spe-first {
+            value 2;
+        }
+        enum fragment-subseq {
+            value 3;
+        }
+        enum last_fragment {
+            value 4;
+        }
+        enum non-subseq {
+            value 5;
+        }
+    }
+  }
+}

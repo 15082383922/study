@@ -1,0 +1,71 @@
+module chinaunicom-dcn 
+{
+	namespace "http://chinaunicom.com/yang/systemmanage/chinaunicom-dcn";
+	prefix "dcn";
+	
+	/*** LINKAGE (IMPORTS / INCLUDES) ***/
+	import chinaunicom-interface-common {	revision-date 2020-12-31; prefix "if"; }
+	import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type"; }
+	/*** META INFORMATION ***/
+	organization "UTStarcom Telecom Co., Ltd.";
+	
+	contact
+    "UTStarcom Telecom Co., IncLtd.
+    Postcode: 310053
+    Address: 368 Liuhe Road, Binjiang District,Hangzhou, Zhejiang
+    Tel: +XXXXXXXXXXXX
+    
+    E-mail: sheng.yu@utstar.com";
+
+	description
+    "This module contains a collection of YANG definitions
+    for UTStarcom device info.
+    
+    This module contains definitions
+    for the following management objects:
+         ***DCN
+    E-mail: sheng.yu@utstar.com
+    All rights reserved.";
+    
+  revision "2020-10-15" 
+	{
+		description
+			"add dcn-global/ne-id";
+	}
+
+  container dcn {
+    description "dcn configuration";
+    container dcn-global {
+	    description "dcn global configuration";
+      
+      leaf ne-id {
+	    	type string {
+					length "1..255";
+	    	}
+        description
+          "network element id";
+      }
+    }
+  }
+  
+	/*PDCN-ENABLE YANG Model */
+	augment "/if:if/if:interfaces/if:interface"
+	{
+		when "/if:if/if:interfaces/if:interface/if:type = 'ETH-PHY' or" +
+		"/if:if/if:interfaces/if:interface/if:type = 'FLEXE-TUNNEL'or" +
+		"/if:if/if:interfaces/if:interface/if:type = 'VIRTUAL-OVERHEAD'or" +
+		"/if:if/if:interfaces/if:interface/if:type = 'OTN-PHY'or" +
+		"/if:if/if:interfaces/if:interface/if:type = 'OSC-PHY'";
+				
+		container pdcn-cfg {
+			description "pdcn port config.";
+      
+			leaf enable 
+			{
+				type co-type:is-enable; 
+				default enable;
+				description "pdcn interface enable";
+			}		
+		}			 
+  }
+}

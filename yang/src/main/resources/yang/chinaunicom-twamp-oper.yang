@@ -1,0 +1,327 @@
+module chinaunicom-twamp-oper{
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/systemdiagnose/chinaunicom-twamp-oper";
+
+  prefix "twamp-oper";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  
+  import chinaunicom-datatype-common { prefix "co-type"; }
+  
+  import chinaunicom-extension { prefix "ext"; }
+
+  //import ietf-inet-types { prefix "inet"; }
+
+  //import chinaunicom-interface-common { prefix "if"; } 
+  
+  //import chinaunicom-l3vpn  { prefix "l3vpn"; }
+  
+
+  /*** META INFORMATION ***/
+
+  organization "UTStarcom Telecom Co., Ltd.";
+
+  contact
+    "UTStarcom Telecom Co., Ltd.
+     
+     Postcode: 310053 
+     Address: 368 Liuhe Road, Binjiang District,Hangzhou, Zhejiang
+
+     E-mail: sheng.yu@utstar.com";
+
+  description 
+    "This module contains a collection of YANG definitions
+     for UTStarcom IPRAN twamp package configuration.
+
+     This module contains definitions
+     for the following management objects:
+       twamp: twamp configuration for all instances
+
+     Copyright (c) 2013-2020 by UTStarcom Telecom Co., Ltd.
+     All rights reserved.";
+
+  revision "2020-12-01" {
+    description
+      "1. Merge the changes from fiberhome revision of July 2020.
+       2. Remove unused import modules to keep the compiler silence.";
+  }
+
+  /* typedefs */
+  typedef reflect-state{
+    type enumeration{
+	  enum reflect {
+        value 0;
+        description "reflect";
+      }
+      enum not-reflect {
+        value 1;
+        description "not-reflect";
+      }
+		}
+		description "reflect state";
+  }
+  
+  typedef test-type{
+    type enumeration{
+      enum total {
+        value 0;
+        description "total test result";
+      }
+	  	enum last {
+        value 1;
+        description "last period test result";
+      }
+		}
+		description "test type";
+  }
+  
+  typedef test-state{
+    type enumeration{
+	  enum not-started {
+        value 0;
+        description "not-started";
+      }
+      enum testing {
+        value 1;
+        description "testing";
+      }
+	  enum completed {
+        value 2;
+        description "completed";
+      }
+	  enum overtime {
+        value 3;
+        description "overtime";
+      }
+      enum non-existent {
+        value 4;
+        description "non-existent";
+      }
+		}
+		description "test state";
+  }
+
+  typedef test-time{
+    type string {
+    	length 19;
+      pattern '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}';
+    }
+    description "test time YYYY-MM-DD HH:MM:SS";
+  }
+
+  grouping test-result {
+    description "test result group";
+  	
+	leaf send-packet {
+		type uint64;
+		description "send packet number";
+	}
+	leaf receive-packet {
+		type uint64;
+		description "receive packet number";
+	}
+	leaf loss-rate {
+		type co-type:float6;
+		description "packet loss rate";
+	}
+	leaf avg-delay {
+		type uint32;
+		units "microsecond";
+		description "average delay";
+	}
+	leaf min-delay {
+		type uint32;
+		units "microsecond";
+		description "minimum delay";
+	}
+	leaf max-delay {
+		type uint32;
+		units "microsecond";
+		description "maximum delay";
+	}
+	leaf avg-delay-jitter {
+		type uint32;
+		units "microsecond";
+		description "average delay jitter";
+	}
+	leaf min-delay-jitter {
+		type uint32;
+		units "microsecond";
+		description "minimum delay jitter";
+	}
+	leaf max-delay-jitter {
+		type uint32;
+		units "microsecond";
+		description "maximum delay jitter";
+	}
+  }
+
+  /* TWAMP OPER YANG Model */
+  container twamp-oper {
+    config false;
+    description "twamp oper";
+    
+		container twamp-sender-states {
+			description "twamp sender states container"; 
+
+			list twamp-sender-state{
+				key "sender-id test-type";
+				leaf sender-id {
+					type uint32 {
+						range "1..4294967295";
+					}
+					description "sender-id";
+				}
+				leaf test-len {
+					type uint16;
+					description "test length";
+				}
+				leaf test-type {
+					type twamp-oper:test-type;
+					description "test type";
+				}
+				leaf start-time {
+					type twamp-oper:test-time;
+					description "test start time";
+				}
+				leaf stop-time {
+					type twamp-oper:test-time;
+					description "test stop time";
+				}
+				leaf test-state {
+					type twamp-oper:test-state;
+					description "test state";
+				}
+				leaf send-packet {
+					type uint64;
+					description "send packet number";
+				}
+				leaf receive-packet {
+					type uint64;
+					description "receive packet number";
+				}
+				leaf loss-rate {
+					type co-type:float6;
+					description "packet loss rate";
+				}
+				leaf avg-delay {
+					type uint32;
+					units "microsecond";
+					description "average delay";
+				}
+				leaf min-delay {
+					type uint32;
+					units "microsecond";
+					description "minimum delay";
+				}
+				leaf max-delay {
+					type uint32;
+					units "microsecond";
+					description "maximum delay";
+				}
+				leaf avg-delay-jitter {
+					type uint32;
+					units "microsecond";
+					description "average delay jitter";
+				}
+				leaf min-delay-jitter {
+					type uint32;
+					units "microsecond";
+					description "minimum delay jitter";
+				}
+				leaf max-delay-jitter {
+					type uint32;
+					units "microsecond";
+					description "maximum delay jitter";
+				}
+			}
+		}
+
+		container twamp-reflector-states {
+			description "twamp reflector states container"; 
+
+			list twamp-reflector-state{
+				key reflector-id;
+				leaf reflector-id {
+					type uint32 {
+						range "1..4294967295";
+					}
+					description "sender-id";
+				}
+				leaf reflect-type {
+					type twamp-oper:reflect-state;
+					description "reflect state";
+				}
+				leaf send-packet {
+					type uint32;
+					description "send packet number";
+				}
+				leaf receive-packet {
+					type uint32;
+					description "receive packet number";
+				}
+			}
+		}
+
+		container twamp-sender-continual-states {
+			description "twamp sender continual states container"; 
+			list twamp-sender-continual-state{
+				key "sender-id";
+				leaf sender-id {
+					type uint32 {
+						range "1..4294967295";
+					}
+					description "sender-id";
+				}
+				container twamp-sender-continual-accumulative-state {
+					description "twamp sender continual accumulative state container"; 
+					uses test-result {
+					}
+				}
+				list twamp-sender-continual-sample-state{
+					key "index";
+					leaf index {
+						type uint32 {
+							range "1..4294967295";
+						}
+						description "statistics sequence index";
+					}
+					uses test-result {
+					}
+				}
+			}
+		}
+
+		container twamp-sender-telemetry-states {
+			description "twamp sender telemetry states container";
+			ext:telemetry-available;
+			list twamp-sender-telemetry-state{
+				key "sender-id";
+				leaf sender-id {
+					type uint32 {
+						range "1..4294967295";
+					}
+					description "sender-id";
+				}
+				uses test-result;
+			}
+		}
+  }
+  
+  /* TWAMP CMD RPC */
+  rpc set-twamp-sender-switch {
+    input {
+      leaf sender-id{
+				type uint32;
+				description "sender id";
+	  	}
+	    leaf test-onoff{
+				type co-type:is-enable;
+				description "twamp sender test switch.  Exclusive in on-demand test scenarios, can not use in continual test scenarios.";
+		  }
+    }
+  }
+
+}

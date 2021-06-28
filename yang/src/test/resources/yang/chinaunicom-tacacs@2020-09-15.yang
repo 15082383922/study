@@ -1,0 +1,199 @@
+module chinaunicom-tacacs{
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/securitymanage/chinaunicom-tacacs";
+
+  prefix "tcs";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+  import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type"; }
+
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+  
+
+  /*** META INFORMATION ***/
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+     
+		Postcode: 430073 
+		Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+		Tel: +XXXXXXXXXXXX
+
+		E-mail: yang- author@fiberhome.com";
+
+  description 
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom tacacs package configuration.
+
+     This module contains definitions
+     for the following management objects:
+       tacacs: tacacs configuration for all instances
+
+     Copyright (c) 2013-2018 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision "2020-09-15" {
+    description
+      "chinaunicom V5 1.2 revision.";
+  }
+
+  revision "2020-05-23" {
+    description
+      "chinaunicom V5 1.1 revision.";
+  }
+
+	typedef tacacs-profile-name {
+		type string {
+			length "1..32";
+		}
+		description "tacacs profile name";
+	}
+ 
+	typedef tacacs-server-type {
+		type enumeration {
+			enum authen {
+				value 1;
+				description "authentication server";
+			}
+			enum author {
+				value 3;
+				description "authorization server";
+			}
+			enum account {
+				value 5;
+				description "accounting server";
+			}
+		}
+	}
+    typedef tacacs-PriSec {
+        type enumeration {
+            enum authen-primary-server {
+	            value 1;
+                description
+                  "Primary authen server.";
+            }
+            enum authen-secondary-server {
+	            value 2;
+                description
+                  "Secondary authen server.";
+            }
+            enum author-primary-server {
+	            value 3;
+                description
+                  "primary author server.";
+            }
+            enum author-secondary-server {
+	            value 4;
+                description
+                  "Secondary author server.";
+            }
+            enum acct-primary-server {
+	            value 5;
+                description
+                  "primary acct server.";
+            }
+            enum acct-secondary-server {
+	            value 6;
+                description
+                  "Secondary acct server.";
+            }
+        }
+        description
+          "The priority of tacacs server";
+    }
+
+
+	container tacacs {
+		description "tacacs top container";
+		
+		container tacacs-profiles
+		{
+		  description
+		    "tacacs configurations";
+		  list tacacs-profile {
+			key "tacacs-profile-name";
+
+			leaf tacacs-profile-name {
+				type tcs:tacacs-profile-name;
+		  		description "tacacs profile name";
+			}
+			
+			leaf secret {
+				type string {
+					length "1..64";
+				}
+			}
+			
+			leaf timeout {
+				type uint32 {
+					range "3..30";
+				}
+				default 5;
+				description "timeout of the tacacs profile";
+			}
+			
+			leaf domain-include {
+				type boolean;
+				default false;
+				description "the flag of the user with domain name";
+			}
+			
+			leaf recovery-time {
+				type uint16 {
+					range "1..65535";
+				}
+				description "recovery time of the tacacs profile";
+			}
+			
+			container tacacs-servers {
+			  description "A set of TACACS group configuration.";
+			  list tacacs-server {
+				key "server-type isSecondaryServer server-addr vpn-name";
+				
+				leaf server-type {
+					type tcs:tacacs-server-type;
+					description "primary server type";
+				}
+				
+				leaf isSecondaryServer {
+                  type tcs:tacacs-PriSec;
+                  description
+                    "Whether the server is secondary. By default, a server is a secondary server.";
+                }
+				
+				leaf server-addr {
+					type inet:ipv4-address;
+					description "tacacs server ip";
+				}
+				
+				leaf server-port {
+					type uint16 {
+						range "1..65535";
+					}
+					default 49;
+					description "tacacs server port";
+				}
+							
+				leaf source-ip {
+					type inet:ipv4-address;
+					description "source ip";
+				}
+				
+				leaf vpn-name {
+				    type co-type:vpn-name-with-global;
+				    description "vpn name";
+				}
+			  }
+			}
+		  }
+		
+		}
+		
+
+	}
+}

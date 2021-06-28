@@ -1,0 +1,43 @@
+module chinaunicom-ssh {
+
+  namespace "http://chinaunicom.com/yang/basicmanage/chinaunicom-ssh";
+  prefix "ssh";
+  
+  import chinaunicom-acl { prefix "acl"; }
+
+  organization "UTStarcom Telecom Co., Ltd.";
+
+  contact
+    "UTStarcom Telecom Co., Ltd.
+     
+     Postcode: 310053 
+     Address: 368 Liuhe Road, Binjiang District,Hangzhou, Zhejiang
+
+     E-mail: sheng.yu@utstar.com";
+
+  description 
+    "This module contains a collection of YANG definitions
+     for Fiberhome ssh configuration.
+     Copyright (c) 2013-2020 by UTStarcom Telecom Co., Ltd.
+     All rights reserved.";
+
+  revision 2020-12-10{
+      description 
+        "First revision.";
+  }
+
+  container ssh {
+    description 
+      "The container defines the SSH config.";
+
+    container ssh-server {
+      description 
+        "The container defines the SSH server config.";
+
+      leaf acl-name {
+        type acl:acl-name;
+        description "acl name";		   
+      }
+    }
+  }
+} 

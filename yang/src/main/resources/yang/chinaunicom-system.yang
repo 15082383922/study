@@ -1,0 +1,124 @@
+module chinaunicom-system {
+
+
+  // namespace
+  namespace "http://chinaunicom.com/yang/systemmanage/chinaunicom-systime";
+  
+  prefix "system";
+
+  organization "Fiberhome Telecommunication Technologies Co.,LTD";
+
+  contact
+    "Fiberhome Telecommunication Technologies Co.,LTD.
+     
+      Postcode: 430073
+      Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+      Tel: +86 027-81611973
+     
+      E-mail: zy09@fiberhome.com";
+
+  description
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom system time configuration.
+     
+     This module contains definitions
+     for the following management objects:
+       ptp: IEEE 1588v2 configuration
+     
+      This YANG module augments the
+              chinaunicom-system
+     module with configuration data.
+     
+     Copyright (c) 2013-2020 by Fiberhome Systems, Inc.
+     All rights reserved.";
+     
+  revision 2021-01-14 {
+    description
+     "Add description for container dst-cfg,
+     mark it as optional";
+  }
+
+  revision 2018-06-02 {
+    description
+     "Initial revision.";
+  }
+  
+  // typedef statements
+  
+  typedef offset-mode{
+		type enumeration {
+		enum add{
+			value 1;
+			description "add";
+			}
+		enum del{
+			value 2;
+			description "del";
+			}
+		}
+		}
+
+  typedef time {
+    type string {
+        pattern '\d{2}:\d{2}:\d{2}';
+    }
+    description "time format.";
+  }
+
+  typedef date-and-time {
+    type string {
+        pattern '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}';
+    }
+    description "date and time format.";
+  }
+
+  // grouping statements
+  
+  
+  container system {
+  
+      container clock-timezone-cfg {
+      description "clock-timezone configuration";
+
+    leaf timezone-name {
+      type string;
+      description
+        "timezone-name";
+    }
+    
+    leaf offset-mode {
+      type offset-mode;
+      description
+        "timezone-offset mode";
+    }
+
+    leaf offset {
+      type time;
+      description
+        "timezone-offset HH:MM:SS";
+    }
+    }
+
+    container dst-cfg {
+      description "day saving time configuration,this container is optional";
+
+    leaf start-date-time {
+      type date-and-time;
+      description
+        "start-date-time YYYY-MM-DD HH:MM:SS";
+    }
+    leaf end-date-time {
+      type date-and-time;
+      description
+        "end-date-time YYYY-MM-DD HH:MM:SS";
+    }
+    leaf offset-minute {
+      type uint8;
+      description
+        "offset-minute";
+    }
+    
+    }
+
+  }
+}

@@ -1,0 +1,617 @@
+module chinaunicom-mpls {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/mplsprotocol/chinaunicom-mpls";
+
+  prefix "mpls";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+  
+  import chinaunicom-interface-common {	revision-date 2020-12-31; prefix "if"; }
+  
+  import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type"; }
+  
+  
+  organization 
+    "chinaunicom Systems, Inc.
+     Fiberhome Systems, Inc.
+     UTstarcom,Inc.";
+
+  contact
+    "
+	chinaunicom Communications Techlonogy Co., Ltd.
+     Postcode: 100140 
+     Address: No 21 ,Financial Street, Xicheng District, Beijing
+     E-mail: ykou@chinaunicom.com
+	
+	Fiberhome Communications Techlonogy Co., Ltd.
+     Postcode: 430073 
+     Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+     E-mail: ykou@fiberhome.com
+	
+	UTStarcom Telecom Co.,Ltd.
+     Postcode: 310053 
+     Address: 4th Floor, South Wing, 368 Liuhe Road, Binjiang District, Hangzhou 310053, Zhejiang Province, P.R.China
+     E-mail: sihai.bao@utstar.com";
+
+  description
+    "This module contains a collection of YANG definitions
+     for SR MPLS package configuration.
+
+     This module contains definitions
+     for the following management objects:
+       sr: Segment routing configuration
+
+     Copyright (c) 2013-2017 by chinaunicom Systems, Inc;Fiberhome Systems, Inc.;UTStarcom, Inc.
+     All rights reserved.";
+  
+  revision 2020-10-29 {
+    description
+     "delete definitions not related to segment routing";
+  }
+  
+  revision 2019-12-25 {
+    description
+     "Surport record-laebl record-route";
+  }
+
+  revision 2017-08-01 {
+    description
+     "Initial version.";
+  }
+
+ /* typedefs */ 
+ typedef if-ref {
+    type union {
+      type if:ethphy-name;
+	  type if:ethlag-name;
+	  type if:veth-name;
+      type if:ethsub-name;
+      type if:flexetunnel-name;
+      type if:vcg-name;
+    }
+    description "if-ref";    
+  }   
+typedef lsp-name {
+    type string {
+      length "1..31";
+    }
+    description "lsp name";    
+  }
+  typedef tunnel-id {
+    type uint16{
+      range "1..65535";
+    }
+    description "tunnel id";    
+  }
+  typedef static-label {
+    type uint32{
+      range "16..786432";
+    }
+    description "static label";    
+  }
+  typedef out-label {
+    type uint32{
+      range "16..1048575";
+    }
+    description "out-label";    
+  }
+  typedef exp-name {
+    type string {
+      length "1..31";
+    }
+    description "explicit name";    
+  }
+  
+  typedef path-role {
+    type enumeration {
+      enum  primary {
+        value 0;
+        description "primary";
+      }
+      enum secondary {
+        value 1;
+        description "secondary";
+      }
+    }
+    description "path role";
+  }
+  typedef best-effort {
+    type enumeration {
+      enum  best-effort {
+        value 0;
+        description "best effort enable";
+      }
+      enum no-best-effort {
+        value 1;
+        description "best effort disable";
+      }
+    }
+    description "best effort";
+  }
+
+  typedef path-type {
+    type enumeration {
+      enum dynamic {
+        value 0;
+        description "dynamic";
+      }
+      enum explicit-path {
+        value 1;
+        description "explicit-path";
+      }
+    }
+    description "path type";
+  }
+  typedef exp-in-clude {
+    type enumeration {
+      enum include {
+        value 0;
+        description "include";
+      }
+      enum exclude {
+        value 1;
+        description "exclude";
+      }
+    }
+    description "excluede or incluede type";
+  }
+  
+  
+  typedef include-hop-type {
+    type enumeration {
+      enum strict {
+        value 0;
+        description "strict";
+      }
+      enum loose {
+        value 1;
+        description "loose";
+      }
+	  enum label {
+        value 2;
+        description "label";
+      }
+    }
+    description "include hop type";
+  }
+  
+    typedef exclude-hop-type {
+    type enumeration {  
+	  enum interface {
+        value 3;
+        description "interface";
+      }
+	  enum node {
+        value 4;
+        description "node";
+      }
+    }
+    description "exclude hop type";
+  }
+  
+  typedef signal-type {
+    type enumeration {
+      enum rsvp-te {
+        value 0;
+        description "rsvp-te(optional function)";
+      }
+      enum segment-routing {
+        value 1;
+        description "segment-routing";
+	  }
+	  enum static {
+        value 2;
+        description "static";
+      }
+    }
+    description "signal type";
+  }
+  
+  typedef route-cno {
+    type enumeration {
+      enum route-isis {
+        value 0;
+        description "route-isis";
+      }
+      enum route-ospfv2 {
+        value 1;
+        description "route-ospfv2";
+      }
+	  enum route-ospfv3 {
+        value 2;
+        description "route-ospfv3";
+      }
+    }
+    description "igp prefer";
+  }
+   typedef revertive-mode {
+    type enumeration {
+      enum revertive {
+        value 0;
+        description "revertive";
+      }
+      enum nonerevertive {
+        value 1;
+        description "revertive mode";
+      }
+    }
+    description "revertive mode";
+  }
+  
+  typedef controller-delegate {
+    type enumeration {
+      enum none {
+        value 0;
+        description "none";
+      }
+      enum all {
+        value 1;
+        description "all";
+      }
+	  enum primary-secondary {
+        value 2;
+        description "primary secondary";
+      }
+    }
+    description "controller delegate";
+  }
+  
+  typedef adj-protect {
+    type enumeration {
+      enum adj-unprotected {
+        value 0;
+        description "adj-unprotected";
+      }
+      enum adj-protected {
+        value 1;
+        description "adj-protected";
+      }
+    }
+    description "adjacency protect";
+  }
+
+  typedef lsp-type {
+    type enumeration {      
+      enum primary-lsp {
+        value 0;
+        description "secondary-lsp";
+      }
+	  enum secondary-lsp {
+        value 1;
+        description "primary-lsp";
+      }
+	  enum do-best-lsp {
+        value 2;
+        description "do-best-lsp";
+      }
+    }
+    description "adjacency protect";
+  }
+
+  typedef protect-type {
+    type enumeration {
+	  enum no-protect {
+        value 0;
+        description "no-protect";
+      }
+      enum hot-standby {
+        value 1;
+        description "hot-standby";
+      }
+    }
+	description "prot-type";
+  }
+  
+  
+    typedef label-type {
+    type enumeration {
+      enum adjacency {
+        value 0;
+        description "adjacency";
+      }
+      enum node {
+        value 1;
+        description "node";
+      }
+    }
+	description "label-type";
+  }
+  
+  typedef pce-delegate {
+    type enumeration {
+      enum no-delegate {
+        value 0;
+        description "no-delegate";
+      }
+      enum active-delegate {
+        value 1;
+        description "active-delegate(optional function)";
+      }
+	   enum passive-delegate {
+        value 2;
+        description "passive-delegate(optional function)";
+      }
+      enum pce-initiate {
+        value 3;
+        description "pce-initiate";
+      }
+    }
+	description "pce-delegate";
+  } 
+  
+  grouping protect-common {      	
+	leaf revertive-mode{
+      type revertive-mode;
+	  default "revertive";
+      description "revertive mode ";
+    }		
+	leaf wtr{
+      type uint8{
+        range "0..30";
+      }
+	  default 5;
+   	  when "../revertive-mode = 'revertive'";
+      description "wait to restore time";
+    }
+	leaf holdoff-time{		
+      type uint8{
+        range "0..255";
+      }
+      default 0;
+      description "hold off time ";
+    }
+	leaf delay-del{
+      type uint32{
+        range "0..600000";
+      }
+	  default 7000;
+        description "delay delete time ";
+      }		
+    leaf protect-type{	
+      type protect-type;
+      description "protect type";
+    }
+  }
+  grouping out-seg {
+    leaf next-hop {
+      type inet:ip-address-no-zone;
+      description "next hop";
+    }
+	leaf out-label {	
+      type out-label;		 
+      description "out label";
+    }
+	leaf out-ifname {
+      type if-ref;
+      description "out if name";
+    }
+  }  
+  grouping in-seg {
+    leaf in-label {
+      type static-label; 		 
+      description "in label";
+    }		  
+	leaf in-ifname {	
+      type if-ref;
+      description "in if name";
+    }
+  }
+  
+  container mpls{
+    description "mpls";
+    container mpls-te{
+      description "mpls-te";
+      leaf router-id {	 
+        type inet:ipv4-address-no-zone;
+	    description "router id";
+      } 
+	  leaf router-id-v6 {	 
+        type inet:ipv6-address-no-zone;
+	    description "router id ipv6";
+      } 
+     
+      list tunnel-te{	
+        key "id";
+        description "mpls-te-tunnel configuration";        
+        leaf id{
+          type tunnel-id;
+          description "tunnel id";
+        }  		
+        uses protect-common{
+		}		
+        leaf be-delay-time{	
+          type uint32{
+            range "0..65535";
+          }
+	      default 0;
+          description "best effort delay time";
+        } 
+		leaf ipv6-enable{
+          type co-type:is-enable;
+		  default "disable";
+	      description "ipv6-enable";
+        }
+		leaf destination-ip{	
+		  type inet:ip-address-no-zone;
+	      description "destnation IP address";
+        }  		
+        leaf be-enable{
+          type best-effort;
+	   	  default "best-effort";
+          description "best effort enable";
+        } 	
+        leaf signal-protocol{	
+          type signal-type;
+          description "signal protocol ";
+        }
+	    leaf igp-type{	
+          type route-cno;
+          description "igp prefer type";
+        }	
+	    leaf controller-calculate{	
+          type controller-delegate;
+          description "controller delegate";
+        }
+
+		leaf pce-delegate {
+          type pce-delegate;
+		  default "no-delegate";
+	      description "pce delegate";
+        } 
+		leaf reoptimize-enable {	
+          type co-type:is-enable;
+		  default "disable";
+	      description "if reoptimize enable";
+        }
+
+		leaf pm-statistics-enable {
+          type co-type:is-enable;
+		  default "disable";
+	      description "if pm-statistics enable";
+        }
+	
+        container sr{
+		  description "sr configuration";
+		  leaf adjacency-protected{
+            type adj-protect;
+            description "adjacency protected(optional function)";
+          }
+		  leaf binding-label{
+           type static-label;
+            description "binding label";
+          }
+		}	
+        list bind-path {
+		  key "role";
+	      description "config bind path"; 
+		  leaf name{
+            type exp-name;
+            description "path name";
+          } 
+		  leaf role{
+            type path-role;
+            description "path role";
+          } 
+		  leaf type{
+            type path-type;
+			default "explicit-path";
+            description "path type";
+          } 
+		}
+
+		container do-best-hops{
+          description "do-best-hops";
+          list do-best-hop {
+		    key "index";
+	        description "config do best hop"; 
+		    leaf index{
+              type uint8{
+                range "1..255";
+              }
+              description "hop index";
+            } 
+		    leaf label{
+              type out-label;
+              description "hop label value";
+            } 
+		  }
+		}		
+      } 
+	  	  
+    }
+
+    container explicit-paths {
+      description "explicit paths configurations";
+      list explicit-path {
+        description "explicit paths configurations";
+        key "name";
+        leaf name {
+          type exp-name;
+          description "Name of explicit path";
+        }
+        list nexthop {
+          description "hops of explicit path";
+          key "index";
+          leaf index {
+            type uint8{
+              range "1..255";
+            }		 
+            description "Index of a hop";
+          }
+          leaf constraint {
+            type exp-in-clude;
+	        mandatory true;
+            description "exclude or include, exlude is optional";
+          }
+		  container include {		    
+		    description "include";
+	        leaf type {
+			  mandatory true;
+              type include-hop-type;
+              description "include hop type";
+            }
+	        leaf label {
+			  when "../type='label'";
+              type out-label; 	 
+              description "Next label configuration";
+            }
+		    leaf ip-address {
+			  when "../type='strict' or " +
+		           "../type='loose'";
+              type inet:ipv4-address-no-zone;
+              description "ip address";
+            }				  
+		  }
+		  container exclude {
+		    description "exclude(optional function)";
+		    leaf type {
+              type exclude-hop-type;
+              description "exclude type";
+            }
+		    leaf ip-address {
+              type inet:ipv4-address-no-zone;
+              description "ip address";
+            }	  
+	      }		  
+        }      
+      }	
+    } 	
+	
+	container static-sr {
+	  description "static sr config";
+	  list static-sr-adjacency {	
+        description "static-sr-adjacency";
+	    key "nexthop out-ifname";
+	    leaf nexthop {	
+          type inet:ip-address-no-zone;
+          description "next hop";        	  
+	    }
+		leaf out-ifname {
+          type if-ref;
+          description "out if name";
+        }
+	    leaf sid-value {
+          type static-label; 
+          description "sid value";
+        }		
+	  }
+	  list static-sr-node {
+        description "static-sr-node(optional function)";
+	    key "fec";
+	    leaf fec {
+          type inet:ip-address-no-zone;
+          description "fec";        	  
+	    }
+		uses in-seg{
+		}	
+        uses out-seg{
+		}			
+	  }
+    }
+  }
+}
+	

@@ -1,0 +1,737 @@
+module chinaunicom-routemap {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+	
+  namespace "http://chinaunicom.com/yang/ipprotocol/chinaunicom-routemap";
+	
+  prefix "routemap";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+  import ietf-inet-types { prefix "inet"; }
+  
+  import chinaunicom-ipprefix { prefix "ipprefix"; }
+  
+  /*** import chinaunicom-acl { prefix "acl"; } ***/
+  
+  import chinaunicom-datatype-common { prefix "co-type"; }
+  
+  import chinaunicom-tunnelpolicy { prefix "tnl-plcy"; }
+  
+
+  /*** META INFORMATION ***/
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+     
+		Postcode: 430073 
+		Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+		Tel: +XXXXXXXXXXXX
+
+		E-mail: yang- author@fiberhome.com";
+
+
+  description 
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom-R8000 rpl package configuration.
+
+     This module contains definitions
+     for the following management objects:
+       rpl: rpl configuration for all instances
+
+     This YANG module augments the
+       FH-chinaunicom-R8000-snmp-agent-cfg
+     module with configuration data.
+
+     Copyright (c) 2013-2016 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision "2019-12-30" {
+     description 
+      "remove set-next-hop container and set-next-hop-ipv6 container";
+  }
+  revision "2019-11-18" {
+     description 
+      "add community-id constraint and description";
+  }
+  revision "2019-09-11" {
+     description 
+      "add ip community-list";
+  }
+  revision "2019-09-06" {
+     description 
+      "modify rangement of leaves, add tnl-policy-name";
+  }
+  
+  revision "2017-01-01" {
+    description
+      "chinaunicom R8000 6.0 revision.";
+  }
+  
+  /****************** typedef start ******************/
+  typedef acl-name-ref {
+	type string {
+	    length "1..63";
+	  }
+  }
+  
+  typedef prefix-name-ref {
+	type ipprefix:list-name;
+  }
+  
+  typedef policy-name {
+	  type string {
+	    length "1..63";
+	  }
+  }
+  
+  typedef rpl-mode-type{
+    type enumeration {
+	  enum permit {
+	    value 2;
+	  }
+	  enum deny {
+	    value 3;
+	  }
+	}
+  }
+  
+  typedef rpl_origin_type {
+	  type enumeration {
+	    enum ebgp {
+		  value 1;
+		}
+		enum ibgp {
+		  value 2;
+		}
+		enum incomplete {
+		  value 3;
+		}
+	  }
+   }
+   
+   typedef rpl-comm-additive-type {
+	  type enumeration {
+	    enum no-additive {
+		  value 1;
+		}
+		enum additive {
+		  value 2;
+		}
+	  }
+	}
+  
+   typedef rpl-filter-type{
+     type enumeration{
+	    enum ipprefix-list{
+          value 3;
+        }	
+		enum acl-list{
+		  value 2;
+		}	   
+	 }
+  }
+  
+  
+  
+  typedef set-nexthop-type {
+     type enumeration {
+	      enum address {
+	        value 2;
+	       }
+	      enum peer {
+	         value 3;
+	        }
+	    }
+	}
+	
+	typedef as-path-type {
+	  type enumeration {
+	    enum tag {
+		  value 1;
+		}
+		enum prepend {
+		  value 2;
+		}
+	  }
+	}
+	
+	typedef community-parameter-type {
+	  type enumeration {
+	    enum parameter-none {
+		  value 1;
+		}
+		enum parameter-internet {
+		  value 2;
+		}
+		enum parameter-local-as {
+		  value 3;
+		}
+		enum parameter-no-advertise {
+		  value 4;
+		}
+		enum parameter-no-export {
+		  value 5;
+		}
+		enum parameter-name {
+		  value 6;
+		}
+		enum parameter-number {
+		  value 7;
+		}
+	  }
+	}
+	
+	typedef rpl-enable-type{
+     type enumeration{
+	    enum enable{
+          value 2;
+        }	
+		enum disable{
+		  value 1;
+		}	   
+	 }
+  }
+  
+  typedef community-modes{
+        type enumeration {
+		  enum permit {
+		    value 1;
+		    description "permit";
+		  }
+		  enum deny {
+		    value 2;
+		    description "deny";
+		  }
+		}
+  }
+  
+  typedef community-types{
+        type enumeration {
+		  enum standard {
+		    value 1;
+		    description "standard";
+		  }
+		  enum extended {
+		    value 2;
+		    description "extended";
+		  }
+		}
+  }
+  
+  typedef community-name {
+	  type string {
+	    length "1..32";
+	  }
+  }
+  
+ 
+  /*start container config-route-policy*/ 
+  container routemap{
+     container route-policys{
+         description "route-map container";
+	
+	 
+	 list route-policy {
+	    key "policy-name sequence";
+		description "route-map list";
+		
+	   leaf policy-name{
+	      type routemap:policy-name;
+		  description "create a policy-policy name";
+	    }
+	
+	   leaf sequence {
+	       type uint32 {
+	           range "1..65535";
+	       }
+		   description "sequence number for route-policy";
+	    }
+		
+		leaf operation {
+           type rpl-mode-type;
+		   description "permit or deny";
+        }
+	 
+	 
+	 container match {
+	   description "Match values from routing table";
+			
+	    leaf as-path-filter {
+		  type string {
+		    length "1..63";
+		  }
+		  description "match as-path attribute";
+		}
+		
+		leaf community-filter {
+		  type string {
+		    length "1..63";
+		  }
+		  description "match community attribute";
+		}
+		
+		leaf extcommunity-filter {
+		  type string {
+		    length "1..63";
+		  }
+		  description "match extcommunity attribute";
+		}
+		
+		leaf cost {
+		  type uint32 {
+		    range "1..4294967295";
+		  }
+		  description "match cost value";
+		}
+		
+		leaf tag {
+		  type uint32 {
+		    range "0..4294967295";
+		  }
+		  description "match tag value";
+		}
+		
+		leaf origin {
+		  type rpl_origin_type;
+		  description "match origin value";
+		} 
+		
+		leaf match-label {
+          type co-type:is-enable;
+          description "give the Label: applicated in scenes of Option C and BGP-LU, used to set a matching rule based on MPLS for local to match the route with MPLS label";
+        } 
+        		
+		container source-address-match-ip{
+		  description "Match source address of prefixes";
+		  
+		  leaf source-address-enable {
+		      description "the flag mark forward and reverse commands for source address";
+			  type rpl-enable-type;
+			  default "disable";
+		  }
+		  
+		  leaf source-address-filter-type {
+		      description "chose a filter to apply to match or set";
+			  type rpl-filter-type;
+		  }
+  
+		  leaf source-address-ip-prefix-name{
+			 type routemap:prefix-name-ref;
+			 description "ipprefix-name to filter prefix";
+			 default "0";
+		  }	
+		}
+        
+		container source-address-match-ipv6{
+		  description "Match source address of prefixes";
+		  
+		  leaf source-address-enable-ipv6 {
+		      description "the flag mark forward and reverse commands for source address";
+			  type rpl-enable-type;
+			  default "disable";
+		  }
+		  
+		  leaf source-address-filter-type-ipv6 {
+		      description "chose a filter to apply to match or set";
+			  type rpl-filter-type;
+		  }
+  
+		  leaf source-address-ip-prefix-name-ipv6{
+			 type routemap:prefix-name-ref;
+			 description "ipprefix-name to filter prefix";
+			 default "0";
+		  }	
+		}
+		
+		container address-match-ip{
+		  description "Match address of prefixes";
+		  
+		  leaf address-enable {
+		      description "the flag mark forward and reverse commands for address";
+			  type rpl-enable-type;
+			  default "disable";
+		  }
+		  
+		  leaf address-filter-type {
+		      description "chose a filter to apply to match or set";
+			  type rpl-filter-type;
+		  }
+  
+		  leaf address-ip-prefix-name{
+			 type routemap:prefix-name-ref;
+			 description "ipprefix-name to filter prefix";
+			 default "0";
+		  }
+ 
+		  leaf address-acl-name {
+			  type routemap:acl-name-ref;
+			  description "acl-name to filter prefix";
+			  default "0";
+		  }	
+		}
+		
+		container address-match-ip-ipv6{
+		  description "Match address of prefixes";
+		  
+		  leaf address-enable-ipv6 {
+		      description "the flag mark forward and reverse commands for address";
+			  type rpl-enable-type;
+			  default "disable";
+		  }
+		  
+		  leaf address-filter-type-ipv6 {
+		      description "chose a filter to apply to match or set";
+			  type rpl-filter-type;
+		  }
+  
+		  leaf address-ip-prefix-name-ipv6{
+			 type routemap:prefix-name-ref;
+			 description "ipprefix-name to filter prefix";
+			 default "0";
+		  }
+ 
+		  leaf address-acl-name-ipv6 {
+			  type routemap:acl-name-ref;
+			  description "acl-name to filter prefix";
+			  default "0";
+		  }	
+		}
+		
+		container nexthop-match-ip{
+		  description "Match next-hop address of route";
+		  
+		  leaf nexthop-enable {
+		      description "the flag mark forward and reverse commands for nexthop";
+			  type rpl-enable-type;
+			  default "disable";
+		  }
+		   
+		  leaf nexthop-filter-type {
+		    description "chose a filter to apply to match or set";
+			type rpl-filter-type;
+		  }
+  
+		  leaf nexthop-ip-prefix-name{
+			 type routemap:prefix-name-ref;
+			 description "ipprefix-name to filter nexthop";
+			 default "0";
+		  }
+ 
+		  leaf nexthop-acl-name {
+			  type routemap:acl-name-ref;
+			  description "acl-name to filter nexthop";
+			  default "0";
+		   }	
+		}	
+
+        container nexthop-match-ip-ipv6{
+		  description "Match next-hop address of route";
+		  
+		  leaf nexthop-enable-ipv6 {
+		      description "the flag mark forward and reverse commands for nexthop";
+			  type rpl-enable-type;
+			  default "disable";
+		  }
+		   
+		  leaf nexthop-filter-type-ipv6 {
+		    description "chose a filter to apply to match or set";
+			type rpl-filter-type;
+		  }
+  
+		  leaf nexthop-ip-prefix-name-ipv6{
+			 type routemap:prefix-name-ref;
+			 description "ipprefix-name to filter nexthop";
+			 default "0";
+		  }
+ 
+		  leaf nexthop-acl-name-ipv6 {
+			  type routemap:acl-name-ref;
+			  description "acl-name to filter nexthop";
+			  default "0";
+		   }	
+		}		
+	 }
+	 
+	   container set{
+	      description "Set values in destination routing protocol";
+		  
+		  container set-as-path {
+		    description "set as-path attribute";
+			
+			leaf as-path-type {
+			  type as-path-type;
+			  description "set as-path attribute";
+			}
+			
+			leaf as-number {
+			  type uint32 {
+		        range "1..4294967295";
+		      }
+			  description "set as-path`s as-number";
+			}
+		  }
+		  
+		  container set-community {
+		    description "set community attribute";
+			
+			leaf community-parameter {
+			  type community-parameter-type;
+			  description "set community attribute";
+			  default "parameter-none";
+			}
+			
+			leaf community-number {
+			  type uint32 {
+		        range "1..65535";
+		      }
+			  description "set community attribute`s community-number";
+			  default "1";
+			}
+			leaf community-id {
+			  type string {
+                length "1..11";	
+			    pattern '(6553[0-4]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}):(65440|654[0-3][0-9]|65[0-3][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3})';
+			  }			  
+			  description "set community attribute`s community-id, such as:(aa:nn), aa ranges from 1 to 65534, nn ranges from 1 to 65440";
+			  default "1:1";
+			}
+			
+			leaf community-additive {
+			  type rpl-comm-additive-type;
+			  description "set community additive or not";
+			  default "no-additive";
+			}
+		  }
+		  
+          leaf tnl-policy-name {
+            type tnl-plcy:policy-name;
+            description "configure a tunnel-policy";
+          }
+          
+		  leaf cost {
+			type uint32 {
+		      range "1..4294967295";
+		    } 
+			description "set cost value";
+		  }
+		  
+		  container set-dampening {
+		    description "set dampening attribute";
+			
+			leaf half-reach-value {
+			  type uint32 {
+		        range "1..45";
+		      } 
+			  description "set half-reach-value of dampening";
+			}
+			
+			leaf reuse-value {
+			  type uint32 {
+		        range "1..20000";
+		      } 
+              must "(../half-reach-value>0)";
+			  description "set reuse-value of dampening";
+			}
+			
+			leaf suppress-value {
+			  type uint32 {
+		        range "1..20000";
+		      } 
+              must "(../reuse-value>0 and ../half-reach-value>0)";
+			  description "set suppress-value of dampening";
+			}
+			
+			leaf unreach-value {
+			  type uint32 {
+		        range "1..45";
+		      } 
+              must "(../reuse-value>0 and ../half-reach-value>0 and ../suppress-value>0)";
+			  description "set unreach-value of dampening";
+			}
+		  }
+		  
+		  leaf local-preference {
+			  type uint32 {
+		        range "1..4294967295";
+		      } 
+			  description "set local-preference value";
+		   }
+		   
+		   leaf origin {
+			 type rpl_origin_type;
+			 description "set origin value";
+		   }
+		   
+		   leaf weight {
+			 type uint16 {
+		        range "1..65535";
+		     }
+             description "set weight value";		 
+		   }
+		   
+		   leaf qos-id {
+			 type uint32 {
+		        range "1..128";
+		     }
+			 description "set qos-id value";
+		   }
+            
+			leaf set-label {
+			  type co-type:is-enable;
+              description "give the Label: applicated in scenes of Option C and BGP-LU, used to distribute MPLS label for public network route";
+			}
+	container set-label-index {
+               description "set label index for BGP SR"; 
+           
+               leaf label-index {
+                 type uint32 {
+                   range "1..29999";
+                 }
+                 description "give the Label-index: applicated in scenes of BGP SR, used to set SR label-index";        
+			   }
+           }
+		   
+		    container set-backup-nexthop {
+                 description "set ipv4 backup next-hop along path"; 
+			 
+              leaf backup-address {
+                 type inet:ipv4-address-no-zone;
+				 description "the value of backup nexthop for ipv4";
+                }
+            }
+			
+			container set-backup-nexthop-ipv6 {
+                 description "set ipv6 backup next-hop along path"; 
+			 
+              leaf backup-address-ipv6 {
+                 type inet:ipv6-address-no-zone;
+				 description "the value of backup nexthop for ipv6";
+                }
+            }
+	    }
+	 }
+   } 
+   
+    container ip-communities {
+    description "config community lists";
+	
+	list ip-community {
+	  key "community-name";
+      description "config community list";
+	  
+	  leaf community-name {
+	    type routemap:community-name;
+		description "Community name, if standard or expanded exists,Community-name cannot all digits";
+	  }
+	  
+	  leaf community-type {
+	    type community-types;
+		description "standard or extended community";
+	  }
+	  container basic-community {
+	    description "List of basic community filter";
+		
+		leaf community-mode {
+	      type community-modes;
+		  description "permit or deny";
+	    }
+		
+		leaf string-value1 {
+		  type string {
+			length "0..19";
+			pattern '(local-AS|internet|no-advertise|no-export|'+
+                '((((([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.)'+
+					'(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){2}'+
+					'([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]):)'+
+					'(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0))|'+
+					'((6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}):'+
+					'(429496729[0-5]|42949672[0-8][0-9]|4294967[01][0-9]{2}|429496[0-6][0-9]{3}|42949[0-5][0-9]{4}|'+
+					'4294[0-8][0-9]{5}|429[0-3][0-9]{6}|42[0-8][0-9]{7}|4[01][0-9]{8}|[1-3][0-9]{9}|[1-9][0-9]{0,8}|0))))' {
+                description "community value invalid";
+            }
+		  }
+		  description
+			"Attribute value, which ranges from 0 to 4294967295, in the format of aa:nn, or an attribute (internet, local-AS, no-advertise, or no-export) of a known community.";
+		}
+		leaf string-value2 {
+		  when "../string-value1";
+		  type string {
+			length "0..19";
+			pattern '(local-AS|internet|no-advertise|no-export|'+
+                '((((([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.)'+
+					'(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){2}'+
+					'([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]):)'+
+					'(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0))|'+
+					'((6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}):'+
+					'(429496729[0-5]|42949672[0-8][0-9]|4294967[01][0-9]{2}|429496[0-6][0-9]{3}|42949[0-5][0-9]{4}|'+
+					'4294[0-8][0-9]{5}|429[0-3][0-9]{6}|42[0-8][0-9]{7}|4[01][0-9]{8}|[1-3][0-9]{9}|[1-9][0-9]{0,8}|0))))' {
+                description "community value invalid";
+            }
+		  }
+		  description
+			"Attribute value, which ranges from 0 to 4294967295, in the format of aa:nn, or an attribute (internet, local-AS, no-advertise, or no-export) of a known community.";
+		}
+		leaf string-value3 {
+		  when "../string-value2";
+		  type string {
+			length "0..19";
+			pattern '(local-AS|internet|no-advertise|no-export|'+
+                '((((([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.)'+
+					'(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){2}'+
+					'([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]):)'+
+					'(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0))|'+
+					'((6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}):'+
+					'(429496729[0-5]|42949672[0-8][0-9]|4294967[01][0-9]{2}|429496[0-6][0-9]{3}|42949[0-5][0-9]{4}|'+
+					'4294[0-8][0-9]{5}|429[0-3][0-9]{6}|42[0-8][0-9]{7}|4[01][0-9]{8}|[1-3][0-9]{9}|[1-9][0-9]{0,8}|0))))' {
+                description "community value invalid";
+            }
+		  }
+		  description
+			"Attribute value, which ranges from 0 to 4294967295, in the format of aa:nn, or an attribute (internet, local-AS, no-advertise, or no-export) of a known community.";
+		}
+		leaf string-value4 {
+		  when "../string-value3";
+		  type string {
+			length "0..19";
+			pattern '(local-AS|internet|no-advertise|no-export|'+
+                '((((([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.)'+
+					'(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){2}'+
+					'([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]):)'+
+					'(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0))|'+
+					'((6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}):'+
+					'(429496729[0-5]|42949672[0-8][0-9]|4294967[01][0-9]{2}|429496[0-6][0-9]{3}|42949[0-5][0-9]{4}|'+
+					'4294[0-8][0-9]{5}|429[0-3][0-9]{6}|42[0-8][0-9]{7}|4[01][0-9]{8}|[1-3][0-9]{9}|[1-9][0-9]{0,8}|0))))' {
+                description "community value invalid";
+            }
+		  }
+		  description
+			"Attribute value, which ranges from 0 to 4294967295, in the format of aa:nn, or an attribute (internet, local-AS, no-advertise, or no-export) of a known community.";
+		}
+		leaf string-value5 {
+		  when "../string-value4";
+		  type string {
+			length "0..19";
+			pattern '(local-AS|internet|no-advertise|no-export|'+
+                '((((([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.)'+
+					'(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){2}'+
+					'([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]):)'+
+					'(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0))|'+
+					'((6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}):'+
+					'(429496729[0-5]|42949672[0-8][0-9]|4294967[01][0-9]{2}|429496[0-6][0-9]{3}|42949[0-5][0-9]{4}|'+
+					'4294[0-8][0-9]{5}|429[0-3][0-9]{6}|42[0-8][0-9]{7}|4[01][0-9]{8}|[1-3][0-9]{9}|[1-9][0-9]{0,8}|0))))' {
+                description "community value invalid";
+            }
+		  }
+		  description
+			"Attribute value, which ranges from 0 to 4294967295, in the format of aa:nn, or an attribute (internet, local-AS, no-advertise, or no-export) of a known community.";
+		} 
+      }		
+	}
+  }
+ }   
+   
+   /*end container config-route-policy*/
+}

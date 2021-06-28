@@ -1,0 +1,352 @@
+module chinaunicom-ethif-common {
+
+  namespace "http://chinaunicom.com/yang/interface/ethinterface/chinaunicom-ethif-common";
+  prefix "ethif";
+  
+  import ietf-yang-types
+  {
+	revision-date 2013-07-15;
+	prefix yang;
+  }
+  import chinaunicom-interface-common 
+  {
+	revision-date 2020-12-31;
+	prefix if;
+  }
+  import chinaunicom-datatype-common
+  {
+	revision-date 2020-08-14;
+	prefix co-type;
+  }
+  
+  description
+   "eth interface common grouping.";
+   
+  revision 2020-07-03
+  {
+    description
+      "Absolute path modified to relative path. Modify ip-perfix type";
+  }
+  revision 2019-11-19
+  {
+    description
+      "modify the default value of eth-if-rate-threshold-cfgs crc-error-cfgs and packet-discard-cfgs.";
+  }
+
+  revision 2018-04-09 
+  {
+    description
+     "eth interface common grouping.";
+    reference
+     "eth Interface YANG Data Types";
+  }
+  
+	typedef sd-mode-type {
+		type enumeration {
+			enum disable {
+				value 0;
+				description "sd mode disable";
+			}
+			enum CRC {
+				value 1;
+				description "CRC mode";
+			}
+			enum LM {
+				value 2;
+				description "LM mode";
+			}
+			enum CV {
+				value 3;
+				description "CV mode";
+			}
+			enum BIP8 {
+				value 4;
+				description "BIP8 mode";
+			}
+		}
+	}
+	
+	typedef sd-trigger-type {
+		type enumeration {
+			enum trigger-off {
+				value 0;
+				description "trigger off";
+			}
+			enum trigger-on {
+				value 1;
+				description "trigger on";
+			}
+		}
+	}
+
+  grouping eth-basic-info 
+  {
+	leaf mac-address 
+	{
+		type yang:mac-address;
+		description
+			"mac-address grouping";
+	}			
+  }
+  
+	/*SD*/
+	grouping eth-sd-cfgs {
+		container sd-cfg {
+			leaf mode{
+				type ethif:sd-mode-type;
+				default "disable";
+				description
+					"sd module";
+			}
+			leaf alarm-threshold-x{
+				type uint8 {
+					range "1..9";
+				}
+				default 1;
+				description
+					"sd alarm-threshold-x";
+			}
+			leaf alarm-threshold-y{
+				type uint8 {
+					range "1..9";
+				}
+				default 5;
+				description
+					"sd alarm-threshold-y";
+			}
+			leaf resume-threshold-x{
+				type uint8 {
+					range "1..9";
+				}
+				default 1;
+				description
+					"sd resume-threshold-x";
+			}
+			leaf resume-threshold-y{
+				type uint8 {
+					range "1..9";
+				}
+				default 6;
+				description
+					"sd resume-threshold-y";
+			}
+			leaf trigger-bfd{
+				type ethif:sd-trigger-type;
+				default "trigger-off";
+				description
+					"sd trigger-bfd";
+			}
+			leaf trigger-oam{
+				type ethif:sd-trigger-type;
+				default "trigger-off";
+				description
+					"sd trigger-oam";
+			}
+			leaf interval-second{
+				type uint32 {
+					range "5..360000";
+				}
+				default 20;
+				units s;
+				description
+					"sd interval-second";
+			}
+			leaf insert-ei-vp-oam{
+				type co-type:is-enable;
+				default "disable";
+				description
+					"sd insert-ei vp-oam";
+			}
+			leaf insert-ei-vc-oam{
+				type co-type:is-enable;
+				default "disable";
+				description
+					"sd insert-ei vc-oam";
+			}
+			leaf insert-ei-srtp-oam{
+				type co-type:is-enable;
+				default "disable";
+				description
+					"sd insert-ei srtp-oam";
+			}
+			leaf insert-ei-vs-oam{
+				type co-type:is-enable;
+				default "disable";
+				description
+					"sd insert-ei vs-oam";
+			}			
+		}
+	}
+	
+	/*SF*/
+	grouping eth-sf-cfgs {
+		container sf-cfg {
+			leaf alarm-threshold-x{
+				type uint8 {
+					range "1..9";
+				}
+				default 1;
+				description
+					"sf alarm-threshold-x";
+			}
+			leaf alarm-threshold-y{
+				type uint8 {
+					range "1..9";
+				}
+				default 3;
+				description
+					"sf alarm-threshold-y";
+			}
+			leaf resume-threshold-x{
+				type uint8 {
+					range "1..9";
+				}
+				default 1;
+				description
+					"sf resume-threshold-x";
+			}
+			leaf resume-threshold-y{
+				type uint8 {
+					range "1..9";
+				}
+				default 4;
+				description
+					"sf resume-threshold-y";
+			}
+			leaf interval-second{
+				type uint32 {
+					range "5..360000";
+				}
+				default 20;
+				units s;
+				description
+					"sf interval-second";
+			}
+		}
+	}
+	
+	grouping eth-if-rate-threshold-cfgs {
+		description
+			"Be used to configure the alarm and alert threshold for Ethernet interface rate output and input.";
+		/*INTERFACE_RATE_IN*/
+		container ethif-rate-input-threshold-cfg {
+			description
+				"Be used to configure the alarm and alert threshold for Ethernet interface rate input.";
+			leaf alarm-threshold-in{
+				type uint8 {
+					range "1..100";
+				}
+				default 80;
+				units %;
+				description
+					"interface-rate alarm-threshold-in";
+			}
+			leaf alert-threshold-in{
+				type uint8 {
+					range "0..100";
+				}
+				default 50;
+				units %;
+				description
+					"interface-rate alert-threshold-in";
+			}
+		}
+		
+		/*INTERFACE_RATE_OUT*/
+		container ethif-rate-output-threshold-cfg {
+			description
+				"Be used to configure the alarm and alert threshold for Ethernet interface rate output.";
+			leaf alarm-threshold-out{
+				type uint8 {
+					range "1..100";
+				}
+				default 80;
+				units %;
+				description
+					"interface-rate alarm-threshold-out";
+			}
+			leaf alert-threshold-out{
+				type uint8 {
+					range "0..100";
+				}
+				default 50;
+				units %;
+				description
+					"interface-rate alert-threshold-out";
+			}
+		}
+	}
+	
+	/*CRC_ERROR*/
+	grouping crc-error-cfgs {
+		container crc-error-cfg {
+			leaf threshold-crc{
+				type uint16 {
+					range "1..65535";
+				}
+				default 1;
+				description
+					"crc-error threshold_crc";
+			}
+			leaf interval-crc{
+				type uint16 {
+					range "1..65535";
+				}
+				default 900;
+				units s;
+				description
+					"crc-error interval_crc";
+			}
+		}
+	}
+	
+	/*PACKET_DISCARD*/
+	grouping packet-discard-cfgs {
+		container packet-discard-cfg {
+			leaf threshold-discard{
+				type uint16 {
+					range "1..65535";
+				}
+				default 100;
+				description
+					"packet-discard threshold-discard";
+			}
+			leaf interval-discard{
+				type uint16 {
+					range "1..65535";
+				}
+				default 900;
+				units s;
+				description
+					"packet-discard interval-discard";
+			}	
+		}
+	}
+	
+	/*tp-mode*/
+	grouping tp-mode-cfgs
+	{
+		
+		leaf tp-mode-enable 
+		{
+			type co-type:is-enable;
+			default "disable";
+			description
+				"tp-mode-enable config";
+		}
+	}
+	
+	augment "/if:if/if:interfaces/if:interface"
+	{
+		container eth-option{
+			uses ethif:eth-basic-info{
+      	when "/if:if/if:interfaces/if:interface/if:type = 'ETH-LAG' or
+			     /if:if/if:interfaces/if:interface/if:type = 'V-ETH' or
+			     /if:if/if:interfaces/if:interface/if:type = 'ETH-VIR' or
+			     /if:if/if:interfaces/if:interface/if:type = 'FLEXE-TUNNEL' or
+				 /if:if/if:interfaces/if:interface/if:type = 'BDIF' or
+				 /if:if/if:interfaces/if:interface/if:type = 'VLANIF' ";
+      }
+    }
+	}
+}

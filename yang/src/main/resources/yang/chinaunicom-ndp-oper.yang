@@ -1,0 +1,221 @@
+module chinaunicom-ndp-oper {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+  namespace "http://chinaunicom.com/yang/ipservice/chinaunicom-ndp-oper";
+  prefix "ndp-oper";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  import ietf-yang-types { prefix "yang"; }
+  import ietf-inet-types { prefix "inet"; }
+  import chinaunicom-datatype-common { prefix "co-type"; }
+  import chinaunicom-ndp { prefix "ndp"; }
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Communications Techlonogy Co., Ltd.
+
+     Postcode: 430073
+     Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+
+     E-mail: ykou@fiberhome.com";
+
+  description
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom-V5 ndp-oper package operational data.
+
+     Copyright (c) 2013-2016 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision 2018-06-19 {
+    description "Initial version.";
+  }
+
+  /* typedefs */
+
+
+  container ndp-oper {
+    config false;
+
+    container ndp-neighbors {
+
+      list ndp-neighbor {
+        key "vrf-name ip6-addr";
+
+        leaf vrf-name {
+          description "The vrf-name of this neighbor.";
+          type co-type:vpn-name-with-global;
+        }
+
+        leaf ip6-addr {
+          description "The ip6-addr of this neighbor.";
+          type inet:ipv6-address;
+        }
+
+        leaf mac-addr {
+          description "The mac-addr of this neighbor.";
+          type yang:mac-address;
+        }
+
+        leaf is-router {
+          description "If this neighbor is a router.";
+          type boolean;
+        }
+
+        leaf state {
+          description "The state of this neighbor.";
+          type string {
+            length "1..12";
+          }
+        }
+
+        leaf if-name {
+          description "The if-name of this neighbor.";
+          type ndp:if-ref;
+        }
+
+        leaf svlan-id {
+          description "The svlan-id of this neighbor.";
+          type uint16;
+        }
+
+        leaf cvlan-id {
+          description "The cvlan-id of this neighbor.";
+          type uint16;
+        }
+
+        leaf up-time {
+          description "The up-time of this neighbor.";
+          type uint32;
+          units "s";
+        }
+
+        leaf current-state-time {
+          description "The current-state-time of this neighbor.";
+          type uint32;
+          units "s";
+        }
+
+        leaf is-static {
+          description "If this neighbor is a static.";
+          type boolean;
+        }
+      }
+    }
+
+    container ndp-summary {
+
+      leaf dynamic-count {
+        description "The count of neighbors which type is Dynamic.";
+        type uint32;
+      }
+
+      leaf static-count {
+        description "The count of neighbors which type is Static.";
+        type uint32;
+      }
+
+      leaf total {
+        description "The count of neighbors.";
+        type uint32;
+      }
+    }
+
+    container ndp-packet-statistic {
+
+      leaf ns-input {
+        description "The count of NS messages received.";
+        type uint32;
+      }
+
+      leaf ns-output {
+        description "The count of NS messages sent out.";
+        type uint32;
+      }
+
+      leaf na-input {
+        description "The count of NA messages received.";
+        type uint32;
+      }
+
+      leaf na-output {
+        description "The count of NA messages sent out.";
+        type uint32;
+      }
+
+      leaf bad-ns-input {
+        description "The count of bad-NS messages received.";
+        type uint32;
+      }
+
+      leaf bad-na-input {
+        description "The count of bad-NA messages received.";
+        type uint32;
+      }
+
+      leaf neigh-count {
+        description "The count of neighbors.";
+        type uint32;
+      }
+    }
+
+    container ndp-if-packet-statistics {
+
+      list ndp-if-packet-statistic {
+        key "if-name";
+
+        leaf if-name {
+          description "The name of the interface.";
+          type ndp:if-ref;
+        }
+
+        leaf ns-input {
+          description "The count of NS messages received from the interface.";
+          type uint32;
+        }
+
+        leaf ns-output {
+          description "The count of NS messages sent out of the interface.";
+          type uint32;
+        }
+
+        leaf na-input {
+          description "The count of NA messages received from the interface.";
+          type uint32;
+        }
+
+        leaf na-output {
+          description "The count of NA messages sent out of the interface.";
+          type uint32;
+        }
+
+        leaf bad-ns-input {
+          description "The count of bad-NS messages received from the interface.";
+          type uint32;
+        }
+
+        leaf bad-na-input {
+          description "The count of bad-NA messages received from the interface.";
+          type uint32;
+        }
+
+        leaf neigh-count {
+          description "The count of neighbors at the interface.";
+          type uint32;
+        }
+      }
+    }
+  }
+  
+  rpc ndp-neighbors-clear {
+    description "Clear ndp neighbors."; 
+    input {
+    
+      leaf if-name {
+        description "The name of the interface.";
+        type ndp:if-ref; 
+      }  
+    }
+  }
+  
+}

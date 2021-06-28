@@ -1,0 +1,561 @@
+module chinaunicom-l2vpn{
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/vpnservice/chinaunicom-l2vpn";
+
+  prefix "l2vpn";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  import chinaunicom-datatype-common { prefix "co-type"; }
+  
+  import ietf-inet-types { prefix "inet"; }
+  
+  import chinaunicom-interface-common  { prefix "if"; }
+
+  
+  import chinaunicom-tunnelpolicy	{ prefix "tnl-plcy"; }
+
+  /***import FH-chinaunicom-R8000-clns-isis-datatypes { prefix "dt1"; }***/
+
+  /***import FH-chinaunicom-R8000-ifmgr-cfg { prefix "a1"; }***/
+
+  /*** META INFORMATION ***/
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+     
+		Postcode: 430073 
+		Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+		Tel: +XXXXXXXXXXXX
+
+		E-mail: yang- author@fiberhome.com";
+
+
+  description 
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom-R8000 l2vpn package configuration.
+
+     This module contains definitions
+     for the following management objects:
+       l2vpn: Layer 2 VPN configuration
+
+     Copyright (c) 2013-2016 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision 2020-06-19 {
+    description
+      "In container vpls,list pw-list,leaf pw-id.Redefine leaf pw-id as uint32,and the range is 0..4294967294.";
+  }
+  revision 2019-11-15 {
+    description
+      "pw-id range change from 1..4294967295 to 1..4294967294.";
+  }
+
+  revision 2019-09-30 {
+    description
+      "Support IPv6 peer ip.";
+  }
+  
+  revision 2017-11-23 {
+    description
+      "chinaunicom R8000 6.0 revision.";
+  }
+  
+  /* typedefs */
+  typedef if-ref {
+	type union {
+		type if:ethphy-name;
+		type if:ethvir-name;
+		type if:ethlag-name;
+		type if:ethsub-name;
+		type if:ces-name;
+		type if:cep-name;
+		type if:veth-name;
+        type if:flexetunnel-name;
+        type if:vcg-name; 
+	}
+	description "UNI interfaces name ref";
+  }
+  typedef tnlplcy-ref {
+	type tnl-plcy:policy-name;
+	
+	description "Tunnel policy name ref";
+  }
+  typedef vpws-name{
+    type string{
+	  length "1..31";
+	}
+	description "vpws service name";
+  }
+  typedef vpls-name{
+    type string{
+	  length "1..31";
+	}
+	description "vpls service name";
+  }
+  typedef mspw-name{
+    type string{
+	  length "1..31";
+	}
+	description "mspw service name";
+  }
+  typedef ccc-name{
+    type string{
+	  length "1..31";
+	}
+	description "ccc name";
+  }
+  typedef pw-class-name{
+    type string{
+	  length "0..31";
+	}
+	description "pw class name";
+  }
+  typedef vsi-id{
+    type uint32{
+	  range "1..65535";
+	}
+	description "vsi id";
+  }
+  typedef pw-id{
+    type uint32{
+	  range "1..4294967294";
+	}
+	description "pw id";
+  }
+  typedef encap-type {
+    type enumeration {
+      enum tagged {
+        value 4;
+        description "Prefer tagged encapsulation";
+      }
+      enum raw {
+        value 5;
+        description "Prefer raw encapsulation";
+      }
+    }
+    description "Pseudowire encapsulation type";
+  }
+  typedef pw-tagged-type {
+    type enumeration {
+      enum 0x8810 {
+        value 0;
+        description "Prefer tagged encapsulation";
+      }
+      enum 0x88a8 {
+        value 1;
+        description "Prefer raw encapsulation";
+      }
+    }
+    description "Pseudowire encapsulation type";
+  }
+  typedef redundancy-protection-mode {
+    type enumeration {
+      enum master-slaver {
+        value 0;
+        description "Master/Slaver";
+      }
+      enum independent {
+        value 1;
+        description "independent";
+      }
+    }
+    description "pseudowire redundancy protection mode";
+  }
+  typedef protection-type {
+    type enumeration {
+      enum redundancy{
+        value 0;
+        description "PW redundancy";
+      }
+      enum 1to1 {
+        value 1;
+        description "PW 1:1";
+      }
+	  enum 1plus1 {
+        value 2;
+        description "PW 1+1";
+      }
+	  enum stream-signal-recv {
+        value 3;
+        description "stream signal recv";
+      }
+	  enum bypass {
+        value 4;
+        description "bypass";
+      }
+    }
+    description "pseudowire protection mode";
+  }
+  typedef pw-role {
+    type enumeration {
+      enum primary {
+        value 0;
+        description "primary pw";
+      }
+      enum secondary {
+        value 1;
+        description "secondary pw";
+      }
+	  enum bypass {
+        value 2;
+        description "bypass pw";
+      }
+    }
+    description "pseudowire role";
+  }
+  typedef revertive-mode {
+    type enumeration {
+      enum revertive {
+        value 0;
+        description "revertive";
+      }
+      enum nonrevertive {
+        value 1;
+        description "nonrevertive";
+      }
+    }
+    description "revertive mode";
+  }
+  
+  grouping  pseudowire{
+    leaf static-transmit-label{
+	  type uint32{
+	    range "16..786432";
+      }
+      description "transmit label of a static pw";
+	}
+    leaf static-receive-label{
+	  type uint32{
+	    range "16..786432";
+	  }
+	  description "receive label of a static pw";
+	}
+	leaf pw-role{
+	  type pw-role;
+	  description "config pw role";
+	}
+	leaf pw-class-name{
+	  type pw-class-name;
+	  description "pseudowires class name";
+	}
+	leaf oam-statistics{
+	  type co-type:is-enable;
+	  description "Enable oam statistics on pseudowires";
+	}
+	leaf tag-type{
+	  type pw-tagged-type;
+	  description "Tag type";
+	}
+	leaf vlan-id{
+	  type uint16{
+		range "0..4095";
+	  }
+	  description "Vlan id";
+	}
+	leaf vlan-priority{
+	  type uint8{
+		range "0..7";
+	  }
+	  description "Vlan priority";
+	}
+	leaf trackroute-name{
+	  when "../pw-role = 'primary'"{
+          description "../Pw-role = Primary";
+      }
+	  type string{
+        length "1..31";
+      }
+	  description "Trackroute name";
+	}
+	leaf pm-statistic-enable{
+	  type co-type:is-enable;
+	  default "disable";
+	  description "Enable pm statistic enable on pseudowires";
+	}
+  }
+  
+  grouping  pw-class-grp{
+    leaf control-word{
+	  type co-type:is-enable ;
+      description "Enable control word";
+	}
+    leaf sequence-number{
+	  type co-type:is-enable;
+	  description "Enable cc sequence number";
+	}
+	leaf cc-type{
+	  type uint8{
+		range "1..4";
+	  }
+	  description "cc-type of VCCV ";
+	}
+	leaf cv-type{
+	  type uint8{
+		range "1..4";
+	  }
+	  description "cv-type of VCCV ";
+	}
+	leaf tunnel-policy{
+	  type tnlplcy-ref;
+	  description "tunnel policy";
+	}
+  }
+  
+  grouping  vpls-instance{
+    leaf vpls-service-description{
+	  type string{
+	    length "1..47";
+	  }
+	  description "description of the vpls service";
+	}
+    leaf vpls-service-mtu{
+	  type uint16{
+	    range "328..65535";
+	  }
+	  description "MTU of vpls service";
+	}
+	leaf mac-withdraw{
+	  type co-type:is-enable;
+	  description "Enable or disable MAC withdraw";
+	}
+  }
+  
+  grouping pseudowire-protection {
+	leaf wtr{
+	  type uint32{
+	    range "0..12";
+	  }
+	  default 5;
+	  description "revert delay time";
+	}
+    leaf holdtime{
+	  type uint32{
+	    range "0..255";
+	  }
+	  default 0;
+	  description "holdtime";
+	}
+	leaf revertive-mode{
+	  type revertive-mode;
+	  default revertive;
+	  description "revert mode,revert or never revert";
+	}
+	leaf redundancy-protection-mode{
+	  type redundancy-protection-mode;
+	  description "redundancy protection mode";
+	}
+	leaf protect-type {
+	  type protection-type;
+	  description "protection type";
+	}
+	
+  }
+
+    
+  /* L2VPN YANG Model */	
+container l2vpn {
+  container pw-class {
+	description "pw class configuration";
+	  
+	list pw-class-list{
+      key "pw-class-name";
+		
+	  leaf pw-class-name{
+		type pw-class-name;
+	    description "Name of the pw class";
+	  }
+		
+	  uses pw-class-grp{
+	  }
+	}
+  }
+    
+  container vpws {
+    description "vpws instance configuration";
+      
+    list vpws-list{
+      key "service-name";
+      description "vpws service configuration";
+        
+      leaf service-name{
+        type vpws-name;
+        description "Name of the vpws instance";
+      } 
+
+	  uses pseudowire-protection{
+	  }
+		 
+      list accessif-list {
+        key "ac-name";
+        description "attachment circuit configuration";
+		
+	    leaf ac-name{
+          type if-ref;   
+          description "access interface name";
+        }
+	  } 
+		
+      list pw-list {
+	    key "peer-ip pw-id";
+		description "pseudowires configuration";
+			
+		leaf peer-ip{
+          type inet:ip-address-no-zone;  
+          description "Peer IP address such as A.B.C.D or X:X:X:X:X:X:X:X of the layer 2 circuit";
+        }
+	    leaf pw-id{
+          type pw-id;
+          description "Id of the layer 2 circuit";
+        }
+		leaf pw-type{
+          type encap-type;
+          description "Encapsulation type of pseudowires";
+		  mandatory true;
+        }
+	    uses pseudowire{
+		}
+	  }
+    }
+  }
+	
+  container vpls {
+    description "vpls instance configuration";
+      
+    list vpls-list{
+      key "service-name";
+      description "vpls service configuration";
+        
+      leaf service-name{
+        type vpls-name;
+        description "Name of the vpls instance";
+      } 
+	  
+	  leaf vsi-id{
+        type vsi-id;
+        description "vsi id";
+      }
+		
+      uses vpls-instance{
+	  }
+		     
+      list accessif-list {
+        key "ac-name";
+        description "attachment circuit configuration";
+			
+	    leaf ac-name{
+          type if-ref;   
+          description "access interface name";
+        }
+			
+	    leaf split-horizon-enable{
+		  type co-type:is-enable; 
+	      description "enable split horizon on AC";
+		}
+      } 
+	  
+      list pw-list {
+	    key "peer-ip pw-id";
+		description "pseudowires configuration";
+			
+		leaf peer-ip{
+          type inet:ip-address-no-zone;  
+          description "Peer IP address such as A.B.C.D or X:X:X:X:X:X:X:X of the layer 2 circuit";
+        }
+	    leaf pw-id{
+          type uint32{
+           range "0..4294967294";
+          }
+          description "Id of the layer 2 circuit";
+        }
+	    leaf pw-type{
+          type encap-type;
+          description "Encapsulation type of pseudowires";
+		  mandatory true;
+        }			
+	    leaf is-upe{
+	      type co-type:is-enable; 
+	      description "set UPE PW";
+		}
+		
+		uses pseudowire{
+		}
+	  } 
+    }
+  }
+	
+  container mspw {
+    description "mspw instance configuration";
+      
+    list mspw-list{
+      key "service-name";
+      description "mspw service configuration";
+       
+      leaf service-name{
+        type mspw-name;
+        description "Name of the mspw instance";
+      } 		
+	  
+	  list pw-list {
+	    key "peer-ip pw-id";
+		description "pseudowires configuration";
+			
+		leaf peer-ip{
+          type inet:ip-address-no-zone;  
+          description "Peer IP address such as A.B.C.D or X:X:X:X:X:X:X:X of the layer 2 circuit";
+        }
+		leaf pw-id{
+          type pw-id;
+          description "Id of the layer 2 circuit";
+        }
+	    leaf pw-type{
+          type encap-type;
+          description "Encapsulation type of pseudowires";
+		  mandatory true;
+        }
+			
+		uses pseudowire{
+		}
+	  }   
+    }
+  }
+  
+  container ccc {
+    description "ccc instance configuration";
+      
+    list ccc-list{
+      key "service-name";
+      description "ccc service configuration";
+       
+      leaf service-name{
+        type ccc-name;
+        description "Name of the ccc instance";
+      } 
+
+	  leaf ip-internetworking{
+        type co-type:is-enable;
+        description "inter networking";
+      }
+	  
+	  list accessif-list {
+	    key "ac-name";
+		description "attachment circuit configuration";
+			
+	    leaf ac-name{
+          type if-ref;   
+          description "access interface name";
+        }
+		
+	    leaf encapsulation{
+          type encap-type;
+          description "Encapsulation type of local link";
+        }
+	  }   
+    }
+  }
+}
+}
+

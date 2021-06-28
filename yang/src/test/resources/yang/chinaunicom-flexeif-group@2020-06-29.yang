@@ -1,0 +1,197 @@
+module chinaunicom-flexeif-group
+{
+  /*** NAMESPACE ***/
+  namespace "http://chinaunicom.com/yang/interface/flexeinterface/chinaunicom-flexeif-group";
+   
+  /*** PREFIX DEFINITION ***/
+  prefix "flexegrpif";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  import chinaunicom-interface-common  
+  { 
+	revision-date 2020-12-31;
+    prefix "if";
+  }
+    
+  
+  /*** META INFORMATION ***/
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+     
+      Postcode: 430073
+      Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+      Email: ylhan@fiberhome.com";
+
+  description 
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom flexe group configuration.
+     
+     This module contains definitions
+     for the following management objects:
+       FlexE GROUP
+     
+     Copyright (c) 2013-2018 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision "2020-06-29" 
+  {
+    description "optimize the grammar of when";
+  }
+  revision 2019-12-13 {
+    description "modify the description of phy-num.";
+  }
+     
+  revision 2019-11-26 {
+    description "modify the range of group-num.";
+  }
+
+  revision 2019-09-23 {
+    description "modify slot-granularity.";
+  }
+  revision 2018-04-27;
+
+  /* typedefs */
+  typedef work-mode
+  {
+    type enumeration 
+    {
+      enum static
+      {
+        value 0;
+        description "mode static";
+      }
+      enum dynamic
+      {
+        value 1;
+        description "mode dynamic";
+      }
+      enum protocol
+      {
+        value 2;
+        description "mode protocol";
+      }    
+    }
+    description "flexegrpif work-mode";
+  }
+  
+  typedef fccas-enable
+  {
+    type enumeration 
+    {
+      enum disable
+      {
+        value 0;
+        description "fccas disable";
+      }
+      enum enable
+      {
+        value 1;
+        description "fccas enable";
+      }
+    }
+    description "flexe-client capacity adjustment scheme";
+  }
+  
+  typedef slot-granularity
+  {
+    type enumeration 
+    {
+      enum 5g
+      {
+        value 0;
+        description "slot 5G";
+      }
+      enum 1g
+      {
+        value 1;
+        description "slot 1G";
+      }
+      enum 1.25g
+      {
+        value 2;
+        description "slot 1.25G";
+      }
+      enum 100m
+      {
+        value 3;
+        description "slot 100M";
+      }
+    }
+    description "granularity per slot";
+  }
+  
+  typedef flexe-ref
+  {
+    type union
+    {
+      type if:flexephy-name;
+    }
+    description "flexe phy interfaces name ref";
+  }
+  
+  grouping flexe-group-cfg
+  {
+    leaf work-mode
+    {
+      type flexegrpif:work-mode; 
+      default "static";
+    }
+
+    leaf group-num
+    {
+      type uint32
+      {
+        range "1..1048574";
+      }
+      description "config overhead group-num, mandatory";
+    }
+
+    leaf fccas-enable
+    {
+      type flexegrpif:fccas-enable;
+      default "disable";
+    }
+
+    leaf slot-granularity
+    {
+      type flexegrpif:slot-granularity;
+      default "5g";
+    }
+  }
+  
+  /* FLEXEGRPIF YANG Model */
+  augment "/if:if/if:interfaces/if:interface"
+  {
+    when "type = 'FLEXE-GROUP'";
+    container flexegrp-ctrlinterface
+    {
+      description "flexe group";
+      
+      uses flexegrpif:flexe-group-cfg;
+      
+      list flexe-group-member
+      {
+        key flexe-name;
+        description "flexe group-member configuration";
+        
+        leaf flexe-name
+        {
+          type flexegrpif:flexe-ref;
+          description "flexe group-member configuration";
+        }
+        
+        leaf phy-num
+        {
+          type uint8
+          {
+            range "1..254";
+          }
+          mandatory true;
+          description "config flexe unique phy-num, range 1-126 for 50g, 1-254 for 100g, 1-126 for 200g, 1-62 for 400g";
+        }
+      }
+    }
+  }
+}

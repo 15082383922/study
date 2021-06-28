@@ -1,0 +1,48 @@
+module chinaunicom-extension {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+  namespace "http://chinaunicom.com/yang/chinaunicom-extension";
+  prefix "ext";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Communications Techlonogy Co., Ltd.
+
+     Postcode: 430073
+     Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+
+     E-mail: ykou@fiberhome.com";
+
+  description
+    "ac ne extension yang syntax.
+     Copyright (c) 2019-2020 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision 2020-03-30 {
+    description "Add telemetry extension.";
+	    
+	reference "Fiberhome private.";  
+  }
+
+  revision 2019-12-09 {
+    description "Initial version.";
+	    
+	reference "Fiberhome private.";  
+  }
+
+  extension display-in-hex {
+    description  "Indicate the int data display in hex format.For example : 10 should be displayed as 0xa.";
+  }
+  
+  extension telemetry-available {
+    description  "Indicate the container or node is available for telemetry.";
+  }
+
+}
+
+
+
+

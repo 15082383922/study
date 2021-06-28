@@ -1,0 +1,412 @@
+module chinaunicom-interface-common-oper {
+    namespace "http://chinaunicom.com/yang/interface/chinaunicom-interface-common-oper";
+    prefix "if-oper";
+    import chinaunicom-interface-common
+    {
+        prefix if;
+    }
+	
+	import chinaunicom-datatype-common
+    {
+        prefix "co-type";
+    }
+	
+    import chinaunicom-interface-l2l3common
+    {
+        prefix l2l3if;
+    }
+
+    description "接口公共控制命令状态模型";
+
+  revision 2020-12-31
+  {
+    description
+      "add discriptions for leaves of rpc set-laser and if-loop-control";
+  }
+		   
+  revision 2020-07-03
+  {
+    description
+      "Absolute path modified to relative path. Modify ip-perfix type";
+  }
+ 
+    revision 2020-01-07
+    {
+        description
+            "Support netconf get ipv4 address list";
+    }
+
+    revision 2018-06-05;
+
+    typedef if-ref
+    {
+        type union
+        {
+            type if:otnphy-name;
+            type if:ampphy-name;         
+            type if:sdhphy-name;            
+            type if:flexephy-name;
+			type if:lb-name;
+			type if:mgmt-name;
+			type if:null-name;
+            type if:tunnel-name;
+			type if:ethphy-name;
+			type if:ethvir-name;
+			type if:ethlag-name;
+			type if:veth-name;
+			type if:ethsub-name;
+			type if:flexetunnel-name;
+        }
+    }
+
+    typedef if-ipv4-ref 
+    {
+		type union
+		{
+			type if:lb-name;
+			type if:mgmt-name;
+			type if:tunnel-name;
+			type if:ethphy-name;
+			type if:ethvir-name;
+			type if:ethlag-name;
+			type if:veth-name;
+			type if:ethsub-name;
+			type if:bdif-name;
+			type if:flexetunnel-name;
+			type if:vlanif-name;                        
+            type if:wlan-name;
+            type if:lte-name;
+		}
+	}
+
+    typedef if-ipv6-ref 
+    {
+		type union
+		{
+			type if:lb-name;
+			type if:mgmt-name;
+			type if:tunnel-name;
+			type if:ethphy-name;
+			type if:ethvir-name;
+			type if:ethlag-name;
+			type if:veth-name;
+			type if:ethsub-name;
+			type if:bdif-name;
+			type if:flexetunnel-name;
+			type if:vlanif-name;
+		}
+	}
+
+    typedef physical-status
+    {
+        type enumeration{
+            enum physical-up{
+                value 1;
+                description "physical up";
+            }
+            enum physical-down{
+                value 2;
+                description "physical down";
+            }
+            enum admin-down{
+                value 3;
+                description "admin down";
+            }
+            enum admin-down-by-parent{
+                value 4;
+                description "admin down by parent";
+            }
+            enum admin-up{
+                value 5;
+                description "admin up";
+            }
+            enum off-line{
+                value 6;
+                description "port off-line";
+            }
+        }
+    }
+
+	typedef protocol-status 
+    {
+		type enumeration {
+			enum protocol-up{
+				value 1;
+				description "protocol up";
+			}
+			enum protocol-down {
+				value 2;
+				description "protocol down";
+			}
+		}
+	} 
+
+	typedef ipv6-addr-status 
+    {
+		type enumeration {
+			enum tentative{
+				value 1;
+				description "tentative";
+			}
+			enum duplicate{
+				value 2;
+				description "duplicate";
+			}
+			enum unduplicate{
+				value 3;
+				description "unduplicate";
+			}
+		}
+	}
+
+    grouping ipv4-interface-basic-info
+	{                       
+		leaf link-state
+		{
+			type if-oper:physical-status;
+			description
+				"link state";
+		}
+
+		leaf protocol-status
+		{
+			type if-oper:protocol-status;
+			description
+				"protocol status";
+		}
+	}
+
+    grouping ipv6-interface-basic-info
+	{
+		leaf link_state
+		{
+			type if-oper:physical-status;
+			description
+				"link state";
+		}
+		leaf protocol_status
+		{
+			type if-oper:protocol-status;
+			description
+				"protocol status";
+		}
+        
+		leaf linklocal_addr
+		{
+			type co-type:ipv6-address-with-mask;
+			description
+				"linklocal address";
+		}
+		leaf link_local_status
+		{
+			type if-oper:ipv6-addr-status;
+			description
+				"linklocal status";
+		}
+	}
+
+    container if-oper
+	{
+		config false;
+        description "if oper status information";
+
+        container if-ipv4-states{
+            list if-ipv4-state{
+
+                description "interface ipv4 status information";
+                key "ifname";
+                leaf ifname {	 
+                        type if-oper:if-ipv4-ref;
+                        description "interface name";
+                }	
+                uses if-oper:ipv4-interface-basic-info;
+
+                container ipv4-prefix-lists
+                {
+                    list ipv4-prefix-list 
+                    {
+                        key "ipv4-prefix";
+                        leaf ipv4-prefix
+                        {
+                            type co-type:ipv4-address-with-mask;
+                            description
+                                "ipv4 prefix";
+                        }
+
+                        leaf secondry-use 
+                        {
+                            type l2l3if:ipaddress-flag;
+                            description
+                                "The ipv4-address main or secondry flag";
+                        }
+                    }
+                }
+
+            }
+        }
+			
+		container if-ipv6-states{
+			list if-ipv6-state{	  
+
+                description "interface ipv6 status information";
+                key "ifname";
+                leaf ifname {	 
+                        type if-oper:if-ipv6-ref;
+                        description "interface name";
+                }	
+                uses if-oper:ipv6-interface-basic-info;
+              
+                container ipv6-prefix-lists
+                {
+                    list ipv6-prefix-list 
+                    {
+                        key "ipv6_prefix";
+                        leaf ipv6_prefix
+                        {
+                            type co-type:ipv6-address-with-mask;
+                            description
+                                "ipv6 prefix";
+                        }
+                        leaf ipv6_status
+                        {
+                            type if-oper:ipv6-addr-status;
+                            description
+                                "ipv6 status";
+                        }
+                    }
+                }
+			}
+		}
+    }
+
+    /*grouping rpc-response-status
+    {
+        leaf status
+        {
+            type enumeration
+            {
+                enum successful
+                {
+                    value 1;
+                }
+                enum failed
+                {
+                    value 2;
+                }
+            }
+        }
+        leaf status-message
+        {
+            type string;
+            description
+                "Gives a more detailed status";
+        }
+    }
+    
+    container if-oper
+    {       
+    }*/
+	
+	
+	rpc set-laser
+	{
+		description "set laser";
+
+		input
+		{            
+			leaf if-name
+			{
+				type if-oper:if-ref;
+                description "laser name";
+			}
+			leaf laser-cmd
+			{
+				type co-type:is-enable;
+				description "laser cmd";         
+			}
+			leaf laser-delay-time
+			{
+				type enumeration
+                {
+					enum off-one-min
+					{
+						value 1;
+					}
+					enum off-ten-min
+					{
+						value 2;
+					}enum off-thirty-min
+					{
+						value 3;
+					}
+					enum off-sixty-min
+					{
+						value 4;
+					}
+				}
+				
+				description "laser-delay-time,this leaf is optional.";
+			}
+		}
+	}
+	
+	rpc if-loop-control
+    {
+        description "the interface loop control";
+
+        input
+        {            
+            leaf loop-name
+            {
+                type if-oper:if-ref;
+                description "the otn private name";
+            }
+            leaf loop-dir
+            {
+                type enumeration
+                {
+                    enum LOOP_SYS
+                    {
+                        value 1;
+                    }
+                    enum LOOP_LINE
+                    {
+                        value 2;
+                    }
+					enum ALL
+                    {
+                        value 3;
+                    }
+                }            
+            }
+			leaf loop-cmd
+			{
+				type co-type:is-enable;      
+				description "loop-cmd";				
+			}
+            leaf loop-delay-time
+            {
+                type enumeration
+                {
+                    enum LOOP_ONE_MIN
+                    {
+                        value 1;
+                    }
+					enum LOOP_TEN_MIN
+                    {
+                        value 2;
+                    }
+					enum LOOP_THIRTY_MIN
+                    {
+                        value 3;
+                    }
+					enum LOOP_SIXTY_MIN
+                    {
+                        value 4;
+                    }
+                }
+                description "loop-delay-time,this leaf is optional.";
+            }
+        }
+    }
+}

@@ -1,0 +1,871 @@
+module chinaunicom-acl{
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/ipservice/chinaunicom-acl";
+
+  prefix "acl";
+  
+   /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  import chinaunicom-datatype-common { prefix "co-type"; }
+  
+  import ietf-inet-types { prefix "inet"; }
+  
+  import chinaunicom-interface-common  { prefix "if"; }
+  
+  import ietf-yang-types  { prefix "yang"; }
+  
+  organization "UTStarcom Telecom Co., Ltd.";  
+  
+  contact
+    "UTStarcom Telecom Co., Ltd.
+     
+     Postcode: 310053 
+     Address: 368 Liuhe Road, Binjiang District,Hangzhou, Zhejiang
+
+     E-mail: sheng.yu@utstar.com";
+     
+  description 
+    "This module contains a collection of YANG definitions
+     for UTStarcom IPRAN acl package configuration.
+     Copyright (c) 2013-2020 by UTStarcom Telecom Co., Ltd.
+     All rights reserved.";
+     
+  revision "2020-12-29" {
+    description
+        "1. Change USERDEFINE in acl-type to MPLS. Change the name of the rule-userdefine-cfg table to rule-mpls-cfg. 
+         2. Add the ethertype and etype mask fields to the rule-l2-cfg table.
+         3. Take the vrf name out from the rule-optional. Add vrf name to ip related rules only. There is no need to specify 
+            the vrf name in interface, l2 and mpls rules.
+         4. Add type of mpls into the acl-type.
+				 5. Add description for leaf protocol-any of grouping ip-advance-rule-common to clarify that this leaf is optional.
+	 			 6. Add description in container rule-ipv4-basic-cfg to clarify that the leafs dst-ip, dscp, precedence, tos are optional.
+	 			 7. Add description in container rule-ipv6-basic-cfg to clarify that the leafs dst-ipv6, dscp, precedence, tos are optional.
+        ";
+  }
+  
+  /* typedefs */
+  typedef if-ref {
+     type union {
+        type if:ethphy-name;
+        type if:ethvir-name;
+        type if:ethlag-name;
+        type if:veth-name;
+        type if:ethsub-name;
+        type if:flexetunnel-name;
+     }
+     description "Interface type and name";
+  }
+  
+  typedef vlan-group {
+    type uint32 {
+        range 1..4094;
+    }
+    description "vlan group";
+  }
+  
+  typedef acl-name {
+    type string {
+        length "1..31";
+    }
+    description "acl name";
+  }
+  
+  typedef time-range {
+    type string {
+        length "1..31";
+    }
+    description "time-range name";
+  }
+  
+  typedef acl-description {
+    type string {
+        length "1..255";
+    }
+    description "acl description";
+  }
+  
+  typedef action{
+    type enumeration {
+        enum permit {
+            description "permit";
+        }
+        enum deny {
+            description "deny";
+        }
+    }
+    description "action type";
+  }
+  
+  typedef protocol-num {
+    type  uint16 {
+            range "0..255";
+    }
+    description "protocol-num:0 means IP; 1 means ICMP; 6 means TCP; 17 means UDP; 58 means ICMPV6";   
+  }
+  
+  typedef week {
+    type enumeration {
+        enum daily {
+            description "every day";
+        }
+        enum mon {
+            description "Monday";
+        }
+        enum tue {
+            description "Tuesday";
+        }
+        enum wed {
+            description "Wednesday";
+        }
+        enum thu {
+            description "Thursday";
+        }
+        enum fri {
+            description "Friday";
+        }
+        enum sta {
+            description "Saturday";
+        }
+        enum sun {
+            description "Sunday";
+        }
+        enum off-day {
+            description "Weekends";
+        }
+        enum working-day {
+            description "Workday";
+        }
+    }
+    description "effect day";
+  }
+  
+  typedef filter-type {
+    type enumeration {
+        enum interface {
+            description "match interface";
+        }
+        enum mac {
+            description "match mac-address";
+        }
+        enum ipv4 {
+            description "match ipv4 ";
+        }
+        enum ipv6 {
+            description "match ipv6";
+        }
+	enum mpls {
+		description "match mpls";
+	}
+	enum mix {
+		description "match mix";
+	}
+   }
+    description "filter package type";
+  }
+  
+  typedef acl-type {
+    type enumeration {
+        enum IF {
+            description "interface acl";
+        }
+        enum L2 {
+            description "l2 acl";
+        }
+        enum BASIC {
+            description "ipv4 basic acl";
+        }
+        enum ADVANCE {
+            description "ipv4 advance acl";
+        }
+        enum IPV6-BASIC {
+            description "ipv6 basic acl";
+        }
+        enum IPV6-ADVANCE {
+            description "ipv6 advance acl";
+        }
+        enum MPLS {
+            description "mpls acl";
+        }
+        enum MIX {
+            description "mix acl";
+        }
+    }
+    description "acl type";
+  }
+  
+  typedef fragment-type {
+    type enumeration {
+        enum non-fragment {
+            description "df=1 mf=0 offset=0 df_mask=0xff mf_mask=0xff offset_mask=0xff ";
+        }
+         enum fragment-spe-first {
+            description "df=0 mf=1 offset=0 df_mask=0xff mf_mask=0xff offset_mask=0xff ";
+        }
+        enum fragment-spe {
+            description "df=0 offset=0xff df_mask=0xff mf_mask=0x0  offset_mask=0xff ";
+        }
+        enum last-fragment {
+            description "df=0 mf=0 offset=0xff  df_mask=0xff mf_mask=0xff offset_mask=0xff ";
+        }
+        enum non-subseq {
+            description " offset=0      df_mask=0x0 mf_mask=0x0  offset_mask=0xff ";
+         }
+    }
+    description "ipv4 fragment type";
+  }
+
+  /*end typedefs*/
+  
+  /* groupings */
+  grouping ip-advance-rule-common {
+    description "IP advance rule common config";
+    leaf protocol {
+        type acl:protocol-num;
+        description "protocol";
+    }
+    leaf icmp-type {
+        when "../protocol='1' or ../protocol='58' ";
+        type uint8 {
+            range "0..254";
+        }
+        description "ICMP type";
+    }
+    leaf icmp-code {
+        when "../protocol='1' or ../protocol='58' ";
+        type uint8 {
+            range "0..254";
+        }
+        description "ICMP code,configure this field when icmp-type is effect,and this field is not necessary";
+    }
+    leaf dst-port {
+        type uint16 {
+            range "0..65535";
+        }
+        description "destination port";
+    }
+    leaf src-port {
+        type uint16 {
+            range "0..65535";
+        }
+        description "source port";
+    }
+    leaf cwr {
+        when "../protocol='6'";
+        type uint8 {
+            range "0..1";
+        }
+        description "tcp flag";
+    }
+    leaf ece {
+        when "../protocol='6'";
+        type uint8 {
+            range "0..1";
+        }
+        description "tcp flag";
+    }
+    leaf urg {
+        when "../protocol='6'";
+        type uint8 {
+            range "0..1";
+        }
+        description "tcp flag";
+    }
+    leaf push {
+       when "../protocol='6'";
+        type uint8 {
+            range "0..1";
+        }
+        description "tcp flag";
+    }
+    leaf rst {
+        when "../protocol='6'";
+        type uint8 {
+            range "0..1";
+        }
+        description "tcp flag";
+    }
+    leaf ack {
+       when "../protocol='6'";
+        type uint8 {
+            range "0..1";
+        }
+        description "tcp flag";
+    }
+    leaf syn {
+       when "../protocol='6'";
+        type uint8 {
+            range "0..1";
+        }
+        description "tcp flag";
+    }
+    leaf fin {
+       when "../protocol='6'";
+        type uint8 {
+            range "0..1";
+        }
+        description "tcp flag";
+    }
+	leaf protocol-any {
+		type co-type:is-enable;
+		default "disable";
+		description "match protocol any. optional. may not be supported by NE vendors other than fiberhome.";
+    }
+    
+  }
+  
+  grouping if-rule {
+    description "interface rule";
+    leaf if-any {
+        type co-type:is-enable;
+        default "disable";
+        description "weather match any interface";
+    }
+    leaf if-name {
+        type acl:if-ref;
+        description "interface name";
+    }
+
+  }
+  
+  grouping ipv4-basic-rule {
+    description "ipv4 basic rule";
+    leaf dst-ip {
+        type inet:ipv4-prefix;
+        description "destination ipv4 address";
+    }
+    leaf src-ip {
+        type inet:ipv4-prefix;
+        description "source ipv4 address";
+    }
+    leaf dscp {
+        type uint8 {
+            range "0..63";
+        }
+        description "DSCP value";
+    }
+    leaf precedence {
+        type uint8 {
+            range "0..7";
+        }
+        description "IP precedence";
+    }
+    leaf tos {
+        type uint8 {
+            range "0..15";
+        }
+        description "IP tos";
+    }
+    leaf fragment-type {
+        type acl:fragment-type;
+        description "ipv4 fragment type";
+    }
+    leaf vrf-name {
+        type co-type:vpn-name-with-global;
+        description "vrf name";
+    }
+  }
+  
+  grouping ipv4-advance-rule {
+    uses ipv4-basic-rule{
+    }
+    uses ip-advance-rule-common{
+    }
+    description "ipv4 advance rule";
+  }
+  
+  grouping l2-rule {
+    leaf outer8021p {
+        type uint8 {
+            range "0..7";
+        }
+        description "outer vlan priority";
+    }
+    leaf inner8021p {
+        type uint8 {
+            range "0..7";
+        }
+        description "inner vlan priority";
+    }
+    leaf dst-mac {
+        type yang:mac-address;
+        description "destination mac-address";
+    }
+    leaf dst-mac-mask {
+        type yang:mac-address;
+        description "destination mac-address mask";
+    }
+    leaf src-mac {
+        type yang:mac-address;
+        description "source src-mac";
+    }
+    leaf src-mac-mask {
+        type yang:mac-address;
+        description "source src-mac address";
+    }
+    leaf outer-vlan-id {
+        type uint16 {
+            range "1..4094";
+        }
+        description "outer vlan id";
+    }
+    leaf inner-vlan-id {
+        type uint16 {
+            range "1..4094";
+        }
+        description "inner vlan id";
+    }
+    uses ethernet-type-rule;
+    description "l2 rule";
+  }
+  
+  grouping user-mpls-rule {
+    /*list user-mpls-rule-list {*/
+     /*   key stack;*/
+    leaf stack {
+            type uint8 {
+                range "1..255";
+            }
+            description "stack 1 menas the bottom stack"; 
+    }
+    leaf exp {
+        type uint16 {
+            range "0..7";
+         }
+        description "mpls exp";
+    }
+    leaf label {
+        type uint32 {
+            range "1..1048575";
+        }
+        description "mpls label";
+    }
+    leaf ttl {
+        type uint16 {
+            range "1..255";
+        }
+        description "mpls ttl";
+    }
+    description "user mpls rule";
+  }
+  
+  grouping ethernet-type-rule {
+    leaf etype {
+        type uint16 {
+            range "1536..65535";
+        }
+        description "ethernet type";
+    }
+    leaf etype-mask {
+        type uint16 {
+            range "0..65535";
+        }
+        default 65535;
+        description "ethernet type mask";
+    }
+    description "ethernet type rule";
+  }
+  
+  grouping ipv6-basic-rule {
+    leaf dst-ipv6 {
+        type inet:ipv6-prefix;
+        description "destination ipv6 address";
+    }
+    leaf src-ipv6 {
+        type inet:ipv6-prefix;
+        description "source ipv6 address";
+    }
+    leaf dscp {
+        type uint8 {
+            range "0..63";
+        }
+        description "DSCP value";
+    }
+    leaf precedence {
+        type uint8 {
+            range "0..7";
+        }
+        description "IP precedence";
+    }
+    leaf tos {
+        type uint8 {
+            range "0..15";
+        }
+        description "IP tos";
+    }
+    leaf vrf-name {
+        type co-type:vpn-name-with-global;
+        description "vrf name";
+    }
+    description "ipv6 basic rule";
+  }
+  
+  grouping ipv6-advance-rule {
+    uses ipv6-basic-rule {
+    }
+    uses ip-advance-rule-common{
+    }
+    description "ipv6 advacne rule";
+  }
+  
+    grouping mpls-rule {
+    uses user-mpls-rule {
+    }
+    uses ethernet-type-rule {
+    }
+    description "ethernet type and mpls rule";
+  }
+  
+  grouping rule-optional {
+    leaf time-range-name {
+        type acl:time-range;
+        description "time rane name";
+    }
+    leaf logging {
+        type co-type:is-enable;
+        default "disable";
+        description "enable hit count. the counters can be read through CLI command.";
+    }
+/*
+    leaf vrf-name {
+        type co-type:vpn-name-with-global;
+        description "vrf name";
+    }
+*/
+    description "acl rule optional config";
+  }
+  /*end groupings */
+  /*container*/
+  container acl {
+    /*time rang cfg*/
+    container time-range-cfgs {
+        list time-range-cfg {
+            key time-range-name;
+            leaf time-range-name {
+                type acl:time-range;
+                description "time range name";
+            }
+            container absoluteRanges {
+                description "A set of all absolute time ranges.";
+                list absoluteRange {
+                    key "start-time end-time";
+                    description "Specify the period of time starting from YYYY/MM/DD hh:mm and ending at YYYY/MM/DD hh:mm, which is not cyclic and has no cycle.";
+				leaf start-time {
+                        type co-type:datetime;
+                        description "Specify the start time and date.The time format is YYYY/MM/DD hh:mm. ";
+				}
+				leaf end-time {
+                        type co-type:datetime;
+                        description "Specify the end time and date.The time format is YYYY/MM/DD hh:mm. ";
+                    }
+                }
+            }
+            container periodRanges {
+              description "A set of all periodic time ranges.";
+              list periodRange {
+                key "week start-time end-time";
+                description "Specify the period of time taken by a cycle, which is cyclic.";
+                leaf start-time {
+                    type co-type:time;
+                  description "Specify the start time of a time range. The format is hh:mm, for example, 01:05.";
+				}
+                leaf end-time {
+                  type co-type:time;
+                  description "Specify the end time of a time range. The format is hh:mm, for example, 01:05.";
+                }
+                leaf week {
+					type acl:week;
+                    description "Specify the day on which a configured time range is valid.";
+				}
+              }
+			}
+        }
+        description "time range config";
+    }
+    /*end time rang cfg*/
+    
+    /*acl cfg*/
+    container acl-cfgs {
+        list acl-cfg {
+            key acl-name;
+            leaf acl-name {
+                type acl:acl-name;
+                description "acl name";
+            }
+            leaf description {
+                type acl-description;
+                description "acl description";
+            }
+            leaf acl-type {
+                type acl:acl-type;
+                description "acl type";
+            }
+            leaf counting {
+                type co-type:is-enable;
+                default "disable";
+                description "reference count";
+            }
+            leaf step {
+                type uint8 ;
+                default 5;
+                description "the acl add step";
+            }
+            list rule-if-cfg {
+                when "../acl-type = 'IF'";
+                key rule-id;
+                leaf rule-id {
+                    type uint16 {
+                        range "1..65535";
+                    }
+                    description "rule id";
+                }
+                leaf action {
+                    type acl:action;
+                    description "acl action,pass or drop";
+                }
+                uses if-rule{
+
+                }
+                uses rule-optional{
+                }
+                description "interface rule config";
+            }
+            list rule-ipv4-basic-cfg {
+                when "../acl-type = 'BASIC'";
+                key rule-id;
+                leaf rule-id {
+                    type uint16 {
+                        range "1..65535";
+                    }
+                    description "rule id";
+                }
+                leaf action {
+                    type acl:action;
+                    description "acl action";
+                }
+                uses ipv4-basic-rule{
+                    description "the leafs of dst-ip, dscp, precedence, tos are optional, and may not be supported by NE vendors other than fiberhome.
+		    the controller implementation should distinguish NE manufacturer types and ensure that operation commands to these optional yang 
+		    leafs  are not dispatched to NEs that not supporting them.";	
+                }
+                uses rule-optional{
+                }
+                description "ipv4 basic rule";
+            }
+            
+             list rule-ipv4-advance-cfg {
+                when "../acl-type = 'ADVANCE'";
+                key rule-id;
+                leaf rule-id {
+                    type uint16 {
+                        range "1..65535";
+                    }
+                    description "rule id";
+                }
+                leaf action {
+                    type acl:action;
+                    description "acl type";
+                }
+                uses ipv4-advance-rule{
+
+                }
+                uses rule-optional{
+                }
+                description "ipv4 advance rule";
+            }
+            
+            list rule-l2-cfg {
+                when "../acl-type = 'L2'";
+                key rule-id;
+                leaf rule-id {
+                    type uint16 {
+                        range "1..65535";
+                    }
+                    description "rule id";
+                }
+                leaf action {
+                    type acl:action;
+                    description "acl type";
+                }
+                uses l2-rule{
+
+                }
+                uses rule-optional{
+                }
+                description "l2 acl";
+            }
+            
+            list rule-mpls-cfg {
+                when "../acl-type = 'MPLS'";
+                key rule-id;
+                leaf rule-id {
+                    type uint16 {
+                        range "1..65535";
+                    }
+                    description "rule id";
+                }
+                leaf action {
+                    type acl:action;
+                    description "action type";
+                }
+                uses mpls-rule{
+
+                }
+                uses rule-optional{
+                }
+                description "mpls acl";
+            }
+            list rule-ipv6-basic-cfg {
+                when "../acl-type = 'IPV6-BASIC'";
+                key rule-id;
+                leaf rule-id {
+                    type uint16 {
+                        range "1..65535";
+                    }
+                    description "rule id";
+                }
+                leaf action {
+                    type acl:action;
+                    description "acl action";
+                }
+                uses ipv6-basic-rule{
+                    description "the leafs of dst-ipv6, dscp, precedence, tos are optional, and may not be supported by NE vendors other than fiberhome.
+		    the controller implementation should distinguish NE manufacturer types and ensure that operation commands to these optional yang 
+		    leafs  are not dispatched to NEs that not supporting them.";	
+                }
+                uses rule-optional{
+                }
+                description "ipv6 basic acl";
+            }
+            list rule-ipv6-advance-cfg {
+                when "../acl-type = 'IPV6-ADVANCE'";
+                key rule-id;
+                leaf rule-id {
+                    type uint16 {
+                        range "1..65535";
+                    }
+                    description "rule id";
+                }
+                leaf action {
+                    type acl:action;
+                    description "acl action";
+                }
+                uses ipv6-advance-rule {
+
+                }
+                uses rule-optional {
+                }
+                description "ipv6 advance acl";
+            }
+            list rule-mix-cfg {
+                when "../acl-type = 'MIX'";
+                key rule-id;
+                leaf rule-id {
+                    type uint16 {
+                        range "1..65535";
+                    }
+                    description "rule id";
+                }
+                leaf action {
+                    type acl:action;
+                    description "acl action";
+                }
+                container if-rule-cfg {
+                    uses if-rule;
+                    description "interface rule config";
+                }
+                container l2-rule-cfg {
+                    uses l2-rule {
+                    }
+                    description "l2 rule config";
+                }
+                container mpls-rule-cfg {
+                    uses ethernet-type-rule;
+                    uses user-mpls-rule;
+                    description "mpls rule config";
+                }
+                container ipv4-rule-cfg {
+                    uses ipv4-basic-rule{
+                    }
+                    uses ip-advance-rule-common{
+                    }
+                    description "ipv4 rule config";
+                }
+                uses rule-optional{
+                }
+            }
+            
+            container rule-ipv6-mix-cfgs {
+                list rule-ipv6-mix-cfg {
+                    when "../../acl-type = 'MIX'";
+                    key rule-id;
+                    leaf rule-id {
+                        type uint16 {
+                            range "1..65535";
+                        }
+                        description "rule id";
+                    }
+                    leaf action {
+                        type acl:action;
+                        description "acl action";
+                    }
+                    container if-rule-cfg {
+                        uses if-rule{
+                        }
+                        description "interface rule config";
+  
+                    }
+                    container l2-rule-cfg {
+                       uses l2-rule{
+                       }
+                       description "l2 rule config";
+                    }
+                    container mpls-rule-cfg {
+                        uses ethernet-type-rule;
+                        uses user-mpls-rule;
+                        description "userdefine rule config";
+                    }
+                    container ipv6-rule-cfg {
+                        uses ipv6-basic-rule;
+                        uses ip-advance-rule-common;
+                        description "ipv6 rule config";
+                    }
+                    uses rule-optional;
+                    description "mix acl";
+                }
+			}
+        }
+    }
+    /*end acl cfg*/
+  }
+  /*end container*/
+
+    /*acl bind cfg*/
+    augment "/if:if/if:interfaces/if:interface" 
+	{
+        container acl-inbound-cfg {
+            leaf filter-type {
+                type acl:filter-type;
+                description "in filter type";
+            }
+            leaf acl-name {
+                type acl:acl-name;
+                description "inbound acl name";
+            }
+        }
+        
+        container acl-outbound-cfg {
+            leaf filter-type {
+                type acl:filter-type;
+                description "out filter type";
+            }
+            leaf acl-name {
+                type acl:acl-name;
+                description "outbound acl name";
+            }
+        }
+        description "acl apply in interface";
+    }
+    /*end acl bind cfg*/
+
+  /*end acl yang*/
+  }

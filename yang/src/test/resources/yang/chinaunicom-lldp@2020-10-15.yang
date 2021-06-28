@@ -1,0 +1,97 @@
+module chinaunicom-lldp {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/systemmanage/chinaunicom-lldp";
+
+  prefix "lldp";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  
+  import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type";}
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+  import chinaunicom-interface-common {	revision-date 2020-12-31; prefix "if"; }
+  
+  organization "UTStarcom Telecom Co., Ltd.";
+
+  contact
+    "UTStarcom Telecom Co., Ltd.
+     
+     Postcode: 310053 
+     Address: 368 Liuhe Road, Binjiang District,Hangzhou, Zhejiang
+
+     E-mail: sheng.yu@utstar.com";
+
+  description
+    "This module contains a collection of YANG definitions
+     for UTStarcom IPRAN lldp package configuration.
+
+     This module contains definitions
+     for the following management objects:
+       lldp: LLDP configuration
+
+     Copyright (c) 2013-2020 by UTStarcom Telecom Co., Ltd.
+     All rights reserved.";
+
+	revision 2020-10-15 {
+    description "Initial version.";
+  }
+  
+  typedef if-ref {
+                type union {
+                type if:ethphy-name;
+                type if:virtual-overhead-name;
+                }
+	}
+  
+  container lldp {
+    presence "Enables LLDP";
+    description "lldp configuration";
+    container lldp-global {
+	    description "lldp global configuration";
+      
+      leaf management-address {
+	    type inet:ipv4-address-no-zone;
+        description
+          "LLDP management address";
+      }
+      leaf global-enable {
+        type co-type:is-enable;
+        default "enable";
+        description "Enable or disable LLDP globally";
+      }
+	    list lldpPort{
+		  key "ifname";
+		  description "Enable LLDP on interface.";
+		  		
+		    leaf ifname{
+		    	type lldp:if-ref;
+		    	description "ifname";
+		    }   
+			
+        leaf agent-enable {
+          type co-type:is-enable;
+          default "enable";
+          description "Enable or disable LLDP agent";
+        }
+			
+			  leaf if-tlv-sd-alarm-enable {
+          type co-type:is-enable;
+          default "disable";
+          description "Enable or disable LLDP if sd-alarm tlv";
+        }
+	    }
+	  }
+  }
+/*
+  augment "/a1:interface-configurations/a1:interface-configuration" {
+  
+    container lldp {
+	  leaf enabled {
+	    type uint32;
+		description "Enable LLDP on interface.";
+	  }
+	}
+  }
+  */
+}

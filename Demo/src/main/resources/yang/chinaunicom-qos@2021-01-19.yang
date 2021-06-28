@@ -1,0 +1,938 @@
+module chinaunicom-qos {
+/*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/qos/chinaunicom-qos";
+
+  prefix "qos";
+  include chinaunicom-qos-tpl;
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  import chinaunicom-qos-type{	revision-date 2019-11-12; prefix "qos-type"; }
+
+  /*import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type"; }*/
+  
+  /*import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }*/
+  
+  /*import chinaunicom-interface-common  {	revision-date 2020-12-31; prefix "if"; }*/
+  
+  /*import ietf-yang-types  {	revision-date 2013-07-15; prefix "yang"; }*/
+  
+  import chinaunicom-l3vpn  {	revision-date 2019-10-24; prefix "l3vpn"; }
+  
+  /*import chinaunicom-acl  {	revision-date 2020-12-29; prefix "acl"; }*/
+  
+  /*import chinaunicom-l2vpn {	revision-date 2020-06-19; prefix "l2vpn";}*/
+  
+  import chinaunicom-mpls {	revision-date 2020-10-29; prefix "mpls"; }
+  
+  import chinaunicom-evpn {	revision-date 2020-11-27; prefix "evpn"; }
+  
+
+  /*** META INFORMATION ***/
+
+  organization "UTstarcom,Inc.";
+
+  contact
+    "UTStarcom Telecom Co.,Ltd.
+     Postcode: 310053 
+     Address: 4th Floor, South Wing, 368 Liuhe Road, Binjiang District, Hangzhou 310053, Zhejiang Province, P.R.China
+     E-mail: sihai.bao@utstar.com";
+
+
+  description 
+    "This module contains a collection of YANG definitions
+     for qos package configuration.
+
+     This module contains definitions
+     for the following management objects:
+       qos-type: qos configuration
+
+     Copyright (c) 2013-2021 by UTStarcom Telecom Co.,Ltd.
+     All rights reserved.";
+
+  revision "2021-01-19" {
+    description
+      "modify evpn path and delete static-lsp";
+  }	 
+	 
+ revision "2019-09-23" {
+    description
+      "debug queue-cfg.";
+  }	 
+	 
+  revision "2019-09-06" {
+    description
+      "Supports  evpn.";
+  }
+	 
+  revision "2018-05-23" {
+    description
+      "Init revision.";
+  }
+  
+grouping   lsp-transit-car {
+			container transit-car {	
+				leaf cir {
+					type uint32 {
+						range "0..4294967295";
+					}
+					description "The unit is Kpbs";
+					
+				}
+				leaf pir {
+					type uint32 {
+						range "0..4294967295";
+					}
+					description "The unit is Kpbs";
+					
+				}
+				leaf cbs {
+					type uint32 {
+						range "0..4294967295";
+					}
+					description "The unit is Byte";
+                    			
+				}
+				leaf pbs {
+					type uint32 {
+						range "0..4294967295";
+					}
+					description "The unit is Byte";
+					
+				}
+				leaf color-aware {
+					type qos-type:color-aware;
+					default "blind";
+				}
+				leaf green-action {
+					type qos-type:car-action;
+					default "pass";
+				}
+				leaf green-mark-phb {
+					type qos-type:phb-value;
+					default "be";
+				}
+				leaf green-mark-color {
+					type qos-type:color;
+					default "green";
+				}
+				leaf yellow-action {
+					type qos-type:car-action;
+					default "pass";
+				}
+				leaf yellow-mark-phb {
+					type qos-type:phb-value;
+					default "be";
+				}
+				leaf yellow-mark-color {
+					type qos-type:color;
+					default "yellow";
+				}
+				leaf red-action {
+					type qos-type:car-action;
+					default "drop";
+				}
+				leaf red-mark-phb {
+					type qos-type:phb-value;
+					default "be";
+				}
+				leaf red-mark-color {
+					type qos-type:color;
+					default "red";
+				}
+				
+		}	
+	}
+  
+grouping transit-ds-in {
+		container transit-in-diffserv {
+					leaf in-map-type {
+						type qos-type:in-map-type;
+					}
+					container in-trust {
+						when "../in-map-type = 'map'";
+						leaf in-trust-type {
+							type qos-type:trust-type;
+							must "../in-trust-type='exp'";
+							description " trust-type support exp";
+						}
+						leaf in-diffserv-name {
+							type qos-type:diffserv-name;
+						}
+					}
+					container in-remark {
+						when "../in-map-type = 'remark'";
+						leaf in-remark-phb {
+							type qos-type:phb-value;
+						}
+						leaf in-remark-color {
+							type qos-type:color;
+						}
+					}		
+			}
+}
+
+grouping transit-ds-out {
+		container transit-out-diffserv {
+					leaf out-map-type {
+						type qos-type:out-map-type;
+					}
+					container out-trust {
+						when "../out-map-type = 'map'";
+							leaf out-trust-type {
+							type qos-type:trust-type;
+							must "../out-trust-type='exp'";
+						    description " trust-type support exp";
+							}
+						
+						leaf out-diffserv-name {
+							type qos-type:diffserv-name;
+						}
+					}
+					
+					container out-remark {
+						when "../out-map-type = 'remark-exp'";
+						leaf out-remark-exp {
+							type uint8 {	
+								range "0..7";
+							}
+						}
+					}
+			}		
+}
+  
+  
+  container qos-cfgs {
+
+    /*wred*/
+    container wred-cfgs {
+    list wred-cfg {
+        key wred-name;
+        leaf wred-name {
+            type qos-type:wred-name;
+        }
+        list wred-color {
+            key color;
+            leaf color {
+                type qos-type:color;
+            }
+            leaf low-limit {
+                type uint8 {
+                    range "0..100";
+                }
+                description "The unit is percentage.";
+            }
+            leaf high-limit {
+                type uint8 {
+                    range "0..100";
+                }
+                description "The unit is percentage.";
+            }
+            leaf discard {
+                type uint8 {
+                    range "0..100";
+                }
+                description "The unit is percentage.";
+            }
+        }
+    }
+  }
+  
+  
+   
+    /*ds-map*/
+    container diffserv-map-cfgs {
+        list diffserv-map-cfg {
+            key diffserv-name;
+            leaf diffserv-name {
+                type qos-type:diffserv-name;
+            }
+            list in-map-dscp-table {
+                key user-priority;
+                leaf user-priority {
+                    type uint8 {
+                        range "0..63";
+                    }
+                }
+                leaf phb {
+                    type qos-type:phb-value;
+                }
+                leaf color {
+                    type qos-type:color;
+                }
+            }
+			
+			list in-map-8021p-table {
+                key user-priority;
+                leaf user-priority {
+                    type uint8 {
+                        range "0..7";
+                    }
+                }
+                leaf phb {
+                    type qos-type:phb-value;
+                }
+                leaf color {
+                    type qos-type:color;
+                }
+            }
+			
+			list in-map-exp-table {
+                key user-priority;
+                leaf user-priority {
+                    type uint8 {
+                        range "0..7";
+                    }
+                }
+                leaf phb {
+                    type qos-type:phb-value;
+                }
+                leaf color {
+                    type qos-type:color;
+                }
+            }
+			
+			list out-map-dscp-table {
+                key "phb color";
+                leaf phb {
+                    type qos-type:phb-value;
+                }
+                leaf color {
+                    type qos-type:color;
+                }
+                leaf user-priority {
+                    type uint8 {
+                        range "0..63";
+                    }
+                }
+            }
+			
+			list out-map-8021p-table {
+                key "phb color";
+                leaf phb {
+                    type qos-type:phb-value;
+                }
+                leaf color {
+                    type qos-type:color;
+                }
+                leaf user-priority {
+                    type uint8 {
+                        range "0..7";
+                    }
+                }
+            }
+			
+			list out-map-exp-table {
+                key "phb color";
+                leaf phb {
+                    type qos-type:phb-value;
+                }
+                leaf color {
+                    type qos-type:color;
+                }
+                leaf user-priority {
+                    type uint8 {
+                        range "0..7";
+                    }
+                }
+            }
+        }
+    }
+    
+    /*qos-if*/
+	container qos-if-cfgs {
+		list qos-if-cfg {
+            key if-name;
+            leaf if-name {
+                type qos-type:if-ref;
+            }
+			container if-cars{
+				list if-car {
+					key car-direction;
+					leaf car-direction {
+						type qos-type:direction-type;
+					}
+		
+					leaf cir {
+						type uint32 {
+							range "0..4294967295";
+						}
+						description "The unit is Kpbs";
+						
+					}
+					leaf pir {
+						type uint32 {
+							range "0..4294967295";
+						}
+						description "The unit is Kpbs";
+						
+					}
+					leaf cbs {
+						type uint32 {
+							range "0..4294967295";
+						}
+						description "The unit is Byte";
+						
+					}
+					leaf pbs {
+						type uint32 {
+							range "0..4294967295";
+						}
+						description "The unit is Byte";
+						
+					}
+					leaf color-aware {
+						type qos-type:color-aware;
+						default "blind";
+					}
+					leaf green-action {
+						type qos-type:car-action;
+						default "pass";
+					}
+					leaf green-mark-phb {
+						type qos-type:phb-value;
+						default "be";
+					}
+					leaf green-mark-color {
+						type qos-type:color;
+						default "green";
+					}
+					leaf yellow-action {
+						type qos-type:car-action;
+						default "pass";
+					}
+					leaf yellow-mark-phb {
+						type qos-type:phb-value;
+						default "be";
+					}
+					leaf yellow-mark-color {
+						type qos-type:color;
+						default "yellow";
+					}
+					leaf red-action {
+						type qos-type:car-action;
+						default "drop";
+					}
+					leaf red-mark-phb {
+						type qos-type:phb-value;
+						default "be";
+					}
+					leaf red-mark-color {
+						type qos-type:color;
+						default "red";
+					}
+				}
+			}
+			
+			
+			
+			container if-queue-cfgs{
+				must 'not(contains(../if-name, "."))'
+				{
+					error-message "if-queue-cfg must not be ethsub-name";
+				}
+				list if-queue-cfg {
+					key queue-id;
+					leaf queue-id {
+						type qos-type:phb-value;
+					}
+                    container scheduling-cfg {
+					leaf sch-mode {
+						type qos-type:scheduling-mode;
+						default "sq";
+					}
+					leaf wfq-value {
+						when "../sch-mode = 'wfq'";
+						type uint8 {
+							range "1..100";
+						}
+						default "10";
+					}
+                    }
+                    container shaping-cfg {
+					leaf cir {
+						type uint32 {
+							range "0..4294967295";
+						}
+						description "The unit is Kpbs.The default value is the band width of the port";
+						default "0";
+					}
+					leaf pir {
+						type uint32 {
+							range "0..4294967295";
+						}
+						description "The unit is Kpbs.The default value is the band width of the port";
+						default "4294967295";
+					}
+					leaf cbs {
+						type uint32 {
+							range "0..4294967295";
+						}
+						description "The unit is Byte";
+						default "4294967295";
+					}
+					leaf pbs {
+						type uint32 {
+							range "0..4294967295";
+						}
+						description "The unit is Byte";
+						default "4294967295";
+					}
+                    }
+                    container congestion-cfg {
+					leaf congestion-mode {
+						type qos-type:congestion-mode;
+						default "tail";
+					}
+					leaf wred-name {
+						when "../congestion-mode = 'wred'";
+						type qos-type:wred-name;
+					}
+                    }
+					leaf size {
+						type uint32 {
+							range "1..4294967295";
+						}
+						default "4294967295";
+						description "The unit is KB";
+					}
+				}
+			}
+			
+			
+			container if-in-diffserv{
+				leaf in-map-type {
+					type qos-type:in-map-type;
+				}
+				container in-trust {
+					when "../in-map-type = 'map'";
+					leaf in-trust-type {
+						type qos-type:trust-type;
+					}
+					leaf in-diffserv-name {
+						type qos-type:diffserv-name;
+					}
+				}
+				container in-remark {
+					when "../in-map-type = 'remark'";
+					leaf in-remark-phb {
+						type qos-type:phb-value;
+					}
+					leaf in-remark-color {
+						type qos-type:color;
+					}
+				}
+			}
+			
+			container if-out-diffserv{
+				leaf out-map-type {
+					type qos-type:out-map-type;
+				}
+				container out-trust {
+					when "../out-map-type = 'map'";
+					leaf out-trust-type {
+						type qos-type:trust-type;
+					}
+					leaf out-diffserv-name {
+						type qos-type:diffserv-name;
+					}
+				}
+				container out-remark{	
+					leaf out-remark-dscp {
+						when "../../out-map-type = 'remark-dscp'";
+						type uint8 {
+							range "0..63";
+						}
+					}
+					leaf out-remark-8021p {
+						when "../../out-map-type = 'remark-8021p'";
+						type uint8 {
+							range "0..7";
+						}
+					}
+					
+				}
+			}
+    
+				
+            list packet-supression-cfg {
+                key supress-type;
+                leaf supress-type {
+                    type qos-type:sup-type;
+                }
+                leaf supress-value {
+                    type uint32 {
+                        range "0..4294967295";
+                    }
+                description "The unit is Kbit/s.";
+                }   
+            }
+			
+			container port-shaping{
+				must 'not(contains(../if-name, "."))'
+				{
+					error-message "if-queue-cfg must not be ethsub-name";
+				}
+			leaf shaping {
+                description "This filed is allowed to be configed when the  interface type is ethernet physical interface";
+				type uint32 {
+					range "0..4294967295";
+				}
+             }
+			}
+		}
+		
+	}
+        /* tpl */
+    container qos-tpl {
+        uses qos:qos-tpl;
+    }
+   
+  /*end qos cfg*/
+  }
+  
+
+   
+
+    
+    augment "/l3vpn:l3vpn/l3vpn:vpn-instances/l3vpn:vpn-instance" 
+    {
+        container qos-vrf-cfgs {
+/*             list qos-vrf-cfg {
+                key peer-ip;
+                leaf peer-ip {
+                    type inet:ipv4-address;
+                }
+                list vrf-car {
+                    key car-direction;
+                    leaf car-direction {
+                        type qos-type:direction-type;
+                    }
+                    
+                }
+            } */
+        }
+    }
+	
+	augment "/l3vpn:l3vpn/l3vpn:vpn-instances/l3vpn:vpn-instance" 
+    {
+		container vrf-in-diffserv{
+				leaf in-map-type {
+					type qos-type:in-map-type;
+				}
+				container in-trust {
+					when "../in-map-type = 'map'";
+					leaf in-trust-type {
+						type qos-type:trust-type;
+						must  "(../in-trust-type='exp') or (../in-trust-type='dscp')";
+					description "vrf trust-type support exp and dscp";
+					}
+					
+					leaf in-diffserv-name {
+						type qos-type:diffserv-name;
+					}
+				}
+				container in-remark {
+					when "../in-map-type = 'remark'";
+					leaf in-remark-phb {
+						type qos-type:phb-value;
+					}
+					leaf in-remark-color {
+						type qos-type:color;
+					}
+				}
+			}
+			
+			container vrf-out-diffserv{
+				leaf out-map-type {
+					type qos-type:out-map-type;
+				}
+				container out-trust {
+					when "../out-map-type = 'map'";
+					leaf out-trust-type {
+						type qos-type:trust-type;
+						must "../out-trust-type='exp'";
+						description "vrf trust-type support exp";
+					}				
+					leaf out-diffserv-name {
+						type qos-type:diffserv-name;
+					}
+				}
+				
+				container out-remark {
+					when "../out-map-type = 'remark-exp'";
+					leaf out-remark-exp {
+						type uint8 {	
+							range "0..7";
+						}
+					}
+				}
+		   
+			}
+    }
+    
+    augment "/mpls:mpls/mpls:mpls-te/mpls:tunnel-te" 
+    {
+        container qos-lsp-cfgs {
+            list qos-lsp-cfg{
+                key lsp-type;
+                leaf lsp-type {
+                    type qos-type:lsp-type;
+                }
+                container lsp-car{
+				
+				leaf cir {
+					type uint32 {
+						range "0..4294967295";
+					}
+					description "The unit is Kpbs";
+				
+				}
+				leaf pir {
+					type uint32 {
+						range "0..4294967295";
+					}
+					description "The unit is Kpbs";
+				
+				}
+				leaf cbs {
+					type uint32 {
+						range "0..4294967295";
+					}
+					description "The unit is Byte";
+				}
+				leaf pbs {
+					type uint32 {
+						range "0..4294967295";
+					}
+					description "The unit is Byte";
+					
+				}
+				leaf color-aware {
+					type qos-type:color-aware;
+					default "blind";
+				}
+				leaf green-action {
+					type qos-type:car-action;
+					default "pass";
+				}
+				leaf green-mark-phb {
+					type qos-type:phb-value;
+					default "be";
+				}
+				leaf green-mark-color {
+					type qos-type:color;
+					default "green";
+				}
+				leaf yellow-action {
+					type qos-type:car-action;
+					default "pass";
+				}
+				leaf yellow-mark-phb {
+					type qos-type:phb-value;
+					default "be";
+				}
+				leaf yellow-mark-color {
+					type qos-type:color;
+					default "yellow";
+				}
+				leaf red-action {
+					type qos-type:car-action;
+					default "drop";
+				}
+				leaf red-mark-phb {
+					type qos-type:phb-value;
+					default "be";
+				}
+				leaf red-mark-color { 
+					type qos-type:color;
+					default "red";
+				}
+				
+			}
+			
+             	container lsp-in-diffserv{
+					leaf in-map-type {
+						type qos-type:in-map-type;
+					}
+					container in-trust {
+						when "../in-map-type = 'map'";
+						leaf in-trust-type {
+							type qos-type:trust-type;
+							must "../in-trust-type='exp'";
+						description " trust-type support exp";
+						}
+						
+						leaf in-diffserv-name {
+							type qos-type:diffserv-name;
+						}
+					}
+					container in-remark {
+						when "../in-map-type = 'remark'";
+						leaf in-remark-phb {
+							type qos-type:phb-value;
+						}
+						leaf in-remark-color {
+							type qos-type:color;
+						}
+						}
+				}
+			
+				container lsp-out-diffserv{
+					leaf out-map-type {
+						type qos-type:out-map-type;
+					}
+					container out-trust {
+						when "../out-map-type = 'map'";
+						leaf out-trust-type {
+							type qos-type:trust-type;
+							must "../out-trust-type = 'exp'";
+						description " trust-type support exp";
+						}
+						
+						leaf out-diffserv-name {
+							type qos-type:diffserv-name;
+						}
+					}
+					
+					container out-remark {
+						when "../out-map-type = 'remark-exp'";
+						leaf out-remark-exp {
+							type uint8 {	
+								range "0..7";
+							}
+						}
+					}
+			   
+				}
+			
+            }
+        }
+    }
+ 
+ augment "/evpn:evpn/evpn:evpn-vpws/evpn:evpn-vpws-list" 
+    {
+        container qos-evpn-cfg {
+			container evpn-in-diffserv{
+				leaf in-map-type {
+					type qos-type:in-map-type;
+				}
+				container in-trust {
+					when "../in-map-type = 'map'";
+					leaf in-trust-type {
+						type qos-type:trust-type;
+						must  "(../in-trust-type='exp') or (../in-trust-type='dscp')";
+						description "pw trust-type support exp and dscp";
+					}
+					
+					leaf in-diffserv-name {
+						type qos-type:diffserv-name;
+					}
+				}
+				container in-remark {
+					when "../in-map-type = 'remark'";
+					leaf in-remark-phb {
+						type qos-type:phb-value;
+					}
+					leaf in-remark-color {
+						type qos-type:color;
+					}
+				}
+			}
+			
+			container evpn-out-diffserv{
+				leaf out-map-type {
+					type qos-type:out-map-type;
+				}
+				container out-trust {
+					when "../out-map-type = 'map'";
+						leaf out-trust-type {
+						type qos-type:trust-type;
+						must '../out-trust-type="exp"';
+						description "pw trust-type support exp";
+					}					
+					leaf out-diffserv-name {
+						type qos-type:diffserv-name;
+					}
+				}
+				
+				container out-remark {
+					when "../out-map-type = 'remark-exp'";
+					leaf out-remark-exp {
+						type uint8 {	
+							range "0..7";
+						}
+					}
+				}
+		   
+			}
+		}
+	}
+	
+
+
+
+  
+ augment "/evpn:evpn/evpn:evpn/evpn:evpn-list"
+    {
+        container qos-evpn-cfg {
+			container evpn-in-diffserv{
+				leaf in-map-type {
+					type qos-type:in-map-type;
+				}
+				container in-trust {
+					when "../in-map-type = 'map'";
+					leaf in-trust-type {
+						type qos-type:trust-type;
+						must  "(../in-trust-type='exp') or (../in-trust-type='dscp')";
+						description "pw trust-type support exp and dscp";
+					}
+					
+					leaf in-diffserv-name {
+						type qos-type:diffserv-name;
+					}
+				}
+				container in-remark {
+					when "../in-map-type = 'remark'";
+					leaf in-remark-phb {
+						type qos-type:phb-value;
+					}
+					leaf in-remark-color {
+						type qos-type:color;
+					}
+				}
+			}
+			
+			container evpn-out-diffserv{
+				leaf out-map-type {
+					type qos-type:out-map-type;
+				}
+				container out-trust {
+					when "../out-map-type = 'map'";
+						leaf out-trust-type {
+						type qos-type:trust-type;
+						must '../out-trust-type="exp"';
+						description "pw trust-type support exp";
+					}					
+					leaf out-diffserv-name {
+						type qos-type:diffserv-name;
+					}
+				}
+				
+				container out-remark {
+					when "../out-map-type = 'remark-exp'";
+					leaf out-remark-exp {
+						type uint8 {	
+							range "0..7";
+						}
+					}
+				}
+		   
+			}
+		}
+	}
+	
+
+  
+  /*end*/
+  
+}

@@ -1,0 +1,34 @@
+module chinaunicom-if-loopback {
+
+  namespace "http://chinaunicom.com/yang/interface/chinaunicom-if-loopback";
+  prefix "lbif";
+  
+   import chinaunicom-interface-common
+  {
+	revision-date 2020-12-31;
+	prefix if;
+  }
+  
+  description
+   "loopback interface config.";
+		   
+  revision 2020-07-03
+  {
+    description
+      "Absolute path modified to relative path. Modify ip-perfix type";
+  }
+ 
+  revision 2018-04-09 
+  {
+    description
+     "loopback interface config";
+    reference
+     "loopback Interface YANG Data Types";
+  }
+	augment "/if:if/if:interfaces/if:interface"
+	{
+		when "type = 'LOOPBACK'";
+		container loopback-interface{
+		}
+	}
+}

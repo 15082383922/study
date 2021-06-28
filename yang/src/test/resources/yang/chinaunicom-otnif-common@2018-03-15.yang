@@ -1,0 +1,155 @@
+module chinaunicom-otnif-common
+{ 
+    namespace "http://chinaunicom.com/yang/interface/otninterface/chinaunicom-otnif-common";
+    prefix "otnif";
+    import chinaunicom-interface-common 
+    {
+	revision-date 2020-12-31;
+        prefix if;
+    }
+    description
+        "The module definitions of an OTN interface";
+    revision 2018-03-15
+    {
+        description
+            "version 1.0";
+    }
+
+    grouping threshold-deg
+    {
+        description "threshold-deg";
+        leaf exc-rate
+        {
+            type uint8
+            {
+                range "3..5";
+            }
+            default 3;
+        }
+        leaf deg-rate
+        {
+            type uint8
+            {
+                range "6..9";
+            }
+            default 6;
+        }
+        leaf deg-thr
+        {
+            type uint32;
+        }
+        leaf deg-time-window
+        {
+            type enumeration
+            {
+                enum 10ms
+                {
+                    value 1;
+                }
+                enum 100ms
+                {
+                    value 2;
+                }
+                enum 1000ms
+                {
+                    value 3;
+                }
+            }
+        }
+        leaf deg-duration
+        {
+            type uint8
+            {
+                range "1..10";
+            }
+            default 2;
+        }
+        leaf deg-mode
+        {
+            type enumeration
+            {
+                enum standard
+                {
+                    value 1;
+                }
+                enum burst
+                {
+                    value 2;
+                }
+            }
+            default "standard";
+        }
+    }
+
+    grouping threshold-es
+    {
+        description "threshold-es";
+        leaf es-threshold
+        {
+            type uint16
+            {
+                range "1..900";
+            }
+            default 900;
+        }
+        leaf ses-threshold
+        {
+            type uint16
+            {
+                range "1..900";
+            }
+            default 900;
+        }
+    }
+
+    typedef direction-value
+    {
+        type enumeration
+        {
+            enum unidirection
+            {
+                value 1;
+            }
+            enum bidirection
+            {
+                value 2;
+            }          
+        }
+        description
+            "The two kind of direction.";
+    }
+    typedef oduk-overhead-layer
+    {
+        type enumeration
+        {
+            enum pm
+            {
+                value 1;
+            }
+            enum tcm1
+            {
+                value 2;
+            }
+            enum tcm2
+            {
+                value 3;
+            }
+            enum tcm3
+            {
+                value 4;
+            }
+            enum tcm4
+            {
+                value 5;
+            }
+            enum tcm5
+            {
+                value 6;
+            }
+            enum tcm6
+            {
+                value 7;
+            }
+        }
+    }    
+}

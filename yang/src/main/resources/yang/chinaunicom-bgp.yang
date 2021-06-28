@@ -1,0 +1,1699 @@
+module chinaunicom-bgp {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/ipprotocol/routing/chinaunicom-bgp";
+
+
+  prefix "bgpd";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+  import ietf-inet-types { prefix "inet"; }
+  
+  import chinaunicom-datatype-common { prefix "co-type"; }
+  
+  import chinaunicom-routemap { prefix "routemap"; }
+  
+
+  
+  /*** META INFORMATION ***/
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+     
+    Postcode: 430073 
+    Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+    Tel: +XXXXXXXXXXXX
+
+    E-mail: yang- author@fiberhome.com";
+
+
+  description 
+    "This module contains a collection of YANG definitions
+     for Fiberhome FOS V5 bgp package configuration.
+
+     This module contains definitions
+     for the following management objects:
+       bgp: BGP configuration for all instances
+
+     Copyright (c) 2013-2016 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision "2020-04-09" {
+    description
+      "add advertise-interval in bgp neighbor list and local as";
+  }
+
+  revision "2020-02-25" {
+    description
+      "modify peer group and default origin, modify some element default value";
+  }
+     
+  revision "2019-10-19" {
+    description
+      "add must condition for redistribute ospfv3 route.";
+  }
+     
+  revision "2019-09-06" {
+    description
+      "modify peer-address-family-send-community-group and peer-address-family-route-map-group, add address-family-distance-group and update-delay.";
+  }
+     
+  revision "2018-04-12" {
+    description
+      "FOS V5 1.0 revision.";
+  }
+
+  /****************** typedef start ******************/
+  typedef route-policy-ref {
+    type routemap:policy-name;
+  }
+
+  typedef Bgp-official-address-family {
+    type enumeration {
+      enum ipv4 {
+        value 1;
+        description "IPv4";
+      }
+      enum ipv6 {
+        value 2;
+        description "IPv6";
+      }
+      enum l2vpn {
+        value 25;
+        description "L2VPN";
+      }
+      enum ls {
+        value 16388;
+        description "LS";
+      }
+      enum all {
+        value 65534;
+        description "All";
+      }
+    }
+    description "Bgp official address family";
+  }
+  
+  typedef Bgp-official-sub-address-family {
+    type enumeration {
+      enum unicast {
+        value 1;
+        description "Unicast";
+      }
+      enum multicast {
+        value 2;
+        description "Multicast";
+      }
+      enum labeled-unicast {
+        value 4;
+        description "Labeled unicast";
+      }
+      enum mvpn {
+        value 5;
+        description "MVPN";
+      }
+      enum mspw {
+        value 6;
+        description "MSPW";
+      }
+      enum tunnel {
+        value 64;
+        description "Tunnel";
+      }
+      enum vpls {
+        value 65;
+        description "VPLS";
+      }
+      enum mdt {
+        value 66;
+        description "MDT";
+      }
+      enum vpws {
+        value 68;
+        description "VPWS";
+      }
+      enum evpn {
+        value 70;
+        description "EVPN";
+      }
+      enum ls {
+        value 71;
+        description "LS";
+      }
+      enum vpn {
+        value 128;
+        description "VPN";
+      }
+      enum vpn-mcast {
+        value 129;
+        description "VPN MCAST";
+      }
+      enum rt-filter {
+        value 132;
+        description "Rt filter";
+      }
+      enum flowspec {
+        value 133;
+        description "Flowspec";
+      }
+      enum vpn-flowspec {
+        value 134;
+        description "VPN Flowspec";
+      }
+      enum all {
+        value 254;
+        description "All";
+      }
+    }
+    description "Bgp official subsequent address family";
+  }
+  
+  typedef Bgp-address-family {
+    type enumeration {
+      enum ipv4 {
+        value 1;
+        description "IPv4";
+      }
+      enum ipv6 {
+        value 2;
+        description "IPv6 unicast";
+      }
+      enum vpnv4 {
+        value 3;
+        description "VPNv4 unicast";
+      }
+      enum vpnv6 {
+        value 4;
+        description "VPNv6 unicast";
+      }
+      enum ls {
+        value 5;
+        description "Link-state";
+      }
+    }
+    description "Bgp address family";
+  }
+  
+  typedef Bgp-sub-address-family {
+    type enumeration {
+      enum unicast {
+        value 1;
+        description "IP unicast";
+      }
+      enum multicast {
+        value 2;
+        description "IP multicast";
+      }
+    }
+    description "Bgp sub address family";
+  }
+
+  typedef Bgp-lu-sub-address-family {
+    type enumeration {
+      enum unicast {
+        value 1;
+        description "IP unicast";
+      }
+      enum multicast {
+        value 2;
+        description "IP multicast";
+      }
+      enum labeled-unicast {
+        value 3;
+        description "Labeled Unicast";
+      }
+    }
+    description "Bgp sub address family";
+  }
+
+  typedef Bgp-ls-sub-address-family {
+    type enumeration {
+      enum publs {
+        value 4;
+        description "Public link-state";
+      }
+    }
+    description "Bgp ls sub address family";
+  }
+
+  typedef Bgp-evpn-sub-address-family {
+    type enumeration {
+      enum evpn {
+        value 5;
+        description "evpn sub address family";
+      }
+    }
+    description "Bgp ls sub address family";
+  }
+
+  typedef Bgp-vrf-address-family {
+    type enumeration {
+      enum ipv4 {
+        value 1;
+        description "IPv4";
+      }
+      enum ipv6 {
+        value 2;
+        description "IPv6";
+      }
+    }
+    description "Bgp address family under vrf";
+  }
+
+  typedef Bgp-vrf-sub-address-family {
+    type enumeration {
+      enum unicast {
+        value 1;
+        description "unicast";
+      }
+    }
+    description "Bgp sub address family under vrf";
+  }
+
+  typedef Bgp-redistribute-protocol-type {
+    type enumeration {
+      enum static {
+        value 1;
+        description "redistribute static-type route";
+      }
+      enum connected {
+        value 2;
+        description "redistribute connected-type route";
+      }
+      enum rip {
+        value 3;
+        description "redistribute rip-type route";
+      }
+      enum isis {
+        value 4;
+        description "redistribute isis-type route";
+      }
+      enum ospf {
+        value 5;
+        description "redistribute ospf-type route";
+      }
+      enum ospfv3 {
+        value 6;
+        description "redistribute ospfv3-type route";
+      }
+    }
+  }
+
+  typedef Bgp-direction-type {
+    type enumeration {
+      enum in {
+        value 1;
+        description "the in direction";
+      }
+      enum out {
+        value 2;
+        description "the out direction";
+      }
+    }
+  }
+
+  typedef redistribute-instance-name {
+    type union {
+      type string {
+        length "1..32";
+      }
+      type string {
+        pattern "nil";
+      }
+    }
+  }  
+  /****************** typedef end ******************/
+
+  grouping address-family-disable-client-to-client-group {
+    description "disable client-to-client reflection";
+
+    leaf disable-client-to-client {
+      type co-type:is-enable;
+      description "disable client-to-client when route reflector";
+    }
+  }
+
+  grouping address-family-network-group {
+    description "Specify a network to announce via BGP";
+
+    list network {
+      key "prefix-ipv4 prefix-ipv6";
+      description "prefix-ipv4 and prefix-ipv6 must one is zero, the other is`not zero.
+        by default, prefix-ipv6 is zero in ipv4 address-family, and prefix-ipv4 is zero in ipv6 address-family.
+        prefix-ipv4 is zero in the form of 0.0.0.0/0, and prefix-ipv6 is zero in the form of 0::0/0";
+
+      leaf prefix-ipv4 {
+        type inet:ipv4-prefix;
+        description "IP prefix in CIDR format(109.12.4.55/24)";
+      }
+
+      leaf prefix-ipv6 {
+        type inet:ipv6-prefix;
+        description "IP prefix in CIDR format(109::55/64)";
+      }
+
+      leaf route-map {
+        type bgpd:route-policy-ref;
+        default "0";
+        description "introduce route-map";
+      }
+
+      must "(prefix-ipv4 != '0.0.0.0/0' and  prefix-ipv6 = '0::0/0') or " + 
+        "(prefix-ipv4 = '0.0.0.0/0' and  prefix-ipv6 != '0::0/0')" {
+        error-message "prefix-ipv6 and prefix-ipv4 Only have a valid value";
+      }
+    }
+  }
+
+  grouping address-family-redistribute-group {
+    description "Redistribute information from another routing protocol";
+
+    list redistribute {
+      key "protocol-type protocol-instance-number protocol-instance-name";
+      description "redistribute route from others protocols,except for bgp";
+
+      leaf protocol-type {
+        type Bgp-redistribute-protocol-type;
+        description "redistribute protocol-type";
+      }
+      
+      leaf protocol-instance-number {
+        type uint16 {
+          range "0..65535";
+        }
+        must "(../protocol-type='ospf' and ../protocol-instance-number>0 and ../protocol-instance-number<65536) or " +
+          "(../protocol-type='connected' and ../protocol-instance-number=0) or " +
+          "(../protocol-type='static' and ../protocol-instance-number=0) or " +
+          "(../protocol-type='isis' and ../protocol-instance-number=0) or " +
+          "(../protocol-type='ospfv3' and ../protocol-instance-number>0 and ../protocol-instance-number<65536)";
+        description "It needs to be set only when the protocol is ospf. ospf range from 1 - 65535,others value is 0.";
+      }
+      
+      leaf protocol-instance-name {
+        type bgpd:redistribute-instance-name;
+        must "(../protocol-type='isis') or " +
+          "(../protocol-type='connected' and ../protocol-instance-name='nil') or " +
+          "(../protocol-type='static' and ../protocol-instance-name='nil') or " +
+          "(../protocol-type='ospf' and ../protocol-instance-name='nil') or " +
+          "(../protocol-type='ospfv3' and ../protocol-instance-name='nil')";
+        description "It needs to be set only when the protocol is isis. other type must be pattern nil";
+      }
+      
+      leaf route-map {
+        type bgpd:route-policy-ref;
+        default "0";
+        description "Apply route-map to modify redistribute attributes";
+      }
+    }
+  }
+
+  grouping address-family-ecmp-group {
+    description "Forward packets over multipath paths";
+
+    leaf max-ibgp-enable {
+      type co-type:is-enable;
+      description "enable ibgp multipath paths";
+    }
+    
+    leaf max-ibgp {
+      type uint32 {
+        range "2..16";
+      }
+      default "4";
+      description "the number of ibgp multipath paths";
+    }
+
+    leaf max-ebgp-enable {
+      type co-type:is-enable;
+      description "enable ebgp multipath paths";
+    }
+    
+    leaf max-ebgp {
+      type uint32 {
+        range "2..16";
+      }
+      default "4";
+      description "the number of ebgp multipath paths";
+    }
+  }
+
+  grouping address-family-frr-group {
+    leaf additional-path {
+      type co-type:is-enable;
+      description "enable fast reroute";
+    }
+  }
+
+  grouping address-family-dampening-group {
+    description "Enable route-flap dampening";
+    
+    leaf reach-half-time {
+      type uint32 {
+        range "1..45";
+      }
+      default "15";
+      description "Reachability Half-life time for the penalty(minutes)";
+    }
+    
+    leaf reuse-time {
+      type uint32 {
+        range "1..20000";
+      }
+      default "750";
+      description "Value to start reusing a route";
+    }
+    
+    leaf suppress-time {
+      type uint32 {
+        range "1..20000";
+      }
+      default "2000";
+      description "Value to start suppressing a route";
+    }
+    
+    leaf max-suppress-time {
+      type uint32 {
+        range "1..255";
+      }
+      default "60";
+      description "Maximum duration to suppress a stable route(minutes)";
+    }
+    
+    leaf unreach-half-time {
+      type uint32 {
+        range "1..45";
+      }
+      default "15";
+      description "Un-reachability Half-life time for the penalty(minutes)";
+    }
+  }
+
+  grouping address-family-tnl-policy-group {
+    leaf tnl-policy-name {
+      type string {
+        length "0..39";
+      }
+    }
+  }
+
+  grouping address-family-bfd-tunnel-group {
+    leaf host {
+      type co-type:is-enable;
+      default "disable";
+    }
+    
+    leaf ip-prefix-name {
+      type string {
+        length "0..63";
+      }
+      default "0";
+    }
+    
+    leaf all {
+      type co-type:is-enable;
+      default "disable";
+    }      
+    
+    leaf ping-lsp-interval {
+      type uint16 {
+        range "0..65535";
+      }
+      default "0";
+    }
+  }
+
+  grouping address-family-tunnel-timer-group {
+    leaf min-rx-interval {
+      type uint16 {
+        range "3..1000";
+      }
+      default "20";
+      units ms;
+    }
+    
+    leaf min-tx-interval {
+      type uint16 {
+        range "3..1000";
+      }
+      default "20";
+      units ms;
+    }
+    
+    leaf detect-multiplier {
+      type uint8 {
+        range "3..50";
+      }
+      default "3";
+    }
+  }
+
+  grouping address-family-advertise-l2vpn-evpn-group {
+    leaf advertise-l2vpn-evpn {
+      type co-type:is-enable;
+      description "enable advertise l2vpn route to evpn";
+    }
+  }
+
+  grouping address-family-import-filter-policy-group {
+    leaf import-filter-policy {
+      type bgpd:route-policy-ref;
+      description "route-map name used for importing routes into each other vrf";
+    }
+  }
+
+  grouping peer-address-family-route-reflector-client-group {
+    description "route-reflector-client";
+    
+    leaf route-reflector-client {
+      type co-type:is-enable;
+      description
+        "TRUE to configure as a route-reflector-client. 
+        FALSE to prevent route-reflector-client from
+        being inherited.";
+    }
+  }
+
+  grouping peer-address-family-next-hop-self-group {
+    description "next-hop-self";
+
+    leaf next-hop-self {
+      type co-type:is-enable;
+      description "Disable the next hop calculation for this neighbor";
+    }
+  }
+
+  grouping peer-address-family-default-route-group {
+    description "default-route";
+    
+    leaf originate {
+      type co-type:is-enable;
+      description "enable originate default route to this neighbor";
+    }
+    
+    leaf route-map {
+      type bgpd:route-policy-ref;
+      default "0";
+      description "Route-map to specify criteria to originate default";
+    }
+  }
+
+  grouping peer-address-family-send-community-group {
+    description "send-community";
+    
+    leaf send-community {
+      type co-type:is-enable;
+      default "disable";
+      description "send standard communities";
+    }
+    
+    leaf send-ext-community {
+      type co-type:is-enable;
+      default "disable";
+      description "send extended communities";
+    }
+  }
+  
+  grouping address-family-distance-group {
+    description "Define an administrative distance";
+    
+    leaf external-distance {
+      type uint8 {
+        range "1..255";
+      }
+      default "20";
+    }
+
+    leaf internal-distance {
+      type uint8 {
+        range "1..255";
+      }
+      default "200";
+    }
+
+    leaf local-distance {
+      type uint8 {
+        range "1..255";
+      }
+      default "200";
+    }
+  }
+
+  grouping peer-address-family-maximum-prefix-group {
+    description "maximum prefix";
+    
+    leaf max-prefix-number {
+      type uint32 {
+        range "1..300000";
+      }
+      description "Maximum number of prefixes";
+    }
+    
+    leaf threshold {
+      type uint8 {
+        range "1..100";
+      }
+      default "75";
+      description "threshold-value, 1 to 100 percent";
+    }
+    
+    leaf warning-only {
+      type co-type:is-enable;
+      default "disable";
+      description "Only give warning message when limit is exceeded";
+    }
+  }
+
+  grouping peer-address-family-weight-group {
+    description "weight";
+    
+    leaf weight {
+      type uint16 {
+        range "0..65535";
+      }
+      default "0";
+      description "Set default weight for routes from this neighbor";
+    }
+  }
+
+  grouping peer-address-family-route-map-group {
+    description "route map";
+    
+    list rt-policy {
+      key "inout";
+      
+      leaf route-map-name {
+        type bgpd:route-policy-ref;
+        description "Name of route-map";
+      }
+      
+      leaf inout {
+        type Bgp-direction-type;
+        description "Apply map to incoming or outbound routes";
+      }
+    }
+  }
+
+  grouping peer-address-family-graceful-restart-group {
+    description "graceful restart";
+    
+    leaf graceful-restart {
+      type co-type:is-enable;
+      description "Advertise the graceful-restart capability to the peer";
+    }
+  }
+
+  grouping peer-address-family-upe-group {
+    description "enable upe";
+
+    leaf upe {
+      type co-type:is-enable;
+      description "enable upe";
+    }
+  }
+
+  grouping peer-address-family-hovpn-default-route-group {
+    description "send default route based on vrf";
+    
+    list default-route-hovpn {
+      key "vpn-name";
+      description "send default route based on each vrf";
+      
+      leaf enable {
+        type co-type:is-enable;
+        description "enable default route";
+      }
+      
+      leaf vpn-name {
+        type co-type:vpn-name;
+        description "vrf name";
+      }
+      
+      leaf routemap {
+        type bgpd:route-policy-ref;
+        default "0";
+        description "route-map name";
+      }
+    }
+  }
+
+  grouping peer-address-family-allowas-in-group {
+    description "Accept as-path with my AS present in it";
+    
+    leaf allow-local-as {
+      type uint8 {
+        range "1..10";
+      }
+      description "Number of occurrences of AS number";
+    }
+  }
+
+  grouping peer-address-family-soft-reconfiguration-group {
+    description "Per neighbor soft reconfiguration";
+    
+    leaf soft-reconfiguration {
+      type co-type:is-enable;
+      description "Allow inbound soft reconfiguration for this neighbor";
+    }
+  }
+
+  grouping peer-peer-group-group {
+    container par-peer-group {
+      description
+        "Member of the peer-group";
+      
+      leaf peer-group-name {
+        type string{
+          length "0..31";
+        }
+        default "0";
+        description
+          "WORD;;peer-group name";
+      }
+    }
+  }
+
+  grouping peer-local-as-group {
+    description "Specify a local-as number";
+    
+    container local-as {
+      leaf as-no {
+        type uint32 {
+          range "0..4294967295";
+        }
+        default "0";
+      }
+    
+      leaf no-prepend {
+        type co-type:is-enable;
+        default "disable";
+        description
+          "Do not prepend local-as to updates from ebgp peers";
+      }
+      
+      leaf replace-as {
+        type co-type:is-enable;
+        default "disable";
+        description
+          "Replace real AS with local AS in the EBGP updates";
+      }
+      
+      leaf dual-as {
+        type co-type:is-enable;
+        default "disable";
+        description
+          "Accept either real AS or local AS from the ebgp peer";
+      }
+
+      must "(no-prepend!='enable' and replace-as!='enable' and dual-as!='enable') or " +
+          "(no-prepend!='disable' and replace-as!='enable' and dual-as!='enable') or " +
+          "(no-prepend!='disable' and replace-as!='disable' and dual-as!='enable') or " +
+          "(no-prepend!='disable' and replace-as!='disable' and dual-as!='disable')";
+    }
+  }
+
+  container bgp {
+    
+    container bgp-instances {
+      description "BGP configuration commands";
+
+      list bgp-instance {
+        key "four-byte-as";
+        description "4-byte Autonomous system";
+        
+        leaf four-byte-as {
+          type inet:as-number;
+          description "4-byte Autonomous system number";
+        }
+        
+        container no-vrf {
+          description "Global default config";
+
+          container global {
+            description "Global default config";
+
+            leaf router-id {
+              type inet:ipv4-address-no-zone;
+              description "Configure Router-id";
+            }
+            
+            container global-timers {
+              description "Adjust routing timers.";
+              
+              leaf keepalive {
+                type uint16 {
+                  range "0..65535";
+                }
+                default "30";
+                units "second";
+                description "Keepalive interval (seconds)";
+              }
+              
+              leaf hold-time {
+                type uint16 {
+                  range "0..65535";
+                }
+                default "90";
+                units "second";
+                description
+                  "Hold time (seconds).  Specify 0 to disable
+                  keepalives/hold time";
+              }
+            }
+            
+            leaf cluster-id {
+              type inet:ipv4-address-no-zone;
+              description
+                "Route-Reflector Cluster ID in IPV4 address format";
+            }
+            
+            leaf deterministic-med {
+              type co-type:is-enable;
+              description 
+                "Pick the best-MED path among paths advertised from the neighboring AS";
+            }
+            
+            leaf always-compare-med {
+              type co-type:is-enable;
+              description "Allow comparing MED from different neighbors";
+            }
+            
+            container graceful-restart {
+              description "Graceful restart capability parameters";
+
+              leaf restart-time {
+                type uint16 {
+                  range "0..3600";
+                }
+                default "0";
+                units "second";
+                description "Max time needed for Neighbor(s) to restart";
+              }
+              
+              leaf stalepath-time {
+                type uint16 {
+                  range "0..3600";
+                }
+                default "0";
+                units "second";
+                description "Max time to retain stale paths from restarting Neighbor(s)";
+              }
+              
+              leaf graceful-reset {
+                type co-type:is-enable;
+                default "disable";
+                description "Graceful-reset capability";
+              }
+            }
+            
+            container default {
+              description "default function";
+
+              leaf ipv4-unicast {
+                type co-type:is-enable;
+                description "Activate ipv4-unicast for a peer by default";
+              }
+
+              leaf local-preference {
+                type uint32 {
+                  range "0..4294967295";
+                }
+                default "100";
+                description "Configure default local preference value";
+              }
+            }
+                       
+            leaf update-delay {
+              type uint32 {
+                range "5..300";
+              }
+              description "Set the max initial delay for sending update";
+            }
+            
+            container global-address-family {
+              description "Global AF-specific configuration";
+
+              list global-af-vpnv4 {
+                key "global-af-vpnv4-safi";
+                description "Global AF-specific configuration for vpnv4";
+
+                leaf global-af-vpnv4-safi {
+                  type Bgp-sub-address-family;
+                  description "Sub Address family for vpnv4";
+                }
+                
+                uses address-family-disable-client-to-client-group {
+                }
+                
+                uses address-family-ecmp-group {
+                }
+                
+                uses address-family-frr-group {
+                }
+                
+                uses address-family-dampening-group {
+                }
+                
+                uses address-family-distance-group {
+                }
+              }
+
+              list global-af-vpnv6 {
+                key "global-af-vpnv6-safi";
+                description "Global AF-specific configuration for vpnv6";
+
+                leaf global-af-vpnv6-safi {
+                  type Bgp-sub-address-family;
+                  description "Sub Address family for vpnv6";
+                }
+                
+                uses address-family-disable-client-to-client-group {
+                }
+                
+                uses address-family-ecmp-group {
+                }
+                
+                uses address-family-frr-group {
+                }
+                
+                uses address-family-dampening-group {
+                }
+                
+                uses address-family-distance-group {
+                }
+              }
+
+              list global-af-ls {
+                key "global-af-ls-safi";
+                description "Global AF-specific configuration for ls";
+
+                leaf global-af-ls-safi {
+                  type Bgp-ls-sub-address-family;
+                  description "Sub Address family for ls";
+                }
+                
+                uses address-family-disable-client-to-client-group {
+                }
+                
+                container domain-distinguisher {
+                  presence "Indicates a domain-distinguisher node"+
+                    " is configured.";
+                  description "<ASN, router-id> tuple to use to identify the link-state domain";
+                  
+                  leaf asn {
+                    type uint32 {
+                      range "0..4294967295";
+                    }
+                    default "0";
+                    description "AS Number";
+                  }
+                  
+                  leaf router-id {
+                    type inet:ipv4-address-no-zone;
+                    default "0.0.0.0";
+                    description "Router ID";
+                  }
+                }
+              }
+
+              list global-af-evpn {
+                key "global-af-evpn-safi";
+                description "Global AF-specific configuration for evpn";
+
+                leaf global-af-evpn-safi {
+                  type Bgp-evpn-sub-address-family;
+                  description "Sub Address family for evpn";
+                }
+                
+                uses address-family-disable-client-to-client-group {
+                }
+                
+                uses address-family-dampening-group {
+                }
+                
+                uses address-family-ecmp-group {
+                }
+                
+                uses address-family-frr-group {
+                }
+              }
+            }
+          }
+
+          list neighbor {
+            key "peer-ipv4-addr peer-ipv6-addr peer-group";
+            description "peer-ipv4-addr, peer-ipv6-addr and peer-group must one is`not zero, the others are zero.
+              by default, peer-ipv4-addr is`not zero with ipv4 peer,
+              peer-ipv6-addr is`not zero with ipv6 peer, and peer-group is`not zero with peer-group
+              peer-ipv4-addr is zero in the form of 0.0.0.0, and peer-ipv6-addr is zero in the form of 0::0,
+              and peer-group is zero in the form of null";
+
+            leaf peer-ipv4-addr {
+              type inet:ipv4-address-no-zone;
+              description "ipv4 peer address";
+            }
+            
+            leaf peer-ipv6-addr {
+              type inet:ipv6-address-no-zone;
+              description "ipv6 peer address";
+            }
+            
+            leaf peer-group {
+              type string {
+                length "0..31";
+              }
+              description "create a peer-group name";
+            }
+
+            must "(peer-ipv4-addr != '0.0.0.0' and  peer-ipv6-addr = '0::0' and peer-group = '') or " + 
+              "(peer-ipv4-addr = '0.0.0.0' and  peer-ipv6-addr != '0::0' and peer-group = '') or " + 
+              "(peer-ipv4-addr = '0.0.0.0' and  peer-ipv6-addr = '0::0' and peer-group != '')" {
+              error-message "peer-ipv4-addr, peer-ipv6-addr and peer-group Only have a valid value";
+              }
+              
+            leaf remote-as {
+              type inet:as-number;
+              description "AS number";
+            }
+            
+            leaf advertise-interval {
+              type uint16;
+              description "Minimum interval between sending BGP routing updates";
+            }
+            
+            container local-address {
+              description "Local ip address";
+              
+              leaf local-ipv4-address {
+                type inet:ipv4-address-no-zone;
+                default "0.0.0.0";
+                description "Local ipv4 address for neighbor";
+              }
+              
+              leaf local-ipv6-address {
+                type inet:ipv6-address-no-zone;
+                default "0::0";
+                description "Local ipv6 address for neighbor";
+              }
+            }
+            
+            container ebgp-multihop {
+              description
+                "Allow EBGP neighbors not on directly connected networks";
+                
+              leaf max-hop-count {
+                type uint8 {
+                  range "0..255";
+                }
+                default "0";
+                description "Maximum hop count";
+              }
+            }
+            
+            container peer-timers {
+              description "BGP per neighbor timers.";
+              
+              leaf keepalive {
+                type uint16 {
+                  range "0..65535";
+                }
+                default "30";
+                units "second";
+                description "Keepalive interval";
+              }
+              
+              leaf hold-time {
+                type uint16 {
+                  range "0..65535";
+                }
+                default "90";
+                units "second";
+                description
+                "Hold time.  Specify 0 to disable keepalives/hold time";
+              }
+            }
+            
+            container md5 {
+              description "Message-Digest Algorithm 5";
+              
+              leaf password {
+                type string {
+                  length "0..352";
+                }
+                default "0";
+                description "set password per peer";
+              }
+            }
+            
+            leaf shutdown {
+              type co-type:is-enable;
+              description "shut down the peer";
+            }
+
+            container ttl-security {
+              description "BGP TTL Security";
+
+              leaf ttl-hops {
+                type uint8 {
+                  range "0..255";
+                }
+                default "0";
+                description "set ttl-hops value";
+              }
+            }
+            
+            leaf description {
+              type string {
+                length "0..127";
+              }
+              description "set description per peer";
+            }
+                       
+            container bfd-bgp-public {
+              leaf bfd-multihop {
+                type co-type:is-enable;
+                default "disable";
+              }
+              
+              leaf bfd-enable {
+                type co-type:is-enable;
+                default "disable";
+              }
+              
+              container bfd-bgp-public-time-interval {
+                leaf min-rx-interval {
+                  type uint16 {
+                    range "3..1000";
+                  }
+                  default "20";
+                  units ms;
+                }
+                
+                leaf min-tx-interval {
+                  type uint16 {
+                    range "3..1000";
+                  }
+                  default "20";
+                  units ms;
+                }
+                
+                leaf detect-multiplier {
+                  type uint8 {
+                    range "3..50";
+                  }
+                  default "3";
+                }
+              }
+            }
+            
+            uses peer-peer-group-group {
+            }
+
+            uses peer-local-as-group {
+            }
+            
+            container peer-address-family {
+              description "BGP neighbor AF configuration table";
+
+              list peer-af-ipv4 {
+                key "peer-af-ipv4-safi";
+                description "Address family type of neighbor for ipv4";
+
+                leaf peer-af-ipv4-safi {
+                  type Bgp-lu-sub-address-family;
+                  description "Sub Address family";
+                } 
+                
+                uses peer-address-family-route-reflector-client-group {
+                }
+                
+                uses peer-address-family-next-hop-self-group {
+                }
+                
+                uses peer-address-family-default-route-group {
+                }
+                
+                uses peer-address-family-send-community-group {
+                }
+                
+                uses peer-address-family-maximum-prefix-group {
+                }
+                
+                uses peer-address-family-weight-group {
+                }
+                
+                uses peer-address-family-route-map-group {
+                }
+                
+                uses peer-address-family-graceful-restart-group {
+                }
+                
+                uses peer-address-family-allowas-in-group {
+                }
+                
+                uses peer-address-family-soft-reconfiguration-group {
+                }
+              }
+
+              list peer-af-ipv6 {
+                key "peer-af-ipv6-safi";
+                description "Address family type of neighbor for ipv6";
+
+                leaf peer-af-ipv6-safi {
+                  type Bgp-lu-sub-address-family;
+                  description "Sub Address family";
+                } 
+                
+                uses peer-address-family-route-reflector-client-group {
+                }
+                
+                uses peer-address-family-next-hop-self-group {
+                }
+                
+                uses peer-address-family-default-route-group {
+                }
+                
+                uses peer-address-family-send-community-group {
+                }
+                
+                uses peer-address-family-maximum-prefix-group {
+                }
+                
+                uses peer-address-family-weight-group {
+                }
+                
+                uses peer-address-family-route-map-group {
+                }
+                
+                uses peer-address-family-graceful-restart-group {
+                }
+                
+                uses peer-address-family-allowas-in-group {
+                }
+                
+                uses peer-address-family-soft-reconfiguration-group {
+                }
+              }
+
+              list peer-af-vpnv4 {
+                key "peer-af-vpnv4-safi";
+                description "Address family type of neighbor for vpnv4";
+
+                leaf peer-af-vpnv4-safi {
+                  type Bgp-sub-address-family;
+                  description "Sub Address family";
+                } 
+                
+                uses peer-address-family-route-reflector-client-group {
+                }
+                
+                uses peer-address-family-next-hop-self-group {
+                }
+                
+                uses peer-address-family-send-community-group {
+                }
+                
+                uses peer-address-family-maximum-prefix-group {
+                }
+                
+                uses peer-address-family-weight-group {
+                }
+                
+                uses peer-address-family-route-map-group {
+                }
+                
+                uses peer-address-family-graceful-restart-group {
+                }
+                
+                uses peer-address-family-allowas-in-group {
+                }
+                
+                uses peer-address-family-soft-reconfiguration-group {
+                }
+                
+                uses peer-address-family-upe-group {
+                }
+                
+                uses peer-address-family-hovpn-default-route-group {
+                }
+              }
+
+              list peer-af-vpnv6 {
+                key "peer-af-vpnv6-safi";
+                description "Address family type of neighbor for vpnv6";
+
+                leaf peer-af-vpnv6-safi {
+                  type Bgp-sub-address-family;
+                  description "Sub Address family";
+                } 
+                
+                uses peer-address-family-route-reflector-client-group {
+                }
+                
+                uses peer-address-family-next-hop-self-group {
+                }
+                
+                uses peer-address-family-send-community-group {
+                }
+                
+                uses peer-address-family-maximum-prefix-group {
+                }
+                
+                uses peer-address-family-weight-group {
+                }
+                
+                uses peer-address-family-route-map-group {
+                }
+                
+                uses peer-address-family-graceful-restart-group {
+                }
+                
+                uses peer-address-family-allowas-in-group {
+                }
+                
+                uses peer-address-family-soft-reconfiguration-group {
+                }
+                
+                uses peer-address-family-upe-group {
+                }
+                
+                uses peer-address-family-hovpn-default-route-group {
+                }
+              }
+
+              list peer-af-ls {
+                key "peer-af-ls-safi";
+                description "Address family type of neighbor for ls";
+
+                leaf peer-af-ls-safi {
+                  type Bgp-ls-sub-address-family;
+                  description "Sub Address family";
+                } 
+                
+                uses peer-address-family-route-reflector-client-group {
+                }
+              }
+
+              list peer-af-evpn {
+                key "peer-af-evpn-safi";
+                description "Address family type of neighbor for evpn";
+
+                leaf peer-af-evpn-safi {
+                  type Bgp-evpn-sub-address-family;
+                  description "Sub Address family";
+                }
+                
+                uses peer-address-family-route-reflector-client-group {
+                }
+                
+                uses peer-address-family-next-hop-self-group {
+                }
+                
+                uses peer-address-family-allowas-in-group {
+                }
+                
+                uses peer-address-family-maximum-prefix-group {
+                }
+                
+                uses peer-address-family-route-map-group {
+                }
+                
+                uses peer-address-family-send-community-group {
+                }
+                
+                uses peer-address-family-soft-reconfiguration-group {
+                }
+              }
+            }
+          }
+        }
+        
+        list with-vrf {
+          key "vrf-name";
+          description "Specify parameters for a VPN Routing/Forwarding instance";
+
+          leaf vrf-name {
+            type co-type:vpn-name;
+            description "VPN Routing/Forwarding instance name";
+          }
+
+          list vrf-af {
+            key "vrf-af-mode vrf-safi-mode";
+            description "Global AF-specific configuration under vrf";
+
+            leaf vrf-af-mode {
+              type Bgp-vrf-address-family;
+              description "Address family under vrf";
+            }
+            
+            leaf vrf-safi-mode {
+              type Bgp-vrf-sub-address-family;
+              description "Sub Address family under vrf";
+            }
+
+            uses address-family-network-group {
+            }
+            
+            uses address-family-redistribute-group {
+            }
+            
+            uses address-family-ecmp-group {
+            }
+            
+            uses address-family-frr-group {
+            }
+            
+            uses address-family-advertise-l2vpn-evpn-group {
+            }
+            
+            uses address-family-import-filter-policy-group {
+            }		
+						
+          }
+
+          list vrf-neighbor {
+            key "vrf-peer-ipv4-addr vrf-peer-ipv6-addr vrf-peer-group";
+            description "vrf-peer-ipv4-addr, vrf-peer-ipv6-addr and vrf-peer-group must one is`not zero, the others are zero.
+              by default, vrf-peer-ipv4-addr is`not zero with ipv4 peer,
+              vrf-peer-ipv6-addr is`not zero with ipv6 peer, and vrf-peer-group is`not zero with peer-group.
+              vrf-peer-ipv4-addr is zero in the form of 0.0.0.0, and vrf-peer-ipv6-addr is zero in the form of 0::0,
+              and vrf-peer-group is zero in the form of null";
+
+            leaf vrf-peer-ipv4-addr {
+              type inet:ipv4-address-no-zone;
+              description "ipv4 peer address under vrf";
+            }
+            
+            leaf vrf-peer-ipv6-addr {
+              type inet:ipv6-address-no-zone;
+              description "ipv6 peer address under vrf";
+            }
+            
+            leaf vrf-peer-group {
+              type string {
+                length "0..31";
+              }
+              description "create a peer-group name under vrf";
+            }
+
+            must "(vrf-peer-ipv4-addr != '0.0.0.0' and  vrf-peer-ipv6-addr = '0::0' and vrf-peer-group = '') or " + 
+              "(vrf-peer-ipv4-addr = '0.0.0.0' and  vrf-peer-ipv6-addr != '0::0' and vrf-peer-group = '') or " + 
+              "(vrf-peer-ipv4-addr = '0.0.0.0' and  vrf-peer-ipv6-addr = '0::0' and vrf-peer-group != '')" {
+              error-message "peer-ipv4-addr, peer-ipv6-addr and peer-group Only have a valid value";
+              }
+
+            leaf vrf-remote-as {
+              type inet:as-number;
+              description "AS number under vrf";
+            }
+
+            leaf vrf-advertise-interval {
+              type uint16;
+              description "Minimum interval between sending BGP routing updates";
+            }
+            
+            container vrf-local-address {
+              description "Local ip address under vrf";
+              
+              leaf vrf-local-ipv4-address {
+                type inet:ipv4-address-no-zone;
+                default "0.0.0.0";
+                description "Local ipv4 address for neighbor under vrf";
+              }
+              
+              leaf vrf-local-ipv6-address {
+                type inet:ipv6-address-no-zone;
+                default "0::0";
+                description "Local ipv6 address for neighbor under vrf";
+              }
+            }
+            
+            container vrf-ebgp-multihop {
+              description "Allow EBGP neighbors not on directly connected networks under vrf";
+              
+              leaf vrf-max-hop-count {
+                type uint8 {
+                  range "0..255";
+                }
+                default "0";
+                description "Maximum hop count under vrf";
+              }
+            }
+            
+            container vrf-peer-timers {
+              description "BGP per neighbor timers under vrf";
+              
+              leaf vrf-keepalive {
+                type uint16 {
+                  range "0..65535";
+                }
+                default "30";
+                units "second";
+                description "Keepalive interval under vrf";
+              }
+              
+              leaf vrf-hold-time {
+                type uint16 {
+                  range "0..65535";
+                }
+                default "90";
+                units "second";
+                description
+                  "Hold time.  Specify 0 to disable
+                  keepalives/hold time under vrf";
+              }
+            }
+            
+            container vrf-md5 {
+              description "Message-Digest Algorithm 5 under vrf";
+              
+              leaf vrf-password {
+                type string {
+                  length "0..352";
+                }
+                default "0";
+                description "set password per peer under vrf";
+              }
+            }
+            
+            leaf vrf-shutdown {
+              type co-type:is-enable;
+              description "shut down the peer under vrf";
+            }
+
+            container vrf-ttl-security {
+              description "BGP TTL Security under vrf";
+
+              leaf vrf-ttl-hops {
+                type uint8 {
+                  range "0..255";
+                }
+                default "0";
+                description "set ttl-hops value under vrf";
+              }
+            }
+            
+            leaf vrf-description {
+              type string {
+                length "0..127";
+              }
+              description "set description per peer under vrf";
+            }
+            
+            container bfd-bgp-vrf {
+              leaf bfd-multihop {
+                type co-type:is-enable;
+                default "disable";
+              }
+              
+              leaf bfd-enable {
+                type co-type:is-enable;
+                default "disable";
+              }
+              
+              container bfd-bgp-vrf-time-interval {
+                leaf min-rx-interval {
+                  type uint16 {
+                    range "3..1000";
+                  }
+                  default "20";
+                  units ms;
+                }
+                
+                leaf min-tx-interval {
+                  type uint16 {
+                    range "3..1000";
+                  }
+                  default "20";
+                  units ms;
+                }
+                
+                leaf detect-multiplier {
+                  type uint8 {
+                    range "3..50";
+                  }
+                  default "3";
+                }
+              }
+            }
+            
+            uses peer-peer-group-group {
+            }
+            
+            uses peer-local-as-group {
+            }
+            
+            list vrf-neighbor-af {
+              key "vrf-peer-af-mode vrf-peer-safi-mode";
+              description "Address family type of neighbor under vrf";
+              
+              leaf vrf-peer-af-mode {
+                type Bgp-vrf-address-family;
+                description "Address family under vrf";
+              }
+              
+              leaf vrf-peer-safi-mode {
+                type Bgp-vrf-sub-address-family;
+                description "Sub Address family under vrf";
+              }
+
+              uses peer-address-family-route-reflector-client-group {
+              }
+              
+              uses peer-address-family-next-hop-self-group {
+              }
+              
+              uses peer-address-family-default-route-group {
+              }
+              
+              uses peer-address-family-send-community-group {
+              }
+              
+              uses peer-address-family-maximum-prefix-group {
+              }
+              
+              uses peer-address-family-weight-group {
+              }
+              
+              uses peer-address-family-route-map-group {
+              }
+              
+              uses peer-address-family-graceful-restart-group {
+              }
+              
+              uses peer-address-family-allowas-in-group {
+              }
+              
+              uses peer-address-family-soft-reconfiguration-group {
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+

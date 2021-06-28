@@ -1,0 +1,931 @@
+module chinaunicom-bfd {
+
+	/*** NAMESPACE / PREFIX DEFINITION ***/
+
+	namespace "http://chinaunicom.com/yang/oam/chinaunicom-bfd";
+
+	prefix "bfd";
+
+	/*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+    import ietf-inet-types { prefix "inet"; }
+	
+	import chinaunicom-datatype-common { prefix "co-type"; }
+
+	import chinaunicom-interface-common { prefix "if"; }
+
+	import chinaunicom-isis { prefix "isis"; }
+	
+	import chinaunicom-staticroute { prefix "s-route"; }
+
+	import chinaunicom-mpls { prefix "mpls"; }
+	
+	import chinaunicom-ipprefix { prefix "ipprefix"; }
+	
+	
+	organization 
+	   "chinaunicom Systems, Inc.
+     Fiberhome Systems, Inc.
+     UTstarcom,Inc.";
+
+	contact
+	"
+	chinaunicom Communications Techlonogy Co., Ltd.
+     Postcode: 100140 
+     Address: No 21 ,Financial Street, Xicheng District, Beijing
+     E-mail: ykou@chinaunicom.com
+     
+	Fiberhome Communications Techlonogy Co., Ltd.
+	 Postcode: 430073 
+	 Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+	 E-mail: yang- author@fiberhome.com
+
+
+	UTStarcom Telecom Co.,Ltd.
+     Postcode: 310053 
+     Address: 4th Floor, South Wing, 368 Liuhe Road, Binjiang District, Hangzhou 310053, Zhejiang Province, P.R.China
+     E-mail: sihai.bao@utstar.com";
+
+	description
+	"This module contains a collection of YANG definitions
+	 for IPRAN WBS  bfd package configuration.
+
+	 This module contains definitions
+	 for the following management objects:
+	   bfd:  configuration
+
+     Copyright (c) 2013-2017 by chinaunicom Systems, Inc;Fiberhome Systems, Inc.;UTStarcom, Inc.
+     All rights reserved.";
+
+	revision "2021-01-05" {
+	description
+	 "add compatible-mode; add sr-be bfd";
+	}
+	
+	revision "2021-01-04" {
+	description
+	 "add compatible-mode; add bfd for evpn";
+	}
+	
+	revision "2020-12-31" {
+	description
+	 "add bfd-be-lsp";
+	}
+
+	revision "2020-12-21" {
+	description
+	 "Delete functions not required in IPRAN WBS technical specification;
+	 modify tunnel-name to tunnel-id";
+	}
+
+	revision "2020-09-08" {
+	description
+	 "Support track bfd interface.";
+	}
+		 
+	 revision "2020-08-24" {
+	description
+	 "Support bfd for evpn.";
+	}
+	 
+	revision "2020-01-20" {
+	description
+	 "Support bfd for static-route.";
+	} 
+	 
+	revision "2020-01-17" {
+        description 
+         "BFD LINK(dynamic) delete multicast flag.";
+        }
+		
+	revision "2019-12-27" {
+        description 
+         "Supports BFD for LDP.";
+        }
+
+        revision "2019-12-04" {
+        description 
+         "Supports BFD for RSVP.";
+        }
+	
+	revision "2019-12-03" {
+	description
+	 "Add mandatory information.";
+	} 
+
+	revision "2018-03-29" {
+	description
+	 "Initial version.";
+	} 
+
+	typedef compatible-mode {
+		type enumeration {
+			enum compatible {
+				value 1;
+				description "compatible";
+			}
+			
+			enum incompatible {
+				value 0;
+				description "incompatible";
+			}
+		}
+		description "compatible mode value";
+	}
+		
+	typedef lsp-role {
+		type enumeration {
+			enum lsp-main {
+				value 0;
+				description "lsp-main";
+			}
+			enum lsp-backup {
+				value 1;
+				description "lsp-backup";
+			}
+		}
+		description "ext type";
+	}
+	
+	
+	typedef if-ref {
+		type union {
+			type if:ethphy-name;
+			type if:ethlag-name;
+			type if:ethvir-name;
+			type if:ethsub-name;
+			type if:veth-name;
+			type if:flexetunnel-name;
+		}
+	}
+	
+	typedef track-if-ref {
+		type union {
+			type if:ethphy-name;
+			type if:ethlag-name;
+			type if:ethsub-name;
+		}
+	}    
+	
+	typedef lag-member-if {
+		type union {
+			type if:ethphy-name;
+			type if:veth-name;
+		}
+	}
+    
+    typedef bfd-name{
+        type string{
+            length "1..31";
+        }
+        description "bfd name";
+    }
+	typedef srbe-tunnel-type {
+		type enumeration {
+			enum ipv4-tunnel {
+				value 0;
+				description "ipv4 srbe-tunnel";
+			}
+			enum ipv6-tunnel {
+				value 1;
+				description "ipv6 srbe-tunnel";
+			}
+		}
+		description "ipv4 or ipv6 srbe-tunnel";
+	}	
+	grouping discriminator-basic {
+		description "discriminator-basic";
+		
+		leaf local-discriminator {
+			type uint32 {
+				range "1..8000";
+			}
+			description "local-discriminator";
+		}	
+		leaf remote-discriminator {
+			type uint32 {
+				range "1..4294967295";
+				}
+			description "remote-discriminator";
+		}			
+	}
+	
+	grouping time-interval {
+		description "discriminator-basic";
+
+		leaf min-tx-interval {
+			type uint32 {
+				range "3..1000";
+			}
+			units ms;
+			default 10;
+			description "min-tx-interval";
+		}
+		leaf min-rx-interval {
+			type uint32 {
+				range "3..1000";
+			}
+			units ms;
+			default 10;
+			description "min-rx-interval";
+		}
+		leaf detect-mult {
+			type uint32 {
+				range "3..50";
+			}
+			default 3;
+			description "detect-mult";
+		}
+	}
+	
+	container bfd-global-cfg {
+		description "bfd-global-cfg";
+		
+		leaf default-mcast-ip {
+			type inet:ipv4-address;
+			default "224.0.0.184";
+			description "default_mcast_ip";
+		}
+		leaf default-mcast-ipv6 {
+			type inet:ipv6-address;
+			default "ff02::2";
+			description "default_mcast_ipv6";
+		}
+	}
+    
+    container static-link {
+        description "static-link";
+        
+        list bfd-link-ipv4 {
+            key "bfd-name";
+            description "bfd-cfg-list, configuring the interface 
+            indicates a singlehop,otherwise indicates a multihop";
+            
+            leaf bfd-name {
+                type bfd:bfd-name;
+                description "bfd-name";
+            }
+            
+            leaf if-name {
+                type bfd:if-ref;
+                description "if-name";
+            }
+            
+            leaf peer-addr {
+                type inet:ipv4-address;
+                mandatory true;
+                description "peer-addr";
+            }
+            
+            leaf local-addr {
+                type inet:ipv4-address;
+                mandatory true;
+                description "local-addr";
+            }
+            
+            leaf vpn-name {
+                type co-type:vpn-name-with-global;
+                description "vpn-name";
+            }
+            
+            uses discriminator-basic;
+            uses time-interval;
+        }
+
+        list bfd-link-ipv6 {
+            key "bfd-name";
+            description "bfd-cfg-list, configuring the interface 
+            indicates a singlehop,otherwise indicates a multihop";
+            
+            leaf bfd-name {
+                type bfd:bfd-name;
+                description "bfd-name";
+            }
+            
+            leaf if-name {
+                type bfd:if-ref;
+                description "if-name";
+            }
+            
+            leaf peer-addr6 {
+                type inet:ipv6-address;
+                mandatory true;
+                description "peer-addr6";
+            }
+            
+            leaf local-addr6 {
+                type inet:ipv6-address;
+                mandatory true;
+                description "local-addr6";
+            }
+            leaf vpn-name {
+                type co-type:vpn-name-with-global;
+                description "vpn-name";
+            }
+            
+            uses discriminator-basic;
+            uses time-interval;
+        }
+              
+        list bfd-lag-member-ipv4 {
+            key "bfd-name";
+            description "bfd-lag-member-ipv4, configuring the unicast IPv4 micro-bfd";
+            
+            leaf bfd-name {
+                type bfd:bfd-name;
+                description "bfd-name";
+            }
+            
+            leaf if-name {
+                type bfd:lag-member-if;
+                description "if-name";
+            }
+            
+            leaf peer-addr {
+                type inet:ipv4-address;
+                mandatory true;
+                description "peer-addr";
+            }
+            
+            leaf local-addr {
+                type inet:ipv4-address;
+                mandatory true;
+                description "local-addr";
+            }
+            
+            leaf vpn-name {
+                type co-type:vpn-name-with-global;
+                description "vpn-name";
+            }
+            
+            uses discriminator-basic;
+            uses time-interval;
+            
+            leaf process-if-status {
+                type co-type:is-enable;
+                default "disable";
+                description "process-if-status";
+            }
+
+            leaf compatible-mode {
+                type bfd:compatible-mode;
+                default "incompatible";
+                description "compatible-mode";
+            }
+        }
+
+        list bfd-lag-member-ipv6 {
+            key "bfd-name";
+            description "bfd-lag-member-ipv6, configuring the unicast IPv6 micro-bfd";
+            
+            leaf bfd-name {
+                type bfd:bfd-name;
+                description "bfd-name";
+            }
+            
+            leaf if-name {
+                type bfd:lag-member-if;
+                description "if-name";
+            }
+            
+            leaf peer-addr6 {
+                type inet:ipv6-address;
+                mandatory true;
+                description "peer-addr6";
+            }
+            
+            leaf local-addr6 {
+                type inet:ipv6-address;
+                mandatory true;
+                description "local-addr6";
+            }
+            
+            leaf vpn-name {
+                type co-type:vpn-name-with-global;
+                description "vpn-name";
+            }
+            
+            uses discriminator-basic;
+            uses time-interval;
+            
+            leaf process-if-status {
+                type co-type:is-enable;
+                default "disable";
+                description "process-if-status";
+            }
+
+	    
+            leaf compatible-mode {
+                type bfd:compatible-mode;
+                default "incompatible";
+                description "compatible-mode";
+            }
+        }
+        
+        list bfd-lag-member-mcast-ipv4 {
+            key "bfd-name";
+            description "bfd-lag-member-mcast-ipv4, configuring the multicast IPv4 micro-bfd";
+            
+            leaf bfd-name {
+                type bfd:bfd-name;
+                description "bfd-name";
+            }
+            
+            leaf if-name {
+                type bfd:lag-member-if;
+                description "if-name";
+            }
+            
+            leaf local-addr {
+                type inet:ipv4-address;
+                mandatory true;
+                description "local-addr";
+            }
+            
+            leaf vpn-name {
+                type co-type:vpn-name-with-global;
+                description "vpn-name";
+            }
+            
+            uses discriminator-basic;
+            uses time-interval;
+            
+            leaf process-if-status {
+                type co-type:is-enable;
+                default "disable";
+                description "process-if-status";
+            }
+
+	    
+            leaf compatible-mode {
+                type bfd:compatible-mode;
+                default "incompatible";
+                description "compatible-mode";
+            }
+        }
+
+        list bfd-lag-member-mcast-ipv6 {
+            key "bfd-name";
+            description "bfd-lag-member-mcast-ipv6, configuring the multicast IPv6 micro-bfd";
+            
+            leaf bfd-name {
+                type bfd:bfd-name;
+                description "bfd-name";
+            }
+            
+            leaf if-name {
+                type bfd:lag-member-if;
+                description "if-name";
+            }
+            
+            leaf local-addr6 {
+                type inet:ipv6-address;
+                mandatory true;
+                description "local-addr6";
+            }
+            
+            leaf vpn-name {
+                type co-type:vpn-name-with-global;
+                description "vpn-name";
+            }
+            
+            uses discriminator-basic;
+            uses time-interval;
+            
+            leaf process-if-status {
+                type co-type:is-enable;
+                default "disable";
+                description "process-if-status";
+            }
+
+	    
+            leaf compatible-mode {
+                type bfd:compatible-mode;
+                default "incompatible";
+                description "compatible-mode";
+            }
+        }
+    }
+	
+    container static-bfd-lsp {
+        description "static-bfd-lsp";
+        
+        list bfd-for-lsp {
+            key "bfd-name";
+            description "bfd-cfg-list";
+            
+            leaf bfd-name {
+                type bfd:bfd-name;
+                description "bfd name";
+            }
+            
+            leaf tunnel-id {
+                type mpls:tunnel-id;
+                mandatory true;
+                description "lsp-tunnel-id";
+            }
+            leaf tunnel-name {
+                type if:tunnel-name;
+                mandatory true;
+                description "lsp-tunnel-name";
+            }
+            
+            leaf lsp-role {
+                type bfd:lsp-role;
+                description "lsp-role";
+            }
+            
+            uses discriminator-basic;
+            uses time-interval;
+        }
+    }
+
+
+    container static-bfd-pw {
+        description "static-bfd-pw";
+        
+        list bfd-for-pw {
+            key "bfd-name";
+            description "bfd-cfg-list";
+            
+            leaf bfd-name {
+                type bfd:bfd-name;
+                description "bfd-name";
+            }
+            
+            leaf peer-ip {
+                type inet:ipv4-address;
+                mandatory true;
+                description "peer-ip";
+            }
+            
+            leaf vc-id {
+                type uint32 {
+                    range "1..4294967295";
+                }
+                mandatory true;
+                description "vc-id";
+            }
+            
+            uses discriminator-basic;
+            uses time-interval;
+        }
+        
+    }
+	
+		container static-bfd {
+		description "static-bfd";
+		
+		container static-bfd-evpns {
+			description "static-bfd-evpns";
+			
+			list bfd-for-evpn {
+				key "bfd-name";
+				description "bfd-cfg-list";
+				
+				leaf bfd-name {
+					type bfd:bfd-name;
+					description "bfd-name";
+				}
+				
+				leaf peer-ip {
+					type inet:ipv4-address;
+					mandatory true;
+					description "peer-ip";
+				}
+				
+				leaf evpn-name {
+					type string{
+						length "1..31";
+					}
+					mandatory true;
+					description "evpn-name";
+				}
+				
+				leaf eth-tag {
+					type uint32 {
+                    range "0..16777215";
+                }
+					mandatory true;
+					description "eth-tag";
+				}
+				
+				uses discriminator-basic;
+				uses time-interval;
+			}
+			
+		}
+	}
+
+	augment "/if:if/if:interfaces/if:interface" {	
+	container track-bfd-interface {
+		description "track bfd interface configuration";
+		when "../if:type = 'ETH-PHY' or
+			 ../if:type = 'ETH-LAG' or
+			 ../if:type = 'ETH-SUBIF'" {
+			description
+				" interfaces need to track bfd";
+			}		
+		leaf track-interface-name {
+			type bfd:track-if-ref;
+			description "track interface name";
+		}
+        }	
+	}
+	
+	augment "/if:if/if:interfaces/if:interface" {
+	container dynamic-link-bfd {
+		container bfd-if-ipv4 {
+			when "../../if:type = 'ETH-PHY' or
+			../../if:type = 'ETH-LAG' or
+			../../if:type = 'ETH-VIR' or
+			../../if:type = 'ETH-SUBIF' or
+			../../if:type = 'V-ETH' or
+			../../if:type = 'FLEXE-TUNNEL'" {
+			description
+				"interfaces need to support bfd-link";
+			}	
+			
+			description "bfd-if-ipv4";
+			
+			leaf peer-addr {
+				type inet:ipv4-address;
+				description "peer-addr";
+			}
+			
+			leaf local-addr {
+				type inet:ipv4-address;
+				description "local-addr";
+			}
+			
+			uses time-interval{
+			  }
+		}
+	
+		container bfd-if-ipv6 {
+			 when "../../if:type = 'ETH-PHY' or
+			../../if:type = 'ETH-LAG' or
+			../../if:type = 'ETH-VIR' or
+			../../if:type = 'ETH-SUBIF' or
+			../../if:type = 'V-ETH' or
+			../../if:type = 'FLEXE-TUNNEL'" {
+			description
+				"interfaces need to support bfd-link";
+			}
+			
+			description "bfd-if-ipv6";
+			
+			leaf peer-addr6 {
+				type inet:ipv6-address;
+				description "peer-addr6";
+			}
+			
+			leaf local-addr6 {
+				type inet:ipv6-address;
+				description "local-addr6";
+			}
+			
+          	uses time-interval{
+			  }
+		}
+		
+			container bfd-if-mcast-ipv4 {
+			when "../../if:type = 'ETH-PHY' or
+			../../if:type = 'ETH-LAG' " {
+			description
+				" bfd by mcast ip-address, on lag/lag-member/switch-port.";
+			}	
+			presence "";
+			description "bfd-if-mcast-ipv4";
+			
+			leaf local-addr {
+				type inet:ipv4-address;
+				description "local-addr";
+			}
+			
+			leaf process-if-status {
+				type co-type:is-enable;
+				default "disable";
+				description "process-if-status";
+			}
+			
+			leaf compatible-mode {
+				type bfd:compatible-mode;
+				default "incompatible";
+				description "compatible-mode";
+			}
+			
+	        uses time-interval{
+			  }
+		}
+		container bfd-on-lag {
+			when "../../if:type = 'ETH-LAG' " {
+			description
+				" interfaces need to support  bfd on lag type of Micro-BFD, by unicast ip and mcast mac-address, 
+				on the basis of rfc7130";
+			}	
+			
+			description "bfd-on-lag";
+			
+			leaf local-addr {
+				type inet:ipv4-address;
+				description "local-addr";
+			}
+			
+		    leaf peer-addr {
+				type inet:ipv4-address;
+				description "peer-addr";
+			}
+			
+			leaf process-if-status {
+				type co-type:is-enable;
+				default "disable";
+				description "process-if-status";
+			}
+			
+			leaf compatible-mode {
+				type bfd:compatible-mode;
+				default "incompatible";
+				description "compatible-mode";
+			}
+			
+	        uses time-interval{
+			}
+		}
+
+        container bfd-if-mcast-ipv6 {
+			when "../../if:type = 'ETH-PHY' or
+			../../if:type= 'ETH-LAG' " {
+			description
+				" bfd by mcast ipv6-address, on lag/lag-member/switch-port.";
+			}	
+			presence "";
+			description "bfd-if-mcast-ipv6";
+			
+			leaf local-addr6 {
+				type inet:ipv6-address;
+				description "local-addr";
+			}
+			
+			leaf process-if-status {
+				type co-type:is-enable;
+				default "disable";
+				description "process-if-status";
+			}
+			
+			leaf compatible-mode {
+				type bfd:compatible-mode;
+				default "incompatible";
+				description "compatible-mode";
+			}
+			
+	        uses time-interval{
+			}
+		}
+		
+		
+        container bfd-on-lag-ipv6 {
+			when "../../if:type = 'ETH-LAG' " {
+			description
+				" interfaces need to support  bfd on lag type of Micro-BFD, by unicast ipv6 and mcast mac-address, 
+				on the basis of rfc7130";
+			}	
+			
+			description "bfd-on-lag-ipv6";
+			
+			leaf local-addr6 {
+				type inet:ipv6-address;
+				description "local-ipv6-addr";
+			}
+			
+		    leaf peer-addr6 {
+				type inet:ipv6-address;
+				description "peer-ipv6-addr";
+			}
+			
+			leaf process-if-status {
+				type co-type:is-enable;
+				default "disable";
+				description "process-if-status";
+			}
+
+			leaf compatible-mode {
+				type bfd:compatible-mode;
+				default "incompatible";
+				description "compatible-mode";
+			}
+			
+	        uses time-interval{
+			}
+		}						
+		
+	  }
+	}
+	
+	augment "/isis:isis/isis:isis-instances/isis:isis-instance/isis:isis-interfaces/isis:isis-interface/isis:interface-af" {
+		container bfd-isis-if {
+			description "bfd-isis-if";
+			leaf bfd-enable {
+				type co-type:is-enable;
+				default "disable";
+				description "enable bfd or not";
+			}
+				
+			uses time-interval{
+			}
+		}
+	}
+	
+	augment "/isis:isis/isis:isis-instances/isis:isis-instance/isis:af/isis:af-data" {
+		container bfd-isis-all {
+			description "bfd-isis-all";
+			leaf bfd-enable {
+				type co-type:is-enable;
+				default "disable";
+				description "enable bfd or not";
+			}
+					
+			uses time-interval{
+			}
+		}
+	}
+	
+	augment "/mpls:mpls/mpls:mpls-te/mpls:tunnel-te" {
+		container bfd-cr-lsp {
+			description "bfd-cr-lsp";
+			
+            list bfd-lsp {
+                key "lsp-role";
+                description "bfd-lsp-list";
+                
+                leaf lsp-role {
+                    type bfd:lsp-role;
+                    description "lsp-role";
+                }
+                
+                leaf lsp-ping-interval {
+                    type uint32 {
+                        range "10000..4294967";
+                    }
+                    default 60000;
+                    description "lsp-ping-interval";
+                }
+                
+                leaf session-down-enable {
+                    type co-type:is-enable;
+                    default "disable";
+                    description "session-down-enable";
+                }
+                
+                uses time-interval{
+		        }
+            }
+	    }
+	}
+		
+	augment "/s-route:s-route/s-route:route-static/s-route:vrf/s-route:afi/s-route:static-route" {
+		container bfd-static-route {
+			description "bfd-static-route";
+			leaf bfd-enable {
+				type co-type:is-enable;
+				default "disable";
+				description "enable bfd for static-route or not";
+			}
+			
+			leaf source-ip {
+				type inet:ip-address;
+				description "source ip address";
+			}
+			
+			uses time-interval{
+			}
+		}
+	}
+
+	container bfd-srbe-tunnels {
+		description "bfd for srbe-tunnels, include ipv4-srbe-tunnel and ipv6-srbe-tunnel";
+		
+		list bfd-srbe-tunnel{
+			key "tunnel-type";
+			description "bfd for ipv4-srbe-tunnel or ipv6-srbe-tunnel";
+		
+			leaf tunnel-type {
+				type bfd:srbe-tunnel-type;
+				description "bfd for ipv4-srbe-tunnel or ipv6-srbe-tunnel";
+			}
+		
+			leaf bfd-enable {
+				type co-type:is-enable;
+				default "disable";
+				description "enable bfd for static-route or not";
+			}
+			
+			leaf ip-prefix-name {
+				type ipprefix:list-name;
+				description "ip-prefix-name";
+			}
+			
+			uses time-interval;
+		}
+	}	
+}

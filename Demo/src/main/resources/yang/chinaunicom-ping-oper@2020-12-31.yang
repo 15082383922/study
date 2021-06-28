@@ -1,0 +1,1358 @@
+module chinaunicom-ping-oper 
+{
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/systemdiagnose/chinaunicom-ping-oper";
+
+  prefix "ping-oper";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  
+  
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+  
+  import chinaunicom-l2vpn {	revision-date 2020-06-19; prefix "l2vpn"; }
+  
+  import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type"; }
+	
+  import chinaunicom-interface-common {	revision-date 2020-12-31; prefix "if"; }
+  
+  organization
+  	 "chinaunicom Systems, Inc.
+     Fiberhome Systems, Inc.
+     UTstarcom,Inc.";
+
+  contact
+	"
+	chinaunicom Communications Techlonogy Co., Ltd.
+     Postcode: 100140 
+     Address: No 21 ,Financial Street, Xicheng District, Beijing
+     E-mail: ykou@chinaunicom.com
+     
+	Fiberhome Communications Techlonogy Co., Ltd.
+	 Postcode: 430073 
+	 Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+	 E-mail: yang- author@fiberhome.com
+
+
+	UTStarcom Telecom Co.,Ltd.
+     Postcode: 310053 
+     Address: 4th Floor, South Wing, 368 Liuhe Road, Binjiang District, Hangzhou 310053, Zhejiang Province, P.R.China
+     E-mail: sihai.bao@utstar.com";
+
+
+  description
+    "This module contains a collection of YANG definitions
+     for sr ping &traceroute package configuration.
+
+     This module contains definitions
+     for the following management objects:
+       sr: Segment routing configuration
+
+     Copyright (c) 2013-2020 by chinaunicom Systems, Inc;Fiberhome Systems, Inc.;UTStarcom, Inc.
+     All rights reserved.";
+
+  revision "2020-12-31" 
+  {
+    description  "add rpc delete;add test command status";
+  }
+  revision "2020-12-24" 
+  {
+    description  "modify ping &tracert result from statu tabel to notification; add te-ping &nil-fec-ping";
+  }
+  
+    revision "2020-09-01" 
+    {
+        description
+          "chinaunicom V5 3.0 revision.";
+    }
+    
+    revision "2020-06-11" 
+    {
+        description
+          "chinaunicom V5 1.0 revision.";
+    }
+ /* typedefs */ 
+     typedef if-ref {
+   	 type union 
+		{
+		    type if:lb-name;
+			type if:mgmt-name;
+			type if:null-name;
+            type if:tunnel-name;
+			type if:ethphy-name;
+			type if:ethvir-name;
+			type if:ethlag-name;
+			type if:veth-name;
+			type if:ethsub-name;
+		}
+    }
+    
+ typedef reply-mode {
+    type enumeration {
+      enum  not-reply {
+        value 1;
+        description "not reply";
+      }
+      enum reply {
+        value 2;
+        description "reply";
+      }
+    }
+    description "reply mode";
+  }
+  typedef dont-frag {
+    type enumeration {
+      enum  frag {
+        value 0;
+        description "fragment";
+      }
+      enum not-frag {
+        value 1;
+        description "not fragment";
+      }
+    }
+    description "don't fragment flag";
+  }
+  
+  
+  typedef ip-forwarding-enum {
+    type enumeration {
+      enum  not-forward {
+        value 0;
+        description "not ip forward";
+      }
+      enum ip-forward {
+        value 1;
+        description "ip forward";
+      }
+    }
+    description "ip forwarding";
+  }
+    typedef dont-fragment-enum {
+    type enumeration {
+      enum  frag {
+        value 0;
+        description "frag";
+      }
+      enum not-frag {
+        value 1;
+        description "not frag";
+      }
+    }
+    description "dont fragment";
+  }
+    
+
+  typedef icmp-flag {
+    type enumeration {
+      enum  udp {
+        value 0;
+        description "udp";
+      }
+      enum icmp {
+        value 1;
+        description "icmp";
+      }
+    }
+    description "icmp flag";
+  }
+  typedef detail-scrip {
+    type enumeration {
+      enum  not-show {
+        value 0;
+        description "not show detail";
+      }
+      enum show-detail {
+        value 1;
+        description "show detail";
+      }
+    }
+    description "detail scrip flag";
+  }
+  typedef hot-standby {
+    type enumeration {
+      enum  none {
+        value 0;
+        description "none";
+      }
+      enum hot-standby {
+        value 1;
+        description "hot standby";
+      }
+    }
+    description "hot standby flag";
+  }
+  typedef test-status-type
+  {
+   type enumeration
+   {
+       enum processing
+       {
+           value 0;
+           description "the test is in progress";
+       }
+       enum finished
+       {
+           value 1;
+           description "the test is finished";
+       }
+   }
+  } 
+  
+  typedef result-type
+    {
+        type enumeration
+        {
+            enum success
+            {
+                value 0;
+            }
+            enum timeout
+            {
+                value 1;
+            }
+            enum failed
+            {
+                value 2;
+            }
+        }
+    }
+  
+  typedef node-type{
+		type enumeration
+        {
+            enum ingress
+            {
+                value 0;
+            }
+            enum transit
+            {
+                value 1;
+            }
+            enum egress
+            {
+                value 2;
+            }
+        }
+  }
+    typedef evpn-reply-mode
+    {
+        type enumeration
+        {
+            enum no-reply
+            {
+                value 1;
+                description "No reply";
+            }
+            enum udp
+            {
+                value 2;
+                description "UDP";
+            }
+        }
+    }  
+    typedef esi-value
+    {
+        type string
+        {
+             pattern '((([0-9]|[a-f])([0-9]|[a-f]))\.){9}(([0-9]|[a-f])([0-9]|[a-f]))';
+             length "0..29";
+        }
+        description "esi value";
+    }
+	
+	typedef test-type{
+		type enumeration{
+            enum ipv4-ping{
+                value 0;
+            }
+            enum ipv4-tracert{
+                value 1;
+            }
+            enum ipv6-ping{
+                value 2;
+            }
+            enum ipv6-tracert{
+                value 3;
+            }
+            enum te-ping{
+                value 4;
+            }
+            enum te-tracert{
+                value 5;
+            }
+            enum nei-fec-ping{
+                value 6;
+            }
+            enum nei-fec-tracert{
+                value 7;
+            }
+            enum evpn-ping{
+                value 8;
+            }
+            enum evpn-tracert{
+                value 9;
+            }			
+        }
+	}
+	
+  
+  grouping ip-ping-attribute {
+    leaf source-ip{	
+      type inet:ip-address-no-zone;
+      description "source IP address";
+    }    	
+	leaf count{	
+      type uint32{
+        range "1..4294967295";
+      }
+	  default 5;
+        description "request count ";
+      }
+	leaf size{	
+      type uint16{
+        range "28..9600";
+      }
+	  default 64;
+        description "size of request packet ";
+      }
+	leaf send-timeout{
+      type uint16{
+        range "1..10000";
+      }
+	  default 100;
+        description "time for next packet ";
+      }
+	leaf wait-timeout{	
+      type uint16{
+        range "0..65535";
+      }
+	  default 3000;
+        description "timeout for response ";
+      }		
+	leaf ttl{		 
+      type uint8{
+        range "1..255";
+      }
+      default 255;
+      description "TTL value ";
+    }
+  leaf vrf-name {
+      type co-type:vpn-name;
+      description "vrf name";
+    } 
+  }
+  
+  grouping ip-trace-attribute {
+    leaf source-ip{	
+      type inet:ip-address-no-zone;
+      description "source IP address";
+    }    	
+	leaf probe-num{	
+      type uint8{
+        range "1..10";
+      }
+	  default 3;
+        description "probe num";
+      }
+	leaf first-ttl{		  
+      type uint8{
+        range "1..255";
+      }
+	  default 1;
+        description "initial ttl value";
+      }
+	leaf max-ttl{		  
+      type uint8{
+        range "1..255";
+      }
+	  default 30;
+        description "Maximum  ttl value";
+      }
+	leaf udp-port{		  
+      type uint16{
+        range "0..65535";
+      }
+	  default 33434;
+        description "udp port num";
+      }		
+  leaf wait-timeout{		  
+      type uint16{
+        range "0..65535";
+      }
+	  default 3000;
+        description "timeout for response ";
+      }
+  leaf detail-scrip{	
+      type detail-scrip;
+	  default "not-show";
+      description "detail scrip ";
+     }	
+  leaf vrf-name {
+      type co-type:vpn-name;
+      description "vrf name";
+    }
+  leaf icmp-flag{	
+      type icmp-flag;
+	  default "udp";
+      description "icmp flag";
+     }
+  }
+  
+  grouping lsp-ping-attribute {    	
+	leaf count{	
+      type uint32{
+        range "1..4294967295";
+      }
+	  default 5;
+        description "request count ";
+      }
+  leaf exp-value{
+      type uint8{
+        range "0..7";
+      }
+	  default 0;
+        description "exp value";
+      }
+  leaf interval{
+      type uint16{
+        range "1..10000";
+      }
+	  default 2000;
+        description "Send interval";
+      }
+  leaf reply-mode{
+      type reply-mode;
+	  default "not-reply";
+      description "reply mode";
+     }
+	leaf size{
+      type uint16{
+        range "28..9600";
+      }
+	  default 64;
+        description "size of request packet ";
+      }
+	leaf wait-timeout{	
+      type uint16{
+        range "0..65535";
+      }
+	  default 3000;
+        description "timeout for response ";
+      }		
+	leaf ttl{
+      type uint8{
+        range "1..255";
+      }
+      default 255;
+      description "TTL value ";
+    }
+  leaf detail-scrip{
+      type detail-scrip;
+	  default "not-show";
+      description "detail scrip ";
+     }
+  }
+  
+  grouping lsp-trace-attribute {
+  leaf exp-value{
+      type uint8{
+        range "0..7";
+      }
+	  default 0;
+        description "exp value";
+      }
+  leaf reply-mode{
+      type reply-mode;
+	  default "not-reply";
+      description "reply mode";
+     }
+  leaf wait-timeout{
+      type uint16{
+        range "0..65535";
+      }
+	  default 3000;
+        description "timeout for response ";
+      } 
+	leaf max-ttl{
+      type uint8{
+        range "1..255";
+      }
+	  default 30;
+        description "Maximum  ttl value";
+      }
+  }
+  
+  grouping ping-summary-result-attribute {
+    leaf test-name 
+    {
+      type string
+      {
+        length "1..32";
+      }
+      description "test name";
+    }
+	container ping-summary-result{
+	  leaf packet-recv
+	  {
+       type uint32;
+       description "recv packet count";
+      }
+      leaf packet-send
+      {
+          type uint32;
+          description "send packet count";
+      }
+      leaf loss-ratio
+      {
+          type uint32;
+          description "loss packet ratio";
+      }
+      leaf min-rtt
+      {
+          type uint32;
+          description "min round trip time, milliseconds";
+      }
+      leaf max-rtt
+      {
+          type uint32;
+          description "max round trip time, milliseconds";
+      }
+      leaf avg-rtt
+      {
+          type uint32; 
+          description "average round trip time, milliseconds";
+      }
+      leaf status
+      {
+          type test-status-type;
+          description "test status";
+      }
+    }
+   }  
+  
+  grouping ping-detail-result-attribute{
+     leaf index
+     {
+         type uint32;
+         description "ping index";
+     }
+     leaf dest-addr
+     {
+         type inet:ipv4-address-no-zone;
+         description "destination IP address";
+     }
+     leaf packet-size
+     {
+         type uint32;
+         description "bytes of response packet";
+     }
+     leaf rtt
+     {
+         type uint32;
+         description "round trip time, milliseconds";
+     }
+		 leaf result
+     {
+         type result-type;
+         description "response packets is success or timeout";
+     }
+   } 
+  
+    grouping ip-ping-detail-result-attribute{
+     container ping-detail-results
+     {
+         list ping-detail-result
+         {
+           uses ping-detail-result-attribute;
+           leaf ttl
+           {
+               type uint8;
+               description "TTL of received response packets";
+           }
+        }
+     }
+    }
+  
+   grouping lsp-ping-detail-result-attribute{
+     container ping-detail-results
+     {
+         list ping-detail-result
+         {
+           uses ping-detail-result-attribute;
+		   leaf return-code{
+				type uint8;
+		   }
+		   leaf subcode{
+				type uint8;
+		   }
+        }
+     }
+    }
+  
+    grouping tracert-detail-result-attribute{
+        leaf hop-index                                       
+        {                                                    
+            type uint32;                                     
+            description "trace hop index";                   
+        }                                                    
+        leaf hop-ip-addr                                     
+        {                                                    
+            type inet:ipv4-address-no-zone;                  
+            description "hop ip address in a test";          
+        }                                                    
+        leaf ttl                                             
+        {                                                    
+            type uint8                                       
+            {                                                
+                range "1..255";                              
+            }                                                
+          description "TTL of received response packets";    
+        }                                                    
+        leaf rtt                                             
+        {                                                    
+            type uint32;                                     
+            description "round trip time, milliseconds";     
+        }
+    }
+	
+
+	grouping trace-summary-result{
+	  leaf test-name 
+      {
+         type string
+         {
+             length "1..32";
+         }
+         description "test name";
+      }
+      container trace-summary-result
+      {
+         leaf status
+         {
+             type test-status-type;
+             description "test status";
+         }
+      }
+	}
+	
+	
+    grouping ip-tracert-result-attribute{
+     uses trace-summary-result;
+	 container trace-detail-results                               
+     {                                                            
+       list trace-detail-result                                 
+       {                                                        
+         uses tracert-detail-result-attribute;                                            
+       }                                                        
+      }                                                            
+    }
+  
+  grouping lsp-tracert-detail-result-attribute{
+	 container trace-detail-results                               
+     {                                                            
+       list trace-detail-result                                 
+       {                                                        
+         uses tracert-detail-result-attribute; 
+		 leaf node-type{
+			type node-type;
+		 }
+		 leaf next-hop{
+			type inet:ipv4-address-no-zone;
+		 }
+		 list downstream{
+		   leaf downstream-label{
+			 type uint32{
+              range "16..1048575";
+             }
+             description "downstream MPLS label pushed";
+		   }
+		 }
+       }                                                        
+      }              
+  }
+  
+  
+   rpc ip-ping {
+
+        description "Send ip ping echo messages";
+
+        input {
+               leaf test-name{ 
+                 type string{
+                  length "1..32";
+                 }
+                mandatory true;
+                description "test name";
+                }
+               leaf destination-ip{		
+                  type inet:ip-address-no-zone;
+                  description "destination IP address";
+                }
+			uses ip-ping-attribute{
+			}             
+            container ipv4-parameter {
+			   leaf dont-fragment{		
+                   type dont-fragment-enum;
+                   description "dont fragment";
+                }
+     		  leaf ip-forwarding{		  
+                   type ip-forwarding-enum;
+                   description "ip forwarding";
+                }
+            }
+            container ipv6-parameter {
+                 leaf port-type{
+                   type if:if-type;
+                   description "port type";
+                }
+                leaf if-name{
+                   type if-ref;
+                   description "if name";
+                }
+            }
+
+        }
+
+    }
+    
+     rpc ip-tracert {
+
+        description "Send ip tracert echo messages";
+
+        input {
+               leaf test-name{ 
+                 type string{
+                  length "1..32";
+                 }
+                mandatory true;
+                description "test name";
+                }
+               leaf destination-ip{
+                  type inet:ip-address-no-zone;
+                  description "destination IP address";
+              }
+			uses ip-trace-attribute{
+			}            
+            container ipv4-parameter {
+              leaf dont-fragment{
+                   type dont-fragment-enum;
+                   description "dont fragment";
+                }
+     		  leaf ip-forwarding{
+                   type ip-forwarding-enum;
+                   description "ip forwarding";
+                }
+            }
+
+        }
+
+    }
+    
+    rpc pw-ping {
+
+        description "Send pw ping echo messages";
+
+        input {
+            leaf test-name{ 
+              type string{
+                length "1..32";
+              }
+              mandatory true;
+              description "test name";
+            }
+			uses lsp-ping-attribute{
+			}            
+            leaf encap-type{
+                  type l2vpn:encap-type;
+                  description "encap type";
+              }
+            leaf pw-id{
+                  type l2vpn:pw-id;
+                  description "pw id";
+              }
+            leaf remote-address{
+                  type inet:ipv4-address-no-zone;
+                  description "remote IP address";
+              }   
+            leaf sender-address{
+                  type inet:ipv4-address-no-zone;
+                  description "sender IP address";
+              }               
+        }
+    }
+    
+     rpc te-ping {
+
+        description "Send te ping echo messages";
+
+        input {
+               leaf test-name{ 
+                 type string{
+                  length "1..32";
+                 }
+                mandatory true;
+                description "test name";
+                }
+			uses lsp-ping-attribute{
+			}
+            leaf interface-number{
+                  type uint32;
+                  description "interface number";
+              }
+            leaf hot-standby{
+                  type hot-standby;
+                  description "hot standby flag";
+              }
+              
+            leaf remote-address{
+                  type inet:ipv4-address-no-zone;
+                  description "remote IP address";
+              }
+            leaf mask-length{
+                  type uint8{
+                    range "1..32";                 
+                  }
+              }              
+            leaf source-address{
+                  type inet:ipv4-address-no-zone;
+                  description "source IP address";
+              }   
+            leaf destination-address{
+                  type inet:ipv4-address-no-zone;
+                  description "destionation IP address";                  
+              }
+            leaf prefix-length{
+                  type uint8{
+                    range "1..32"; 
+                }
+            }
+        }
+    }
+    
+    
+    rpc nil-fec-ping {
+
+        description "Send nil-fec ping echo messages";
+
+        input {
+               leaf test-name{ 
+                 type string{
+                  length "1..32";
+                 }
+                mandatory true;
+                description "test name";
+                }
+			uses lsp-ping-attribute{
+			}
+            leaf label-stack{
+                  type string;
+                  description "label stack";
+              }
+            leaf port-type{
+                   type if:if-type;
+                   description "port type";
+                }
+            leaf if-name{
+                   type if-ref;
+                   description "if name";
+                }
+              
+            leaf next-hop{
+                  type inet:ipv4-address-no-zone;
+                  description "next hop address";
+              }
+             leaf source-address{
+                  type inet:ipv4-address-no-zone;
+                  description "source IP address";
+              }
+
+        }
+
+    }
+    
+    rpc pw-tracert {
+
+        description "Send pw tracert echo messages";
+
+        input {
+               leaf test-name{ 
+                 type string{
+                  length "1..32";
+                 }
+                mandatory true;
+                description "test name";
+                }
+			uses lsp-trace-attribute{
+			}            
+            leaf encap-type{
+                  type l2vpn:encap-type;
+                  description "encap type";
+              }
+            leaf pw-id{		
+                  type l2vpn:pw-id;
+                  description "pw id";
+              }
+             leaf remote-address{
+                  type inet:ipv4-address-no-zone;
+                  description "remote IP address";
+              }
+             leaf sender-address{
+                  type inet:ipv4-address-no-zone;
+                  description "sender address";
+              }
+        }
+
+    }
+    
+     rpc te-tracert {
+
+        description "Send te tracert echo messages";
+
+        input {
+               leaf test-name{ 
+                 type string{
+                  length "1..32";
+                 }
+                mandatory true;
+                description "test name";
+                }
+			uses lsp-trace-attribute{
+			}
+            leaf interface-number{	
+                  type uint32;
+                  description "interface number";
+              }
+            leaf hot-standby{
+                  type hot-standby;
+                  description "hot standby flag";
+              }
+              
+            leaf remote-address{
+                  type inet:ipv4-address-no-zone;
+                  description "remote IP address";
+              }
+            leaf mask-length{
+                  type uint8{
+                    range "1..32"; 
+                }
+            }                
+             leaf source-address{
+                  type inet:ipv4-address-no-zone;
+                  description "source IP address";
+              }
+            leaf destination-address{
+                  type inet:ipv4-address-no-zone;
+                  description "destionation IP address";                  
+              }
+            leaf prefix-length{
+                  type uint8{
+                    range "1..32"; 
+                }
+            }
+        }
+    }
+    
+    rpc nil-fec-tracert {
+
+        description "Send nil-fec tracert echo messages";
+
+        input {
+               leaf test-name{ 
+                 type string{
+                  length "1..32";
+                 }
+                mandatory true;
+                description "test name";
+                }
+			uses lsp-trace-attribute{
+			}
+            leaf label-stack{
+                  type string;
+                  description "label stack";
+              }
+            leaf port-type{	
+                   type if:if-type;
+                   description "port type";
+                }
+            leaf if-name{	
+                   type if-ref;
+                   description "if name";
+                }
+              
+            leaf next-hop{
+                  type inet:ipv4-address-no-zone;
+                  description "next hop address";
+              }
+             leaf source-address{
+                  type inet:ipv4-address-no-zone;
+                  description "source IP address";
+              }
+
+        }
+
+    }
+
+    rpc start-evpn-ping
+    {
+        description "start evpn ping";
+        input
+        {
+            leaf test-name 
+            {
+                type string
+                {
+                    length "1..32";
+                }
+                mandatory true;
+                description "test name";
+            }
+            leaf evpn-instance
+            {
+                type string
+                {
+                    length "1..31";
+                }
+                mandatory true;
+                description "vpn instance name";
+            }
+            leaf peer-ip-addr
+            {
+                type inet:ip-address-no-zone;
+                mandatory true;
+                description "peer IP address";
+            }
+            leaf source-etag
+            {
+                type uint32
+                {
+                    range "0..16777215";
+                }
+                default 0;
+                description "local source etag";
+            }
+            leaf remote-esi
+            {
+                type esi-value;
+                description "remote esi";
+            }
+            leaf source-addr
+            {
+                type inet:ip-address-no-zone;
+                description "source IP address";
+            }
+            leaf packet-size
+            {
+                type uint32
+                {
+                    range "65..8100";
+                }
+                default 100;
+                description "size of request packet";
+            }
+            leaf packet-count
+            {
+                type uint32
+                {
+                    range "1..4294967295";
+                }
+                default 5;
+                description "request count";
+            }
+            leaf interval
+            {
+                type uint32
+                {
+                    range "1..10000";
+                }
+                default 2000;
+                units "milliseconds";
+                description "time for next packet";
+            }
+            leaf timeout
+            {
+                type uint32
+                {
+                    range "1..65535";
+                }
+                default 2000;
+                units "milliseconds";
+                description "timeout for response";
+            }
+            leaf exp
+            {
+                type uint32
+                {
+                    range "0..7";
+                }
+                default "0";
+                description "EXP value in the label field of MPLS packets";
+            }
+            leaf ttl
+            {
+                type uint8
+                {
+                    range "1..255";
+                }
+                default 255;
+                description "TTL value";
+            }
+            leaf reply-mode
+            {
+                type evpn-reply-mode;
+                default "udp";
+                description "Mode for responding to test packets in a test";
+            }
+        }
+    }
+    
+
+
+    rpc start-evpn-trace
+    {
+        description "start evpn trace";
+        input
+        {
+            leaf test-name 
+            {
+                type string
+                {
+                    length "1..32";
+                }
+                mandatory true;
+                description "test name";
+            }
+            leaf evpn-instance
+            {
+                type string
+                {
+                    length "1..31";
+                }
+                mandatory true;
+                description "vpn instance name";
+            }
+            leaf peer-ip-addr
+            {
+                type inet:ip-address-no-zone;
+                mandatory true;
+                description "peer IP address";
+            }
+            leaf source-etag
+            {
+                type uint32
+                {
+                    range "0..16777215";
+                }
+                default 0;
+                description "local source etag";
+            }
+            leaf remote-esi
+            {
+                type esi-value;
+                description "remote esi";
+            }
+            leaf source-addr
+            {
+                type inet:ip-address-no-zone;
+                description "source IP address";
+            }
+            leaf timeout
+            {
+                type uint32
+                {
+                    range "1..65535";
+                }
+                default 2000;
+                units "milliseconds";
+                description "timeout for response";
+            }
+            leaf exp
+            {
+                type uint32
+                {
+                    range "0..7";
+                }
+                default "0";
+                description "EXP value in the label field of MPLS packets";
+            }
+            leaf max-ttl
+            {
+                type uint8
+                {
+                    range "1..255";
+                }
+                default 30;
+                description "max TTL value";
+            }
+            leaf reply-mode
+            {
+                type evpn-reply-mode;
+                default "udp";
+                description "Mode for responding to test packets in a test";
+            }
+        }
+    }
+    
+    rpc delete-ping-tracert
+    {
+        description "delete ping or tracert test command";
+        input
+        {
+            leaf test-name 
+            {
+                type string
+                {
+                    length "1..32";
+                }
+                description "test name";
+            }
+        }
+    }
+
+   container ping-oper{
+        config false;
+	 container ping-tracert-command-status{
+	   list test-command-status{
+		 key "test-name";
+		 leaf test-name{
+			type string;
+		 }
+		 leaf test-type{
+			type test-type;
+		 }
+	   }
+	 }
+   }
+
+
+    /*
+   * Notifications
+   */
+   notification ipv4-ping-result {
+    container ipv4-ping-results
+    {	
+        description "ipv4 ping results";
+		list ipv4-ping-result
+        {
+            key "test-name";
+			uses ping-summary-result-attribute;
+            uses ip-ping-detail-result-attribute;    
+        }
+    }            
+   }
+   
+   notification ipv4-tracert-result{
+   container ipv4-trace-results
+            {                
+                description "ipv4 trace results";
+				list ipv4-trace-result
+                {
+                   key "test-name";
+				   uses ip-tracert-result-attribute;    
+                }
+            }   
+   }
+   
+    notification ipv6-ping-result {
+    container ipv6-ping-results
+    {	
+        description "ipv6 ping results";
+		list ipv6-ping-result
+        {
+            key "test-name";
+			uses ping-summary-result-attribute;
+            uses ip-ping-detail-result-attribute;    
+        }
+    }            
+   }
+   
+   notification ipv6-tacert-result{
+   container ipv6-trace-results
+            {                
+                description "ipv6 trace results";
+				list ipv6-trace-result
+                {
+                   key "test-name";
+				   uses ip-tracert-result-attribute;    
+                }
+            }   
+   }
+   
+    notification te-ping-tracert-result {
+       container te-ping-results {
+           description "te ping results";              
+           list te-ping-result
+           {
+               key "test-name";
+               uses ping-summary-result-attribute;
+               uses lsp-ping-detail-result-attribute;
+           }
+        }
+	}
+
+    notification te-tracert-result{
+		container te-trace-results
+        {  
+			description "te trace results";		
+            list te-trace-result
+            {
+				key "test-name";
+			    uses trace-summary-result;
+			    uses lsp-tracert-detail-result-attribute;
+            }
+        }		
+	}
+	
+    notification nil-fec-ping-result {	                                         
+           container neil-fec-ping-results                  
+           {                                                                                                
+               description "nil fec ping results";
+			   list nil-fec-ping-result                    
+               {    
+				   key "test-name";
+                   uses ping-summary-result-attribute;
+                   uses lsp-ping-detail-result-attribute; 
+                }                                      
+            } 
+    }
+	
+    notification nil-fec-tracert-result {		
+            container nil-fec-trace-results
+            {               
+                description "nil fec trace results";
+				list nil-fec-trace-result
+                {
+					key "test-name";
+					uses trace-summary-result;
+					uses lsp-tracert-detail-result-attribute;
+                }
+            }	
+	}
+	
+    notification evpn-ping-result {
+            container evpn-ping-results
+            {	
+                description "evpn ping results";
+				list evpn-ping-result
+                {
+                   key "test-name";
+				   uses ping-summary-result-attribute;
+                   uses ip-ping-detail-result-attribute;    
+                }
+            }            
+   }
+   
+    notification evpn-tracert-result { 
+            container evpn-trace-results
+            {                
+                description "evpn trace results";
+				list evpn-trace-result
+                {
+                   key "test-name";
+				   uses ip-tracert-result-attribute;    
+                }
+            }
+    }			
+ }	

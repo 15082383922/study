@@ -1,6 +1,7 @@
 package com.chancy.quartz;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.junit.Test;
@@ -57,21 +58,16 @@ public class Text {
        }
        */
     static {
-        data.put("/if:interface/if:name", "eth 0/10/1/1.1");
-        data.put("/if:interface/if:type", "ETH-SUBIF");//mandatory
-        data.put("/if:interface/if:is-uni", "disable");//mandatory
-        data.put("/if:interface/l2l3if:transport-layer", "layer-2-switch");
-        data.put("/if:interface/vlan:if-vlan-cfg/vlan:termination_type", "dot1q-termination");//mandatory
-        data.put("/if:interface/vlan:evc-vlan-cfg/vlan:evc-encap-cfg/vlan:encap-type", "evc-dot1q");//mandatory
-        data.put("/if:interface/vlan:evc-vlan-cfg/vlan:evc-rewrite-cfg/vlan:rewrite-type", "null");//mandatory
-        data.put("/if:interface/vlan:if-vlan-cfg/vlan:qinq-stacking-vlan-cfg/vlan:vlan-tag-list/vlan:cvlan_min", "2");
-        data.put("/if:interface/vlan:if-vlan-cfg/vlan:qinq-stacking-vlan-cfg/vlan:vlan-tag-list/vlan:cvlan_max", "2");
+
+        data.put("/vlan:vlan-tag-list/vlan:cvlan_min", "2");
+        data.put("/vlan:vlan-tag-list/vlan:cvlan_max", "2");
     }
 
     static {
-        data2.put("cvlan_min", "4");
-        data2.put("cvlan_max", "4");
+        data2.put("/vlan:vlan-tag-list/vlan:cvlan_min", "4");
+        data2.put("/vlan:vlan-tag-list/vlan:cvlan_max", "4");
     }
+    static Set<String> strings = data2.keySet();
 
     /*
         data.put("name", "eth 0/10/1/1.1");
@@ -83,11 +79,22 @@ public class Text {
         data.put("evc-vlan-cfg/vlan:evc-rewrite-cfg/vlan:rewrite-type", "null");//mandatory
      */
     public static void main(String[] args) throws InterruptedException {
-       // JsonObject jsonObject1 = mapToMap(data);
-       // System.out.println(jsonObject1.toString());
-String s = "{Event = New Ne online},{Mac = 00:0B:0F:01:6F:01},{Port = eth9.2},{System Name = switch},{System Description = WIA-U-112DA0Open Network Linux OS ONL-masterUNOS software release V1.1.0.3_sp46 build at 00:24:41, Apr 19 2021}";
-        s = s.replaceAll("\\{", "").replaceAll("\\}", "");
-        System.out.println(s);
+        JsonObject jsonObject1 = mapToMap(data);
+        System.out.println(jsonObject1.toString());
+        JsonObject jsonObject2 = addString(jsonObject1, strings);
+        System.out.println(jsonObject2);
+    }
+
+    private static JsonObject addString(JsonObject jsonObject1, Set<String> data2) {
+        final String o = (String) data2.toArray()[0];
+        final String[] split = o.substring(1).split("/");
+        for (String s : split) {
+            final JsonElement jsonElement = jsonObject1.get(s.substring(s.lastIndexOf(":")));
+            if(jsonElement == null) {
+
+            }
+        }
+        return jsonObject1;
     }
 
     private static JsonObject mapToMap(Map<String, String> data) {
@@ -126,7 +133,6 @@ String s = "{Event = New Ne online},{Mac = 00:0B:0F:01:6F:01},{Port = eth9.2},{S
         JsonObject node = jsonObject;
         for (String value : list) {
             JsonObject jsonElement = node.getAsJsonObject(value);
-
             if (jsonElement == null) {
                 System.out.println(value);
                 break;
@@ -250,6 +256,9 @@ String s = "{Event = New Ne online},{Mac = 00:0B:0F:01:6F:01},{Port = eth9.2},{S
     }
 
 
+
+
+    static Map<String, String>  datas = new TreeMap<>();
 
     @Test
     public  void show(){

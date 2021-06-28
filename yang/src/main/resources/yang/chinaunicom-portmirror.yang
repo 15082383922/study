@@ -1,0 +1,164 @@
+module chinaunicom-portmirror{
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/securitymanage/chinaunicom-portmirror";
+
+
+  prefix "portmirror";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+  //import chinaunicom-datatype-common { prefix "co-type"; }
+
+  //import ietf-inet-types { prefix "inet"; }
+
+  //import ietf-yang-types { prefix "yang"; }
+
+  import chinaunicom-interface-common { prefix "if"; } 
+
+
+  /*** META INFORMATION ***/
+
+  organization "UTStarcom Telecom Co., Ltd.";
+
+  contact
+    "UTStarcom Telecom Co., Ltd.
+     
+     Postcode: 310053 
+     Address: 368 Liuhe Road, Binjiang District,Hangzhou, Zhejiang
+
+     E-mail: sheng.yu@utstar.com";
+
+  description 
+    "This module contains a collection of YANG definitions
+     for UTStarcom IPRAN portmirror configuration.
+
+     This module contains definitions
+     for the following management objects:
+       portmirror: portmirror configuration for all instances
+
+     Copyright (c) 2013-2020 by UTStarcom Telecom Co., Ltd.
+     All rights reserved.";
+
+  revision "2020-12-10" {
+    description
+      "1. UTStarcom IPRAN 1.0 revision.
+       2. Remove unused import to keep the compiler silence.";
+  }
+
+	typedef mirror-session-name {
+		type string {
+			length "1..63";
+		}
+	}
+
+	typedef dest-if-ref {
+		type union {
+			type if:ethphy-name;
+		}
+	}
+
+	typedef mirror-if-ref {
+		type union {
+			type if:ethphy-name;
+			type if:ethlag-name;
+			type if:veth-name;
+			type if:ethsub-name;
+			type if:flexetunnel-name;
+		}
+	}
+
+  typedef mirror-type {
+    type enumeration {
+		  enum both {
+				value 0;
+				description "both director";
+		  }
+		  enum inbound {
+				value 1;
+				description "inbound";
+		  }
+		  enum outbound {
+				value 2;
+				description "outbound";
+		  }
+		  enum inbound-cpu-packet {
+				value 3;
+				description "inbound cpu packet";
+		  }
+		}
+	}
+
+  container portmirror{
+	  description "portmirror top container";
+		container mirror-sessions{ 
+			description "mirror session cfg container"; 
+			list mirror-session{
+				key session-name;
+		    leaf session-name {
+			  	type portmirror:mirror-session-name;
+		  		description "mirror session name";
+		    }
+		    leaf destination-interface {
+			  	type portmirror:dest-if-ref;
+		  		description "destination interface";
+		    }
+		    leaf sample-rate {
+			  	type uint8 {
+			        range "0..12";
+			  	}
+			  	default 0;
+		  		description "sample rate of mirroring ";
+		    }
+			}
+		}
+		container mirror-ports{ 
+			description "mirror session cfg container"; 
+			list mirror-port{
+				key mirror-interface;
+		    leaf mirror-interface {
+				type portmirror:mirror-if-ref;
+		  		description "mirror interface name";
+		    }
+		    leaf session-name {
+				type portmirror:mirror-session-name;
+		  		description "mirror session name";
+		    }
+		    leaf mirror-type {
+				type portmirror:mirror-type;
+		  		description "mirror type";
+		    }
+		    leaf pe-vlan-id {
+				type uint16 {
+			        range "0..4094";
+			  	}
+			  	default 0;
+		  		description "pe-vlan id ";
+		    }
+		    leaf max-pe-vlan-id {
+				type uint16 {
+			        range "0..4094";
+			  	}
+			  	default 0;
+		  		description "max pe-vlan id ";
+		    }
+		    leaf ce-vlan-id {
+				type uint16 {
+			        range "0..4094";
+			  	}
+			  	default 0;
+		  		description "ce-vlan id ";
+		    }
+		    leaf max-ce-vlan-id {
+				type uint16 {
+			        range "0..4094";
+			  	}
+			  	default 0;
+		  		description "max ce-vlan id ";
+		    }
+			}
+		}
+	}
+
+}

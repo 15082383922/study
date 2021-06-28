@@ -1,0 +1,522 @@
+module chinaunicom-ethif-common-oper
+{
+    namespace "http://chinaunicom.com/yang/interface/chinaunicom-ethif-common-oper";
+    prefix "ethif-oper";
+	
+    import chinaunicom-interface-common 
+    {
+	revision-date 2020-12-31;
+        prefix if;
+    }
+
+	
+	
+    import chinaunicom-datatype-common
+    {
+	revision-date 2020-08-14;
+        prefix "co-type";
+    }
+	
+    import ietf-yang-types
+    {
+	revision-date 2013-07-15;
+        prefix yang;
+    }
+    import chinaunicom-extension {	revision-date 2020-03-30; prefix "ext"; }
+	
+    description
+        "The module defined to config the lag configures";
+    revision 2020-07-22 
+	{
+        description
+            "Add interface type : flexe-client.";
+    }
+	revision 2020-03-28
+    {
+        description
+            "To add interface statistics for telemetry.";
+    }	
+    revision 2019-09-18 
+	{
+      description "typedef link-state adds enumeration.";
+    }		
+    revision 2018-04-11
+    {
+        description
+            "version 1.0";
+    }
+	
+	typedef link-state{
+	  type enumeration {
+		enum link-up {
+			value 1;
+			description "if link-state up";
+		}
+		enum link-down {
+			value 2;
+			description "if link-state down";
+		}
+		enum admin-down {
+			value 3;
+			description "if state admin-down";
+		}
+		enum off-line{
+			value 6;
+			description "if state off-line";
+		}	
+      }
+    }  
+	
+	typedef alarm-state{
+	  type enumeration {
+		enum NO {
+			value 0;
+			description "if alarm-state no";
+		}
+		enum YES {
+			value 1;
+			description "if alarm-state yes";
+		}
+      }
+    }
+
+	typedef if-state{
+      type enumeration {
+		enum up {
+			value 1;
+			description "if state up";
+		}
+		enum down {
+			value 2;
+			description "if state down";
+		}
+		enum admin-down {
+			value 3;
+			description "if state admin-down";
+		}
+		enum off-line{
+			value 6;
+			description "if state off-line";
+		}
+	  }
+    }
+    
+	typedef loopback-mode {
+    type enumeration {
+	    enum none {
+			value 1;
+			description "none mode";
+		}
+		enum local {
+			value 2;
+			description "local mode";
+		}
+		enum remote {
+			value 3;
+			description "remote mode";
+		}
+    }
+  }
+
+    typedef if-ref {
+   	 type union 
+		{
+			type if:ethphy-name;
+			type if:ethlag-name;
+			type if:flexetunnel-name;
+			type if:flexeclient-name;
+		}
+    }
+	    
+    typedef if-ref-telemetry {
+   	 type union 
+		{
+			type if:ethphy-name;
+			type if:ethlag-name;
+			type if:ethsub-name;
+			type if:flexeclient-name;
+		}
+    }	   
+	grouping interface-basic-info
+	{
+		leaf linkstate
+		{
+			type ethif-oper:link-state;
+			description
+				"link state";
+		}		
+
+		leaf operstate
+		{
+			type ethif-oper:if-state;
+			description
+				"if operstate";
+		}
+		leaf bandwidth
+		{
+		  type uint32{
+            range "1..1000000";
+          }
+		  description
+			"interface bandwidth";
+			
+		}
+		leaf portmac
+		{
+			type yang:mac-address;
+			description "interface mac-address";
+		}
+	}
+	
+	grouping interface-state-info
+	{
+		leaf rx_pkt
+		{
+			type uint64;
+			description
+				"all receive pkt";
+		}	
+		leaf rx_rate
+		{
+			type uint64;
+			description
+				"receive rate";
+		}
+		leaf tx_pkt
+		{
+			type uint64;
+			description
+				"all transmit pkt";
+		}
+		leaf tx_rate
+		{
+			type uint64;
+			description
+				"transmit rate";
+		}					
+	}
+	
+	grouping interface-sd-info
+	{
+	    
+		leaf sd-alarm 
+		{
+			type ethif-oper:alarm-state;
+			description "sd alarm";
+		}
+		  
+		leaf error-rate 
+		{
+			type co-type:float6;
+			description "error-rate";
+		}
+		  
+		leaf rx-pkts 
+		{
+			type uint64{
+            range "0..9223372036854775807";
+            }
+			description "rx pkts";
+		}
+		  
+		leaf rx-crcs 
+		{
+			type uint64{
+            range "0..9223372036854775807";
+            }
+			description "rx crcs";
+		}
+	
+	}
+	
+    grouping if-basic-statistic-rx
+	{
+		leaf rx-pkts
+		{
+			type uint64;
+			units "pkt";
+			description
+				"all receive pkt";
+		}	
+		leaf rx-bytes
+		{
+			type uint64;
+			units "byte";
+			description
+				"receive bytes";
+		}	
+		leaf rx-bps
+		{
+			type uint64;
+			units "bit/s";
+			description
+				"receive flow bit/s";
+		}	
+		leaf rx-pps
+		{
+			type uint64;
+			units "pkt/s";
+			description
+				"receive pkt/s";
+		}			
+	}	
+    grouping if-basic-statistic-tx
+	{		
+		leaf tx-pkts
+		{
+			type uint64;
+			units "pkt";
+			description
+				"all transmit pkts";
+		}
+		leaf tx-bps
+		{
+			type uint64;
+			units "bit/s";
+			description
+				"transmit flow bit/s";
+		}	
+		leaf tx-bytes
+		{
+			type uint64;
+			units "byte";
+			description
+				"transmit bytes";
+		}		
+		leaf tx-pps
+		{
+			type uint64;
+			units "pkt/s";
+			description
+				"transmit flow pkt/s";
+		}				
+	}		
+	grouping ethphy-if-statistic-rx
+	{	
+		leaf rx-bandwith-utilization
+		{
+			type co-type:float2 {
+			
+				range "0.00 .. 100.00";
+			}
+			units "%";
+			description
+				"receive bandwith utilization";
+		}		
+		leaf rx-broadcasts
+		{
+			type uint64;
+			units "pkt";
+			description
+				"receive broadcast packet";
+		}		
+		leaf rx-multicasts
+		{
+			type uint64;
+			units "pkt";
+			description
+				"receive multicast packet";
+		}		
+		leaf rx-good-pkts
+		{
+			type uint64;
+			units "pkt";
+			description
+				"receive good packets";
+		}		
+		leaf rx-bad-pkts
+		{
+			type uint64;
+			units "pkt";
+			description
+				"receive bad_packets";
+		}	
+		leaf rx-drops
+		{
+			type uint64;
+			units "pkt";
+			description
+				"receive drop packet";
+		}
+		leaf rx-good-bytes
+		{
+			type uint64;
+			units "byte";
+			description
+				"receive good_bytes";
+		}	
+		leaf rx-bad-bytes
+		{
+			type uint64;
+			units "byte";
+			description
+				"receive bad_bytes";
+		}		
+		leaf crc-errs
+		{
+			type uint64;
+			units "byte";
+			description
+				"crc err packet";
+		}				
+	}	
+	grouping ethphy-if-statistic-tx
+	{					
+		leaf tx-bandwith-utilization
+		{
+			type co-type:float2 {
+				
+				range "0.00 .. 100.00";
+			}
+			units "%";
+			description
+				"transmit bandwith_utilization";
+		}		
+		leaf tx-broadcasts
+		{
+			type uint64;
+			units "pkt";
+			description
+				"transmit broadcast packet";
+		}		
+		leaf tx-multicasts
+		{
+			type uint64;
+			units "pkt";
+			description
+				"transmit multicast packet";
+		}		
+		leaf tx-good-pkts
+		{
+			type uint64;
+			units "pkt";
+			description
+				"transmit good_packets";
+		}		
+		leaf tx-bad-pkts
+		{
+			type uint64;
+			units "pkt";
+			description
+				"transmit bad_packets";
+		}	
+		leaf tx-good-bytes
+		{
+			type uint64;
+			units "byte";
+			description
+				"transmit good_bytes";
+		}	
+		leaf tx-bad-bytes
+		{
+			type uint64;
+			units "byte";
+			description
+				"transmit bad_bytes";
+		}		
+	}		
+
+	
+	grouping loop-auto-clear 
+	{
+		leaf loop-auto-clear-enable
+		{
+			type co-type:is-enable;
+			default "disable";
+			description "loop-auto-clear-enable";
+		}		
+
+		leaf loop-auto-clear-time
+		{
+			type uint16 {
+				range "1..2880";
+			}
+			units minute;
+			default 5;
+			description "recover-time";
+		}				
+	}		
+	container ethif-oper
+	{
+		config false;
+        description "ethif oper configuration";
+		
+		container ethif-states{
+	        list ethif-state{	  
+
+			  description "interface state information";
+			  key "ifname";
+			  leaf ifname {	 
+				type ethif-oper:if-ref;
+				description "interface name";
+			  }
+			  uses ethif-oper:interface-basic-info;
+			  uses ethif-oper:interface-state-info;
+			}
+		}
+		
+		container ethif-sd-states{
+		    list ethif-sd-state{	  
+
+			  description "interface sd state information";
+			  key "ifname";
+			  leaf ifname {	 
+				type ethif-oper:if-ref;
+				description "interface name";
+			  }
+			  uses ethif-oper:interface-sd-info;
+			}
+		}
+		container ethif-statistics
+		{
+			when "./ethif-statistic/type = 'ETH-PHY' or
+               ./ethif-statistic/type = 'ETH-LAG' or
+               ./ethif-statistic/type = 'ETH-SUBIF' or
+               ./ethif-statistic/type = 'FLEXE-CLIENT'";
+            description "ethif oper configuration";
+			ext:telemetry-available;
+			
+			list ethif-statistic
+			{
+			  description "interface statistics information";
+			  key "ifname";
+			  leaf ifname 
+			  {		  
+				type if-ref-telemetry;
+				description "interface name";
+			  }
+			  leaf type 
+			  {
+			    type if:if-type;
+			    mandatory true;
+			  }
+
+				uses if-basic-statistic-rx;
+				uses if-basic-statistic-tx;
+				container ethphy-statistic
+				{
+				  when "../type = 'ETH-PHY'";
+
+				  description "only for ethphy statistics information";
+				  uses ethphy-if-statistic-rx;
+				  uses ethphy-if-statistic-tx;
+				}
+			}	
+		}
+    }
+	
+  rpc set-ethernet-loopbak-mode {
+    input {
+	  leaf ethernet-name{
+	    type if:ethphy-name;
+	    description "ethernet name";
+	  }
+	  leaf loopback-mode{
+	    type ethif-oper:loopback-mode;
+	    description "loopback-mode";
+	  }
+	  uses loop-auto-clear;
+    }
+  }	
+	
+}

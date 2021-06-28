@@ -1,0 +1,319 @@
+module chinaunicom-l3vpn{
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/vpnservice/chinaunicom-l3vpn";
+
+
+  prefix "l3vpn";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+  import ietf-inet-types { prefix "inet"; }
+
+  import chinaunicom-interface-common { prefix "if"; } 
+  
+  import chinaunicom-tunnelpolicy { prefix "tnl-plcy"; }
+  
+  import chinaunicom-routemap { prefix "routemap"; }
+ 
+  import chinaunicom-datatype-common{ prefix "co-type"; }
+  /*** META INFORMATION ***/
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+     
+		Postcode: 430073 
+		Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+		Tel: +XXXXXXXXXXXX
+
+		E-mail: yang- author@fiberhome.com";
+
+  description 
+    "This module contains a collection of YANG definitions
+     for Fiberhome FOS l3vpn package configuration.
+
+     This module contains definitions
+     for the following management objects:
+       l3vpn: l3vpn configuration for all instances
+
+     This YANG module augments the
+       FH-FOS-snmp-agent-cfg
+     module with configuration data.
+
+     Copyright (c) 2013-2016 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision 2019-10-24 {
+    description 
+      "Modify static-vni range.";
+  }
+
+  revision 2019-09-09 {
+    description 
+      "Support static route iterate Vxlan tunnel.";
+  }
+
+  revision "2018-04-12" {
+    description
+      "FOS V5 1.0 revision.";
+  }
+  
+  typedef apply-label-mode {
+    type enumeration {
+	  enum per_vrf {
+		value 1;
+		description "apply label of per_vrf";
+	  }
+	  enum per_route {
+		value 2;
+		description "apply label of per_route";
+	  }
+	  enum per_interface {
+		value 3;
+		description "apply label of per_interface";
+	  }
+	}
+    description "apply label mode for l3vpn";
+  }
+  
+  typedef af-enum {
+    type enumeration {
+	  enum ipv4 {
+		value 1;
+		description "ipv4 mode for address family";
+	  }
+	  enum ipv6 {
+		value 2;
+		description "ipv6 mode for address family";
+	  }
+	}
+    description "l3vpn address family mode";
+  }
+  
+  typedef rt-type{
+    type enumeration {
+	  enum both {
+		value 1;
+		description "both for route target type";
+	  }
+	  enum export {
+		value 2;
+		description "export for route target type";
+	  }
+	  enum import {
+		value 3;
+		description "import for route target type";
+	  }
+	}
+    description "l3vpn route target type";
+  }
+  
+  typedef limit-alert{
+    type enumeration {
+	  enum simply-alert {
+		value 1;
+		description "limit alert";
+	  }
+	  
+	}
+    description "l3vpn limit alert";
+  }
+    
+	typedef vpn-name{
+	    type string{
+		    length "1..31";
+		}
+		description "vpn instance name";
+	}
+	
+	typedef tnlplcy-ref {
+	    type tnl-plcy:policy-name;
+	    description "Tunnel policy name ref";
+    }
+	
+	typedef rtplcy-ref {
+	    type routemap:policy-name;
+	    description "routemap policy name ref";
+    }
+	
+	typedef route-target{
+	    type string{
+		     pattern  '((((([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.)'+
+					'(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){2}'+
+					'([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]):)'+
+					'(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0))|'+
+					'((6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}):'+
+					'(429496729[0-5]|42949672[0-8][0-9]|4294967[01][0-9]{2}|429496[0-6][0-9]{3}|42949[0-5][0-9]{4}|'+
+					'4294[0-8][0-9]{5}|429[0-3][0-9]{6}|42[0-8][0-9]{7}|4[01][0-9]{8}|[1-3][0-9]{9}|[1-9][0-9]{0,8}|0)))';
+		}
+		description "route target value";
+    }
+	
+    container l3vpn{
+	    description "l3vpn container";
+		container vpn-instances{ 
+			description "vpn instance names container"; 
+			list vpn-instance{
+				key "vpn-instance-name";
+				description "vpn instance names list";
+				
+				leaf vpn-instance-name{
+					type co-type:vpn-name;
+					description "An vpn instance name";
+				}
+				  
+				leaf vpn-instance-description{
+					type string {
+						length "0..254";
+					}
+					description "description for vpn instance";
+				}
+				  
+				list vpnInst{
+					key "af-mode";
+					description "address family for L3VPN";
+				  
+					leaf af-mode{
+					   type l3vpn:af-enum;
+					   description "address family mode value";
+					}
+					
+					leaf route-distinguisher{
+				        type l3vpn:route-target;
+					    description "route distinguisher for each vpn instance";
+				    }
+					
+				    leaf apply-label-mode{
+				        type l3vpn:apply-label-mode;
+				        description "apply label of per-route, per-instance and per-interface";
+				    }
+					 
+					list route-target {
+					  key "route-target-type route-target-value";
+					  description "a route target under ipv4 address family";
+					  
+					  leaf route-target-type {
+						type l3vpn:rt-type;
+						description "route target type of both, export and import";
+					  }
+					  leaf route-target-value {
+						type l3vpn:route-target;
+						description "route target value";
+					  }
+					}
+				  
+					leaf tunnel-policy{
+						type l3vpn:tnlplcy-ref;
+						description "Bind tunnel policy for address family";
+					}
+					
+					leaf vpn-frr-route-policy{
+					    type l3vpn:rtplcy-ref;						
+					    description "vpn frr route policy";
+				    }
+					
+	                leaf auto-frr-enable{
+	                	type co-type:is-enable;
+	                		 default "disable";
+	                	description "auto-frr";
+                    }
+					
+					container rtable-limit{ 
+						description "route table limit"; 
+						leaf limit-val {
+							type uint32 {
+								range "32..5000000";
+							}
+							description "route-table limit value";
+						}
+						
+						leaf limit-alert-threshold {
+							type uint8 {
+								range "1..100";
+							}
+							description "route-table limit threshold";
+						}
+						
+						leaf limit-alert {
+							type l3vpn:limit-alert;
+							description "route-table limit alert";
+						}
+					}
+					
+					
+				}
+
+				list static-l3vpn{
+					key "af-mode";
+					description "address family for L3VPN";
+				   
+					leaf af-mode{
+						type l3vpn:af-enum;
+						description "static address family mode";
+				    }
+				   
+					leaf static-local-label{
+						type uint32 {
+						 range "16..786432";
+						}
+						description "local label for static L3VPN";
+					}
+					
+	                leaf pm-statistic-enable{
+	                	type co-type:is-enable;
+	                		 default "disable";
+	                	description "pm-statistic switch";
+	                }
+					
+					list static-peer{
+						key "static-peer-address";
+						description "a ipv4 static peer and remote label";
+					   
+						leaf static-peer-address{
+							type inet:ip-address;
+							description "a ipv4 static peer address";
+						}
+						
+						leaf static-peer-label{
+							type uint32 {
+								range "16..786432";
+							}
+							mandatory true;
+							description "a remote peer label for ipv4";
+						}
+						
+	                    leaf pm-statistic-enable{
+	                    	type co-type:is-enable;
+	                    		 default "disable";
+	                    	description "pm-statistic switch";
+	                    }
+					}
+
+				}
+					
+			}
+		}
+	}
+	augment "/if:if/if:interfaces/if:interface" {
+    
+	  container l3vpn {
+	    description "interface binds vpn instance";
+	    leaf vpn-instance-name{
+		   type co-type:vpn-name;
+		   description "This augment extends the configuration data of FH-FOS-ifmgr";
+	    }
+		
+
+		leaf l3subve-tigger-enable{
+			when "/if:if/if:interfaces/if:interface/if:type = 'ETH-SUBIF'";
+			type co-type:is-enable;
+			default "disable";
+			description
+				"l3subve_tigger_enable config";
+	    }
+	  }
+	}
+}

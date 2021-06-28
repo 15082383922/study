@@ -1,0 +1,983 @@
+module chinaunicom-lldp-oper {
+
+  namespace "http://chinaunicom.com/yang/systemmanage/chinaunicom-lldp-oper";
+  prefix "lldp-oper";
+
+
+  organization
+   "IEEE 802.1 Working Group";
+
+  contact
+    "UTStarcom Telecom Co., Ltd.
+     
+     Postcode: 310053 
+     Address: 368 Liuhe Road, Binjiang District,Hangzhou, Zhejiang
+
+     E-mail: sheng.yu@utstar.com";
+
+  description
+   "Management Information Base module for LLDP configuration,
+    statistics, local system data and remote systems data
+    components.
+    
+    Copyright (C) IEEE (2005).  This version of this MIB module
+    is published as subclause 12.1 of IEEE Std 802.1AB-2005;
+    see the standard itself for full legal notices.";
+
+  revision 2020-10-15 {
+    description
+     "1. Modify the description of lldpRemLocalPortName, which is duplicated w/ the description of lldpRemSysCapEnabled.
+      2. Modity the type of lldpRemManAddr from lldp-oper:LldpPortId to string.
+      3. Add a comment for lldpRemTimeMark in lldpRemTable, to limit the record number of lldpRemTimeMark  for each lldp neighbor to 1.
+     ";
+  }
+
+  typedef LldpChassisIdSubtype {
+    type enumeration {
+      enum "chassisComponent" {
+        value "1";
+      }
+      enum "interfaceAlias" {
+        value "2";
+      }
+      enum "portComponent" {
+        value "3";
+      }
+      enum "macAddress" {
+        value "4";
+      }
+      enum "networkAddress" {
+        value "5";
+      }
+      enum "interfaceName" {
+        value "6";
+      }
+      enum "local" {
+        value "7";
+      }
+    }
+    description
+     "This TC describes the source of a chassis identifier.
+      
+      The enumeration 'chassisComponent(1)' represents a chassis
+      identifier based on the value of entPhysicalAlias object
+      (defined in IETF RFC 2737) for a chassis component (i.e.,
+      an entPhysicalClass value of 'chassis(3)').
+      
+      The enumeration 'interfaceAlias(2)' represents a chassis
+      identifier based on the value of ifAlias object (defined in
+      IETF RFC 2863) for an interface on the containing chassis.
+      
+      The enumeration 'portComponent(3)' represents a chassis
+      identifier based on the value of entPhysicalAlias object
+      (defined in IETF RFC 2737) for a port or backplane
+      component (i.e., entPhysicalClass value of 'port(10)' or
+      'backplane(4)'), within the containing chassis.
+      
+      The enumeration 'macAddress(4)' represents a chassis
+      identifier based on the value of a unicast source address
+      (encoded in network byte order and IEEE 802.3 canonical bit
+      order), of a port on the containing chassis as defined in
+      IEEE Std 802-2001.
+      
+      The enumeration 'networkAddress(5)' represents a chassis
+      identifier based on a network address, associated with
+      a particular chassis.  The encoded address is actually
+      composed of two fields.  The first field is a single octet,
+      representing the IANA AddressFamilyNumbers value for the
+      specific address type, and the second field is the network
+      address value.
+      
+      The enumeration 'interfaceName(6)' represents a chassis
+      identifier based on the value of ifName object (defined in
+      IETF RFC 2863) for an interface on the containing chassis.
+      
+      The enumeration 'local(7)' represents a chassis identifier
+      based on a locally defined value.";
+  }
+
+  typedef LldpChassisId {
+    type string {
+      length "0..255";
+    }
+    description
+     "This TC describes the format of a chassis identifier string.
+      Objects of this type are always used with an associated
+      LldpChassisIdSubtype object, which identifies the format of
+      the particular LldpChassisId object instance.
+      
+      If the associated LldpChassisIdSubtype object has a value of
+      'chassisComponent(1)', then the octet string identifies
+      a particular instance of the entPhysicalAlias object
+      (defined in IETF RFC 2737) for a chassis component (i.e.,
+      an entPhysicalClass value of 'chassis(3)').
+      
+      If the associated LldpChassisIdSubtype object has a value
+      of 'interfaceAlias(2)', then the octet string identifies
+      a particular instance of the ifAlias object (defined in
+      IETF RFC 2863) for an interface on the containing chassis.
+      If the particular ifAlias object does not contain any values,
+      another chassis identifier type should be used.
+      
+      If the associated LldpChassisIdSubtype object has a value
+      of 'portComponent(3)', then the octet string identifies a
+      particular instance of the entPhysicalAlias object (defined
+      in IETF RFC 2737) for a port or backplane component within
+      the containing chassis.
+      
+      If the associated LldpChassisIdSubtype object has a value of
+      'macAddress(4)', then this string identifies a particular
+      unicast source address (encoded in network byte order and
+      IEEE 802.3 canonical bit order), of a port on the containing
+      chassis as defined in IEEE Std 802-2001.
+      
+      If the associated LldpChassisIdSubtype object has a value of
+      'networkAddress(5)', then this string identifies a particular
+      network address, encoded in network byte order, associated
+      with one or more ports on the containing chassis.  The first
+      octet contains the IANA Address Family Numbers enumeration
+      value for the specific address type, and octets 2 through
+      N contain the network address value in network byte order.
+      
+      If the associated LldpChassisIdSubtype object has a value
+      of 'interfaceName(6)', then the octet string identifies
+      a particular instance of the ifName object (defined in
+      IETF RFC 2863) for an interface on the containing chassis.
+      If the particular ifName object does not contain any values,
+      another chassis identifier type should be used.
+      
+      If the associated LldpChassisIdSubtype object has a value of
+      'local(7)', then this string identifies a locally assigned
+      Chassis ID.";
+  }
+
+  typedef LldpPortIdSubtype {
+    type enumeration {
+      enum "interfaceAlias" {
+        value "1";
+      }
+      enum "portComponent" {
+        value "2";
+      }
+      enum "macAddress" {
+        value "3";
+      }
+      enum "networkAddress" {
+        value "4";
+      }
+      enum "interfaceName" {
+        value "5";
+      }
+      enum "agentCircuitId" {
+        value "6";
+      }
+      enum "local" {
+        value "7";
+      }
+    }
+    description
+     "This TC describes the source of a particular type of port
+      identifier used in the LLDP MIB.
+      
+      The enumeration 'interfaceAlias(1)' represents a port
+      identifier based on the ifAlias MIB object, defined in IETF
+      RFC 2863.
+      
+      The enumeration 'portComponent(2)' represents a port
+      identifier based on the value of entPhysicalAlias (defined in
+      IETF RFC 2737) for a port component (i.e., entPhysicalClass
+      value of 'port(10)'), within the containing chassis.
+      
+      The enumeration 'macAddress(3)' represents a port identifier
+      based on a unicast source address (encoded in network
+      byte order and IEEE 802.3 canonical bit order), which has
+      been detected by the agent and associated with a particular
+      port (IEEE Std 802-2001).
+      
+      The enumeration 'networkAddress(4)' represents a port
+      identifier based on a network address, detected by the agent
+      and associated with a particular port.
+      
+      The enumeration 'interfaceName(5)' represents a port
+      identifier based on the ifName MIB object, defined in IETF
+      RFC 2863.
+      
+      The enumeration 'agentCircuitId(6)' represents a port
+      identifier based on the agent-local identifier of the circuit
+      (defined in RFC 3046), detected by the agent and associated
+      with a particular port.
+      
+      The enumeration 'local(7)' represents a port identifier
+      based on a value locally assigned.";
+  }
+
+  typedef LldpPortId {
+    type string {
+      length "0..255";
+    }
+    description
+     "This TC describes the format of a port identifier string.
+      Objects of this type are always used with an associated
+      LldpPortIdSubtype object, which identifies the format of the
+      particular LldpPortId object instance.
+      
+      If the associated LldpPortIdSubtype object has a value of
+      'interfaceAlias(1)', then the octet string identifies a
+      particular instance of the ifAlias object (defined in IETF
+      RFC 2863).  If the particular ifAlias object does not contain
+      any values, another port identifier type should be used.
+      
+      If the associated LldpPortIdSubtype object has a value of
+      'portComponent(2)', then the octet string identifies a
+      particular instance of the entPhysicalAlias object (defined
+      in IETF RFC 2737) for a port or backplane component.
+      
+      If the associated LldpPortIdSubtype object has a value of
+      'macAddress(3)', then this string identifies a particular
+      unicast source address (encoded in network byte order
+      and IEEE 802.3 canonical bit order) associated with the port
+      (IEEE Std 802-2001).
+      
+      If the associated LldpPortIdSubtype object has a value of
+      'networkAddress(4)', then this string identifies a network
+      address associated with the port.  The first octet contains
+      the IANA AddressFamilyNumbers enumeration value for the
+      specific address type, and octets 2 through N contain the
+      networkAddress address value in network byte order.
+      
+      If the associated LldpPortIdSubtype object has a value of
+      'interfaceName(5)', then the octet string identifies a
+      particular instance of the ifName object (defined in IETF
+      RFC 2863).  If the particular ifName object does not contain
+      any values, another port identifier type should be used.
+      
+      If the associated LldpPortIdSubtype object has a value of
+      'agentCircuitId(6)', then this string identifies a agent-local
+      identifier of the circuit (defined in RFC 3046).
+      
+      If the associated LldpPortIdSubtype object has a value of
+      'local(7)', then this string identifies a locally
+      assigned port ID.";
+  }
+
+  typedef LldpManAddrIfSubtype {
+    type enumeration {
+      enum "unknown" {
+        value "1";
+      }
+      enum "ifIndex" {
+        value "2";
+      }
+      enum "systemPortNumber" {
+        value "3";
+      }
+    }
+    description
+     "This TC describes the basis of a particular type of
+      interface associated with the management address.
+      
+      The enumeration 'unknown(1)' represents the case where the
+      interface is not known.
+      
+      The enumeration 'ifIndex(2)' represents interface identifier
+      based on the ifIndex MIB object.
+      
+      The enumeration 'systemPortNumber(3)' represents interface
+      identifier based on the system port numbering convention.";
+    reference
+     "IEEE 802.1AB-2005 9.5.9.5";
+  }
+
+  typedef LldpSystemCapabilitiesMap {
+    type uint16 {
+	  range "0 .. 65535";
+      /* bit other {
+        position "0";
+      }
+      bit repeater {
+        position "1";
+      }
+      bit bridge {
+        position "2";
+      }
+      bit wlanAccessPoint {
+        position "3";
+      }
+      bit router {
+        position "4";
+      }
+      bit telephone {
+        position "5";
+      }
+      bit docsisCableDevice {
+        position "6";
+      }
+      bit stationOnly {
+        position "7";
+      } */
+    }
+    description
+     "This TC describes the system capabilities.
+      
+      The bit 'other(0)' indicates that the system has capabilities
+      other than those listed below.
+      
+      The bit 'repeater(1)' indicates that the system has repeater
+      capability.
+      
+      The bit 'bridge(2)' indicates that the system has bridge
+      capability.
+      
+      The bit 'wlanAccessPoint(3)' indicates that the system has 
+      WLAN access point capability.
+      
+      The bit 'router(4)' indicates that the system has router
+      capability.
+      
+      The bit 'telephone(5)' indicates that the system has telephone
+      capability.
+      
+      The bit 'docsisCableDevice(6)' indicates that the system has
+      DOCSIS Cable Device capability (IETF RFC 2669 & 2670).
+      
+      The bit 'stationOnly(7)' indicates that the system has only
+      station capability and nothing else.";
+  }
+
+  typedef LldpPortNumber {
+    type int32;
+    description
+     "Each port contained in the chassis (that is known to the
+      LLDP agent) is uniquely identified by a port number.
+      
+      A port number has no mandatory relationship to an
+      InterfaceIndex object (of the interfaces MIB, IETF RFC 2863).
+      If the LLDP agent is a IEEE 802.1D, IEEE 802.1Q bridge, the
+      LldpPortNumber will have the same value as the dot1dBasePort
+      object (defined in IETF RFC 1493) associated corresponding
+      bridge port.  If the system hosting LLDP agent is not an
+      IEEE 802.1D or an IEEE 802.1Q bridge, the LldpPortNumber
+      will have the same value as the corresponding interface's
+      InterfaceIndex object.
+      
+      Port numbers should be in the range of 1 and 4096 since a
+      particular port is also represented by the corresponding
+      port number bit in LldpPortList.";
+    //smiv2:display-hint "d";
+  }
+
+ 
+  typedef TimeTicks {
+    type uint64;
+  }
+  typedef TimeFilter {
+    type TimeTicks;
+    description
+      "To be used for the index to a table.  Allows an application
+      to download only those rows changed since a particular time.
+
+      Note that this is not a history mechanism.  Only current values
+      of underlying objects are returned; saved instance values
+      associated with particular values of sysUpTime are not.
+
+      An entry is considered changed if the value of any object in the
+      entry changes, if the row is created, or if any object in the
+      entry is created or deleted.  Note that deleted entries cannot
+      be detected or downloaded.
+
+      A time-filtered conceptual table is created by inserting a
+      single object of SYNTAX TimeFilter as the first INDEX component
+      in a copy of an existing basic conceptual table (i.e., any
+      SEQUENCE without a TimeFilter INDEX component).  Thus, for
+      each conceptual entry 'I' in the basic table, there exists N
+      conceptual entries in the time-filtered version, indexed N.I,
+      where 'N' is equal to the value of sysUpTime.
+
+      When an application retrieves conceptual instances from a
+      time-filtered table, and an INDEX value is provided for the
+      TimeFilter INDEX component 'N', the agent will only consider
+      returning basic conceptual entries (e.g., 'fooColumn.N.I') if
+      any column within the basic conceptual entry has changed since
+      sysUpTime 'N'.  If not, the basic conceptual entry will
+      be ignored for the particular retrieval operation.
+
+      When sysUpTime is equal to zero, this table shall be empty.
+
+      One conceptual entry exists for each past value of sysUpTime,
+      except that the whole table is purged should sysUpTime wrap.
+
+      As an entry in a time-filtered table is updated (i.e., one of
+      the columns in the basic conceptual table is changed), new
+      conceptual entries are also created in the time-filtered version
+      (which still shares the now updated object values with all other
+      instances).  The number of unique time-filtered instances that
+      are created is determined by the value of sysUpTime at which the
+      basic entry was last updated.  One unique instance will exist
+      for each value of sysUpTime at the last update time for the row.
+      However, a new TimeFilter index instance is created for each new
+      sysUpTime value.  The TimeFilter index values not associated
+      with entry updates are called duplicate time-filtered instances.
+
+      After some deployment experience, it has been determined that
+      a time-filtered table is more efficient if the agent
+      stops a MIB walk operation by skipping over rows with a
+      TimeFilter index value higher than the value in the received
+      GetNext/GetBulk request.  That is, instead of incrementing a
+      TimeFilter index value, the agent will continue to the next
+
+
+
+      object or table.  As a consequence, GetNext or GetBulk
+      operations will provide only one pass through a time-filtered
+      table.
+
+      It is suggested that an agent implement a time-filtered table
+      in this manner to improve performance and avoid a MIB walk
+      getting stuck in time-filtered tables.  It is, however, still
+      acceptable for an agent to implement a time-filtered table in
+      the traditional manner (i.e., every conceptual time-filtered
+      instance is returned in GetNext and GetBulk PDU responses), and
+      management applications must be able to deal with such
+      traditional implementations.
+
+      See the appendix for further discussion of this textual
+      convention.
+
+      The following example is provided to demonstrate TimeFilter
+      behavior:
+
+      Consider the following basic conceptual table, basicFooTable.
+      (Note that the basic version of a time-filtered table may not
+      actually be defined.)
+
+          basicFooTable:
+
+          basicFooTable ...
+          INDEX { fooIndex }
+
+          BasicFooEntry {
+             fooIndex     Integer32,
+             fooCounts    Counter32
+          }
+
+      For this example, the basicFooTable contains two static
+      conceptual entries (fooIndex equals '1' and '2'), created at
+      time zero.  It also contains one dynamic conceptual entry
+      (fooIndex equals '3'), which is created at time '3' and deleted
+      at time '7'.
+
+      The time-filtered version of the basicFooTable could be defined
+      as follows:
+
+          FooTable:
+
+          fooTable ...
+          INDEX { fooTimeMark, fooIndex }
+
+          FooEntry {
+
+
+
+             fooTimeMark  TimeFilter,
+             fooIndex     Integer32,
+             fooCounts    Counter32
+          }
+
+
+      Note that entries exist in the time-filtered conceptual table
+      only if they actually exist in the underlying (basic) table.
+
+      For this example, the fooTable will have three underlying
+      basic entries (fooIndex == 1, 2, and 3), with the following
+      activity (for sysUpTime equal 0 to 9):
+
+         - fooEntry.N.1 is created at time '0' and most recently
+           updated at time '6' to the value '5'.
+         - fooEntry.N.2 is created at time '0' and most recently
+           updated at time '8' to the value '9'.
+         - fooEntry.N.3 is created at time '3', updated at time '5'
+           to the value '17', and deleted at time '7'.
+
+     The following tables show the values that would be returned for
+     MIB walk operations with various TimeFilter values, done at
+     different times.  An application issues a retrieval request at
+     time 'T', with a TimeFilter value, 'N' (typically set to a lower
+     value, such as the value of sysUpTime at the last polling cycle).
+
+     The following values would be returned in a MIB walk of
+     fooCounts.N if T equals '0' and N equals '0':
+
+           fooCounts.N.I    Value
+           ==========================
+           fooCounts.0.1    0
+           fooCounts.0.2    0
+
+       Note that nothing is returned for fooCounts.0.3, since that
+       entry does not exist at sysUpTime equals '0'.
+
+     The following values would be returned in a full (traditional) MIB
+     walk of fooCounts.N if T equals '3' and N equals '0':
+
+           fooCounts.N.I    Value
+           =======================
+           fooCounts.0.1    0
+           fooCounts.0.2    0
+           fooCounts.0.3    0
+           fooCounts.1.3    0
+           fooCounts.2.3    0
+           fooCounts.3.3    0
+
+
+
+       Note that there are no instances for T equals 1 or 2 for the
+       first two values of N, as these entries did not change
+       since they were created at time '0'.
+
+       Note that the current value for 'fooCounts.N.3' is returned
+       here, even for values of N less than '3' (when the entry was
+       created).  The agent only considers the current existence of an
+       entry in the TimeFilter algorithm, not the time when the entry
+       was created.
+
+       Note that the instances 'fooCounts.0.3', 'fooCounts.1.3',
+       and 'fooCounts.2.3' are duplicates and can be suppressed by the
+       agent in a MIB walk.
+
+     The following values would be returned in a full (traditional)
+     MIB walk of fooCounts.N if T equals '6' and N equals '3':
+
+           fooCounts.N.I    Value
+           =======================
+           fooCounts.3.1    5
+           fooCounts.3.3    17
+           fooCounts.4.1    5
+           fooCounts.4.3    17
+           fooCounts.5.1    5
+           fooCounts.5.3    17
+           fooCounts.6.1    5
+
+        Note that no instances for entry 'fooCounts.N.2' are returned,
+        since it has not changed since time '3'.
+
+        Note that all instances except 'fooCounts.5.3' and
+        'fooCounts.6.1' are duplicates and can be suppressed by the
+        agent in a MIB walk.
+
+     The following values would be returned in a full (traditional)
+     MIB walk of fooCounts.N if T equals '9' and N equals '6':
+
+           fooCounts.N.I    Value
+           =======================
+           fooCounts.6.1    5
+           fooCounts.6.2    9
+           fooCounts.7.2    9
+           fooCounts.8.2    9
+
+        Note that no instances for entry 'fooCounts.N.3' are returned,
+        since it was deleted at time '7'.
+
+        Note that instances 'fooCounts.6.2' and 'fooCounts.7.2'
+
+
+
+        are duplicates and can be suppressed by the agent in a MIB
+        walk.";
+  }
+   typedef SnmpAdminString {
+      type string {
+         length "0..255";
+      }
+      description   
+        "An octet string containing administrative
+         information, preferably in human-readable form.
+         
+         To facilitate internationalization, this
+         information is represented using the ISO/IEC
+         IS 10646-1 character set, encoded as an octet
+         string using the UTF-8 transformation format
+         described in [RFC2279].
+         
+         Since additional code points are added by
+         amendments to the 10646 standard from time
+         to time, implementations must be prepared to
+         encounter any code point from 0x00000000 to
+         0x7fffffff.  Byte sequences that do not
+         correspond to the valid UTF-8 encoding of a
+         code point or are outside this range are
+         prohibited.
+         
+         The use of control codes should be avoided.
+         
+         When it is necessary to represent a newline,
+         the control code sequence CR LF should be used.
+         
+         The use of leading or trailing white space should
+         be avoided.
+         
+         For code points not directly supported by user
+         interface hardware or software, an alternative
+         means of entry and display, such as hexadecimal,
+         may be provided.
+         
+         For information encoded in 7-bit US-ASCII,
+         the UTF-8 encoding is identical to the
+         US-ASCII encoding.
+         
+         UTF-8 may require multiple bytes to represent a
+         single character / code point; thus the length
+         of this object in octets may be different from
+         the number of characters encoded.  Similarly,
+         size constraints refer to the number of encoded
+         octets, not the number of characters represented
+         by an encoding.
+         
+         Note that when this TC is used for an object that
+         is used or envisioned to be used as an index, then
+         a SIZE restriction MUST be specified so that the
+         number of sub-identifiers for any object instance
+         does not exceed the limit of 128, as defined by
+         [RFC3416].
+         
+         Note that the size of an SnmpAdminString object is
+         measured in octets, not characters.";
+   }
+  container lldp-oper {
+    config false;
+	
+	
+    container lldp-status {
+    
+
+      container lldpLocalSystemData {
+        //smiv2:oid "1.0.8802.1.1.2.1.3";
+		
+        leaf lldpLocChassisIdSubtype {
+          type lldp-oper:LldpChassisIdSubtype;
+          description
+           "The type of encoding used to identify the chassis
+            associated with the local system.";
+          reference
+           "IEEE 802.1AB-2005 9.5.2.2";
+        }
+  
+        leaf lldpLocChassisId {
+          type lldp-oper:LldpChassisId;
+          description
+           "The string value used to identify the chassis component
+            associated with the local system.";
+          reference
+           "IEEE 802.1AB-2005 9.5.2.3";
+        }
+  
+        leaf lldpLocSysName {
+          type SnmpAdminString;
+          description
+           "The string value used to identify the system name of the
+            local system.  If the local agent supports IETF RFC 3418,
+            lldpLocSysName object should have the same value of sysName
+            object.";
+          reference
+           "IEEE 802.1AB-2005 9.5.6.2";
+        }
+  
+        leaf lldpLocSysDesc {
+          type SnmpAdminString;
+          description
+           "The string value used to identify the system description
+            of the local system.  If the local agent supports IETF RFC 3418,
+            lldpLocSysDesc object should have the same value of sysDesc
+            object.";
+          reference
+           "IEEE 802.1AB-2005 9.5.7.2";
+        }
+  
+        leaf lldpLocSysCapSupported {
+          type lldp-oper:LldpSystemCapabilitiesMap;
+          description
+           "The bitmap value used to identify which system capabilities
+            are supported on the local system.";
+          reference
+           "IEEE 802.1AB-2005 9.5.8.1";
+        }
+  
+        leaf lldpLocSysCapEnabled {
+          type lldp-oper:LldpSystemCapabilitiesMap;
+          description
+           "The bitmap value used to identify which system capabilities
+            are enabled on the local system.";
+          reference
+           "IEEE 802.1AB-2005 9.5.8.2";
+        }
+      }
+  
+      container lldpLocPortTable {
+        description
+         "This table contains one or more rows per port information
+          associated with the local system known to this agent.";
+		
+        list lldpLocPortEntry {
+         
+         key "lldpLocPortNum";
+          description
+           "Information about a particular port component.
+            
+            Entries may be created and deleted in this table by the
+            agent.";
+  
+          leaf lldpLocPortNum {
+            type string{
+              length "0..255";
+            }
+            description
+             "The index value used to identify the port component
+              (contained in the local chassis with the LLDP agent)
+              associated with this entry.
+              
+              The value of this object is used as a port index to the
+              lldpLocPortTable.";
+          }
+  
+          leaf lldpLocPortIdSubtype {
+            type lldp-oper:LldpPortIdSubtype;
+            description
+             "The type of port identifier encoding used in the associated
+              'lldpLocPortId' object.";
+            reference
+             "IEEE 802.1AB-2005 9.5.3.2";
+          }
+  
+          leaf lldpLocPortId {
+            type lldp-oper:LldpPortId;
+            description
+             "The string value used to identify the port component
+              associated with a given port in the local system.";
+            reference
+             "IEEE 802.1AB-2005 9.5.3.3";
+          }
+  
+          leaf lldpLocPortDesc {
+            type SnmpAdminString;
+            description
+             "The string value used to identify the 802 LAN station's port
+              description associated with the local system.  If the local
+              agent supports IETF RFC 2863, lldpLocPortDesc object should
+              have the same value of ifDescr object.";
+            reference
+             "IEEE 802.1AB-2005 9.5.5.2";
+          }
+        }
+      }
+  
+      container lldpRemTable {
+        description
+         "This table contains one or more rows per physical network
+          connection known to this agent.  The agent may wish to ensure
+          that only one lldpRemEntry is present for each local port,
+          or it may choose to maintain multiple lldpRemEntries for
+          the same local port.
+          
+          The following procedure may be used to retrieve remote
+          systems information updates from an LLDP agent:
+          
+             1. NMS polls all tables associated with remote systems
+                and keeps a local copy of the information retrieved.
+                NMS polls periodically the values of the following
+                objects:
+                   a. lldpStatsRemTablesInserts
+                   b. lldpStatsRemTablesDeletes
+                   c. lldpStatsRemTablesDrops
+                   d. lldpStatsRemTablesAgeouts
+                   e. lldpStatsRxPortAgeoutsTotal for all ports.
+          
+             2. LLDP agent updates remote systems MIB objects, and
+                sends out notifications to a list of notification
+                destinations.
+          
+             3. NMS receives the notifications and compares the new
+                values of objects listed in step 1.  
+          
+                Periodically, NMS should poll the object
+                lldpStatsRemTablesLastChangeTime to find out if anything
+                has changed since the last poll.  if something has
+                changed, NMS will poll the objects listed in step 1 to
+                figure out what kind of changes occurred in the tables.
+          
+                if value of lldpStatsRemTablesInserts has changed,
+                then NMS will walk all tables by employing TimeFilter
+                with the last-polled time value.  This request will
+                return new objects or objects whose values are updated
+                since the last poll.
+          
+                if value of lldpStatsRemTablesAgeouts has changed,
+                then NMS will walk the lldpStatsRxPortAgeoutsTotal and
+                compare the new values with previously recorded ones.
+                For ports whose lldpStatsRxPortAgeoutsTotal value is
+                greater than the recorded value, NMS will have to
+                retrieve objects associated with those ports from
+                table(s) without employing a TimeFilter (which is
+                performed by specifying 0 for the TimeFilter.)
+          
+                lldpStatsRemTablesDeletes and lldpStatsRemTablesDrops
+                objects are provided for informational purposes.";
+  
+        list lldpRemEntry {
+         
+         key "lldpRemTimeMark lldpRemLocalPortNum lldpRemIndex"; 
+         
+          description
+           "Information about a particular physical network connection.
+            Entries may be created and deleted in this table by the agent,
+            if a physical topology discovery process is active.";
+  
+          leaf lldpRemTimeMark {
+            type TimeFilter;
+            description
+             "A TimeFilter for this entry.  See the TimeFilter textual
+              convention in IETF RFC 2021 and 
+              http://www.ietf.org/IESG/Implementations/RFC2021-Implementation.txt
+              to see how TimeFilter works.
+              For each lldp neighbor, an implementation can record only one time
+              stamp of the latest lldp neighbor update, without recording historical 
+              update time information.";
+            reference
+             "IETF RFC 2021 section 6";
+          }
+  
+          leaf lldpRemLocalPortNum {
+            type string{
+            length "0..255";
+            }
+            description
+             "The index value used to identify the port component
+              (contained in the local chassis with the LLDP agent)
+              associated with this entry.  The lldpRemLocalPortNum
+              identifies the port on which the remote system information
+              is received.
+              
+              The value of this object is used as a port index to the
+              lldpRemTable.";
+          }
+  
+          leaf lldpRemIndex {
+            type int32 {
+              range "1..2147483647";
+            }
+            description
+             "This object represents an arbitrary local integer value used
+              by this agent to identify a particular connection instance,
+              unique only for the indicated remote system.
+              
+              An agent is encouraged to assign monotonically increasing
+              index values to new entries, starting with one, after each
+              reboot.  It is considered unlikely that the lldpRemIndex
+              will wrap between reboots.";
+          }
+  
+          leaf lldpRemChassisIdSubtype {
+            type lldp-oper:LldpChassisIdSubtype;
+            description
+             "The type of encoding used to identify the chassis associated
+              with the remote system.";
+            reference
+             "IEEE 802.1AB-2005 9.5.2.2";
+          }
+  
+          leaf lldpRemChassisId {
+            type lldp-oper:LldpChassisId;
+            description
+             "The string value used to identify the chassis component
+              associated with the remote system.";
+            reference
+             "IEEE 802.1AB-2005 9.5.2.3";
+          }
+  
+          leaf lldpRemPortIdSubtype {
+            type lldp-oper:LldpPortIdSubtype;
+            description
+             "The type of port identifier encoding used in the associated
+              'lldpRemPortId' object.";
+            reference
+             "IEEE 802.1AB-2005 9.5.3.2";
+          }
+  
+          leaf lldpRemPortId {
+            type lldp-oper:LldpPortId;
+            description
+             "The string value used to identify the port component
+              associated with the remote system.";
+            reference
+             "IEEE 802.1AB-2005 9.5.3.3";
+          }
+  
+          leaf lldpRemPortDesc {
+            type SnmpAdminString;
+            description
+             "The string value used to identify the description of
+              the given port associated with the remote system.";
+            reference
+             "IEEE 802.1AB-2005 9.5.5.2";
+          }
+  
+          leaf lldpRemSysName {
+            type SnmpAdminString;
+            description
+             "The string value used to identify the system name of the
+              remote system.";
+            reference
+             "IEEE 802.1AB-2005 9.5.6.2";
+          }
+  
+          leaf lldpRemSysDesc {
+            type SnmpAdminString;
+            description
+             "The string value used to identify the system description
+              of the remote system.";
+            reference
+             "IEEE 802.1AB-2005 9.5.7.2";
+          }
+  
+          leaf lldpRemSysCapSupported {
+            type lldp-oper:LldpSystemCapabilitiesMap;
+            description
+             "The bitmap value used to identify which system capabilities
+              are supported on the remote system.";
+            reference
+             "IEEE 802.1AB-2005 9.5.8.1";
+          }
+  
+          leaf lldpRemSysCapEnabled {
+            type lldp-oper:LldpSystemCapabilitiesMap;
+            description
+             "The bitmap value used to identify which system capabilities
+              are enabled on the remote system.";
+            reference
+             "IEEE 802.1AB-2005 9.5.8.2";
+          }
+          
+          leaf lldpRemLocalPortName {
+            type lldp-oper:LldpPortId;
+            description
+             "The string value used to identify the port component
+             (contained in the local chassis with the LLDP agent)
+              associated with this entry.";
+            reference
+             "IEEE 802.1AB-2005 9.5.3.3";           
+          }
+          
+          leaf lldpRemManAddr {
+            type string{
+	            length "0..255";
+            }
+            description
+             "The string value used to identify the management address
+              component associated with the remote system.  The purpose
+              of this address is to contact the management entity.";
+            reference
+             "IEEE 802.1AB-2005 9.5.9.4";
+          }
+        }
+      }
+    }
+  }
+}
+

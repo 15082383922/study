@@ -1,0 +1,224 @@
+module chinaunicom-l3vpn-oper{
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/vpnservice/chinaunicom-l3vpn-oper";
+
+  prefix "l3vpn-oper";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+  
+  import chinaunicom-l3vpn{	revision-date 2019-10-24; prefix l3vpn; }
+  
+  import chinaunicom-protectgroup-common{	revision-date 2019-12-12; prefix protgrp-co; }
+  
+  
+  /*** META INFORMATION ***/
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+     
+		Postcode: 430073 
+		Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+		Tel: +XXXXXXXXXXXX
+
+		E-mail: yang- author@fiberhome.com";
+
+  description 
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom vpn frr protect info.
+
+     This YANG module augments the
+       FH-chinaunicom-snmp-agent-cfg
+     module with configuration data.
+
+     Copyright (c) 2013-2016 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision "2018-06-13" {
+    description
+      "chinaunicom V5 1.0 revision.";
+  }
+	
+	/* GROUPINGS */
+	grouping basic-state {
+        leaf switch-state {
+            type protgrp-co:lps-switch-state;	 
+            description "switch state";
+        }		  
+	    leaf pri-path-state {	
+            type protgrp-co:path-state;
+            description "primary path state";
+        }
+		leaf bak-path-state {	
+            type protgrp-co:path-state;
+            description "backup path state";
+        }
+    }
+	
+	grouping detail-state {
+		leaf revertive-mode{
+			type protgrp-co:revertive-mode;
+			description "revertive-mode";
+		}
+		leaf wtr-time{
+			type uint32{
+				range "0..30";
+			}
+			description "wtr-time";
+		}
+		leaf hold-off-time{
+			type uint32{
+				range "0..255";
+			}
+			description "hold off time";
+		}
+		leaf Pritunnelid{
+			type uint32{
+			    range "1..65535";
+			}
+			description "primary tunnel id";
+		}
+		leaf Baktunnelid{
+			type uint32{
+			    range "1..65535";
+			}
+			description "backup tunnel id";
+		}
+		leaf pri-alm-detect-mode{
+			type protgrp-co:detect-mode;
+			description "pri alarm detect mode";
+		}
+		leaf bak-alm-detect-mode{
+			type protgrp-co:detect-mode;
+			description "bak alarm detect mode";
+		}
+		leaf pri-detect-id{
+			type uint32{
+			  range "0..4294967295";
+			}
+			description "primary detect id";
+		}
+		leaf bak-detect-id{
+			type uint32{
+			  range "0..4294967295";
+			}
+			description "backup detect id";
+		}
+		leaf protect-entity-id{
+			type uint32{
+			  range "0..4294967295";
+			}
+			description "protect entity id";
+		}
+    }
+	
+    container l3vpn-oper{
+	    config false;
+	    description "vpn frr oper container";
+		container vpnfrr-states{ 
+		    description "vpn frr protect states";
+			
+			/* VPN-FRR SUM YANG Model */
+			container vpnfrr-sum {
+			  description "vpnfrr sum";
+			  
+			  leaf vpnfrr-summary{
+				type uint32{
+				  range "0..4294967295";
+				}
+				description "vpnfrr-summary";
+			  }
+			}
+			
+			list vpnfrr-state{
+				key "vrf-name pri-next-hop bak-next-hop af-mode";
+				description "vpn frr protect state list";
+				
+				leaf vrf-name{
+					type l3vpn:vpn-name;
+					description "vpn instance name";
+				}
+					
+				leaf pri-next-hop{
+				    type inet:ip-address;
+					description "primary next hop address";
+				}
+					
+				leaf bak-next-hop{
+				    type inet:ip-address;
+				    description "backup next hop address";
+				}
+				
+				leaf af-mode{
+				    type l3vpn:af-enum;
+					description "address family mode value";
+				}
+				  
+                uses basic-state{
+		        }
+			}
+			
+			list vpnfrr-detail-state{
+				key "vrf-name pri-next-hop bak-next-hop af-mode";
+				description "vpn frr protect state list";
+				
+				leaf vrf-name{
+					type l3vpn:vpn-name;
+					description "vpn instance name";
+				}
+					
+				leaf pri-next-hop{
+				    type inet:ip-address;
+					description "primary next hop address";
+				}
+					
+				leaf bak-next-hop{
+				    type inet:ip-address;
+				    description "backup next hop address";
+				}
+				
+				leaf af-mode{
+					type l3vpn:af-enum;
+					description "address family mode value";
+				}
+				  
+                uses basic-state{
+		        }
+				
+                uses detail-state{
+		        }
+			}
+		}
+	}
+
+	/* VPN-FRR CMD RPC */
+	rpc set-vpnfrr-switch {
+	  input {
+		leaf vrf-name{
+			type l3vpn:vpn-name;
+			description "vpn instance name";
+		}
+		leaf pri-next-hop{
+			type inet:ip-address;
+			description "primary next hop address";
+		}
+		leaf bak-next-hop{
+			type inet:ip-address;
+			description "backup next hop address";
+		}
+	    leaf af-mode{
+			type l3vpn:af-enum;
+			description "address family mode value";
+		}
+	    leaf switch-cmd-type{
+		    type protgrp-co:lps-switch-cmd-type;
+		    description "switch-cmd-type";
+	    }
+	  }
+	}
+}

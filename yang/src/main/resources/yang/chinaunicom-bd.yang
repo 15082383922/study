@@ -1,0 +1,134 @@
+module chinaunicom-bd {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/ethernetservice/chinaunicom-bd";
+
+  prefix "bd";
+  
+  import chinaunicom-interface-common  { prefix "if"; }
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+  /*** META INFORMATION ***/
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+     
+		Postcode: 430073 
+		Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+		Tel: +XXXXXXXXXXXX
+
+		E-mail: yang- author@fiberhome.com";
+
+  description 
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom ethernet package configuration.
+
+     This module contains definitions
+     for the following management objects:
+       global-interface-configuration: Global scoped configuration
+         for interfaces
+       interface-configurations: interface configurations
+
+     Copyright (c) 2013-2018 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision "2019-11-06" 
+  {
+    description
+      "Support ethlag-name.";
+  }
+  
+  revision "2019-10-11" 
+  {
+    description
+      "Support ethphy-name.";
+  }
+  
+  revision "2018-11-27" 
+  {
+    description
+      "chinaunicom V5 1.0 revision.";
+  }
+ 
+  typedef admin-status-enum {
+    type enumeration {
+      enum up {
+        value 0;
+        description "admin up";
+      }
+      enum down {
+        value 1;
+        description "admin down";
+      }
+    }
+    description "bd admin status, up or down";
+  }
+
+  typedef if-ref {
+	type union {
+		type if:ethphy-name;
+		type if:ethsub-name;
+		type if:ethlag-name;
+	}
+  } 
+	
+  container bd {
+	description "bd";
+				
+	  container bridge-domains {
+			description "bridge-domains";
+
+		  list bridge-domain {
+				key "bd-id";
+				description "bd create, cfg admin status and description";
+				
+			leaf bd-id {
+				type uint32 {
+					range "1..1048575";
+					}
+				description "bd-id";
+			}
+				
+			leaf bd-admin {
+				type admin-status-enum;
+				default "up";
+				description "bd-admin";
+			}
+				
+			leaf description {
+				type string {
+						length "1..224";
+					}
+				description "description";
+			}
+			
+			container bd-ifmembers {
+				description "bd-ifmembers";
+
+				  list bd-ifmember {
+						key "if-name";
+						description "bd bindind evc mode ethphy or sub inteface";
+						
+					leaf if-name{
+						type bd:if-ref;
+						description "interface name";
+					}
+				  }
+			}
+			
+			container binding-bdif {
+				description "binding-bdif";
+						
+				leaf if-name{
+					type if:bdif-name;
+					description "bdif name";
+				}
+			}
+		  }
+	  }
+  }
+}

@@ -1,0 +1,398 @@
+module chinaunicom-alarm {
+
+  namespace "http://chinaunicom.com/yang/systemmanage/chinaunicom-alarm";
+  prefix "alarm";
+  import ietf-yang-types {
+    prefix yang;
+  }
+  organization 
+    "China Unicom";
+    
+  contact 
+    "";
+    
+  description 
+    "This module describes alarm management.
+     Copyright (c) China Unicom. All rights reserved.";
+     
+  revision 2020-12-15{
+      description 
+        "Add enumeration items for alarm-object-type";
+  }
+     
+  revision 2020-10-15{
+      description 
+        "Remove alarm correlation suppression";
+  }
+      
+  revision 2020-10-12{
+      description 
+        "Remove jitter and corelation";
+  }
+  
+  revision 2020-04-17{
+      description 
+        "First draft.";
+  }   
+        
+  
+  typedef severity-level{
+    type enumeration {
+      enum critical {
+        value 1;
+        description 
+          "The 'critical' severity level indicates that a service
+           affecting condition has occurred and an immediate
+           corrective action is required.  Such a severity can be
+           reported, for example, when a resource becomes totally out
+           of service and its capability must be restored.";
+      }
+      enum major {
+        value 2;
+        description 
+          "The 'major' severity level indicates that a service
+           affecting condition has developed and an urgent corrective
+           action is required.  Such a severity can be reported, for
+           example, when there is a severe degradation in the
+           capability of the resource and its full capability must be
+           restored.";
+      }
+      enum minor {
+        value 3;
+        description 
+          "The 'minor' severity level indicates the existence of a
+           non-service affecting fault condition and that corrective
+           action should be taken in order to prevent a more serious
+           (for example, service affecting) fault.  Such a severity
+           can be reported, for example, when the detected alarm
+           condition is not currently degrading the capacity of the
+           resource.";
+      }
+      enum warning {
+        value 4;
+        description 
+          "The 'warning' severity level indicates the detection of a
+           potential or impending service affecting fault, before any
+           significant effects have been felt.  Action should be
+           taken to further diagnose (if necessary) and correct the
+           problem in order to prevent it from becoming a more
+           serious service affecting fault.";
+      }
+    }
+	description
+      "The severity level of the alarm.  Note well that value 'clear'
+       is not included.  If an alarm is cleared or not is a separate
+       enumeration flag.";
+  }
+
+  
+  typedef alarm-state-type{
+    type enumeration {
+      enum start {
+        value 1;
+        description 
+          "The generating status of the alarm.";
+      }
+      enum end {
+        value 2;
+        description 
+          "The clearance status of the alarm.";
+      }
+    }  
+  }
+  
+  typedef inverse-mode-type {
+    type enumeration {
+      enum "forbid-reverse" {
+        value 0;
+        description
+          "Forbid reversion.";
+      }
+      enum "auto-resume" {
+        value 1;
+        description
+          "Automatic reversion resumption.";
+      }
+    }
+    description
+      "The type of inverse mode.";
+  }
+  
+  typedef status-type {
+    type enumeration {
+      enum "on" {
+	    value 1;
+        description
+          "State On.";
+      }
+      enum "off" {
+	    value 0;
+        description
+          "State Off.";
+      }
+    }
+    description
+      "The type of monitor state";
+  }
+  
+  grouping alarm-info-attributes {
+    description
+      "Alarm Info attributes.";
+    leaf alarm-sequence {
+      type uint32;
+	  mandatory true;
+      description
+        "Sequence number of an alarm.";
+    }
+    leaf alarm-name {
+      type string {
+        length "1..63";
+      }
+	  mandatory true;
+      description
+        "Name of an alarm, it is case sensitive.";
+    }
+    leaf alarm-id {
+      type uint32;
+	  mandatory true;
+      description
+        "ID of an alarm.";
+    }
+    leaf alarm-object-type {
+      type enumeration {   
+      enum port {
+        value 1;
+        description 
+          "alrm of Port type.";
+      }
+      enum ethernet {
+        value 2;
+        description 
+          "alrm of ethernet type.";
+      }
+      enum system {
+        value 3;
+        description 
+          "alrm of system type.";
+      }
+      enum clock {
+        value 4;
+        description 
+          "alrm of clock type.";
+      }
+      enum qos {
+        value 5;
+        description 
+          "alrm of qos type.";
+      }
+      enum oam {
+        value 6;
+        description 
+          "alrm of oam type.";
+      }
+      enum bgp {
+        value 7;
+        description 
+          "alrm of bgp type.";
+      }
+      enum isis {
+        value 8;
+        description 
+          "alrm of isis type.";
+      }
+      enum dualhome {
+        value 9;
+        description 
+          "alrm of Port type.";
+      }
+      enum flexe {
+        value 10;
+        description 
+          "alrm of flexe type.";
+      }
+      enum cfm {
+        value 11;
+        description 
+          "alrm of cfm type.";
+      }
+      enum ptp {
+        value 12;
+        description 
+          "alrm of ptp type.";
+      }
+      enum ospf {
+        value 13;
+        description 
+          "alrm of ospf type.";
+      }
+      enum twamp {
+        value 14;
+        description 
+          "alrm of twamp type.";
+      }
+      enum om {
+        value 15;
+        description 
+          "alrm of optical modul type.";
+      }
+      enum ip {
+        value 16;
+        description 
+          "alrm of ip type.";
+      }
+      enum srmpls {
+        value 17;
+        description 
+          "alrm of sr mpls type.";
+      }
+      enum frr {
+        value 18;
+        description 
+          "alrm of frr type.";
+      }
+      enum vrrp {
+        value 19;
+        description 
+          "alrm of vrrp type.";
+      }
+      enum bfd {
+        value 20;
+        description 
+          "alrm of bfd type.";
+      }
+      enum arp {
+        value 21;
+        description 
+          "alrm of arp type.";
+      }
+	 }
+    }
+	leaf alarm-object-name {
+      type string {
+        length "1..127";
+      }
+	  mandatory true;
+      description
+        "Object name of an alarm.";
+    }
+	leaf alarm-state {
+      type alarm-state-type;
+	  mandatory true;
+      description
+        "The state of an alarm.";
+    }
+    leaf alarm-severity {
+      type severity-level;
+	  mandatory true;
+      description
+        "Severity of an alarm.";
+    }
+	leaf alarm-time {
+      type yang:date-and-time;
+	  mandatory true;
+      description
+        "Time at which the alarm was raised / reported.";
+    }
+    leaf alarm-reason {
+      type uint32;
+      description
+        "Reason ID of an alarm.";
+    }
+    leaf alarm-addition {
+      type string {
+        length "1..512";
+      }
+      description
+        "The addition parameters of an alarm.";
+    }
+  }
+
+  container alarm {
+    description
+      "Alarm management module.";
+  container alarm-cfgs {
+      description
+        "Alarm configuration.";
+      list alarm-cfg {
+        key "alarm-id";
+        description
+          "Alarm configuration.";
+        leaf alarm-id {
+          type uint32;
+          description
+            "ID of an alarm.";
+        }
+		leaf monitor-state {
+          type status-type;
+          default "on";
+          description
+            "Alarm reporting status.";
+        }
+      }
+    }
+	
+    container inverse-ports {
+      description
+        "List of alarm reversion ports.";
+      list inverse-port {
+        key "physical-port";
+        description
+          "Alarm reversion port.";
+        leaf physical-port {
+          type string {
+            length "1..63";
+          }
+          description
+            "Name of a physical port.";
+        }
+		leaf inverse-mode {
+          type inverse-mode-type;
+          default "forbid-reverse";
+          description
+            "Alarm reversion mode, which can be Forbid Reversion, Auto Resume.";
+		}
+      }
+    }
+	
+    container active-alarms {
+      config false;
+      description
+        "List of active alarms.";
+      list active-alarm {
+        key "alarm-id alarm-object-type alarm-object-name";
+        config false;
+        description
+          "Information about active alarm.";       
+		uses alarm-info-attributes;
+      }
+    }
+	
+    container history-alarms {
+      config false;
+      description
+        "List of historical alarms.";
+      list history-alarm {
+        key "alarm-id alarm-object-type alarm-object-name alarm-time";
+        description
+          "Information about a historical alarm.";	  
+        uses alarm-info-attributes;
+        leaf cleared-time {
+          type yang:date-and-time;
+          description
+            "Time when the alarm is cleared.";
+        }
+      }
+    }
+  }
+
+  notification alarm-notification {
+    description
+      "This notification is used to report alarm.";
+	list alarm-notifications{
+	  key "alarm-id alarm-object-type alarm-object-name alarm-state";
+      description
+         "Information about a auto-reporting alarm.";
+      uses alarm-info-attributes;	
+	}
+  }  
+}

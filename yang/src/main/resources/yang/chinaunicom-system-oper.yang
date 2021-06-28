@@ -1,0 +1,237 @@
+module chinaunicom-system-oper{
+
+
+
+  // namespace
+  namespace "http://chinaunicom.com/yang/systemmanage/chinaunicom-system-oper";
+  
+  prefix "system-oper";
+
+  import chinaunicom-system {
+    prefix "system";
+  }
+
+  import chinaunicom-datatype-common {
+    prefix "co-type";
+  }
+
+   
+  organization "Fiberhome Telecommunication Technologies Co.,LTD";
+
+  contact
+    "Fiberhome Telecommunication Technologies Co.,LTD.
+     
+      Postcode: 430073
+      Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+      Tel: +86 027-81611973
+     
+      E-mail: zy09@fiberhome.com";
+
+  description
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom system configuration.
+     
+     This module contains definitions
+     for the following management objects:
+       ptp: IEEE 1588v2 configuration
+     
+      This YANG module augments the
+              chinaunicom-system-oper
+     module with configuration data.
+     
+     Copyright (c) 2013-2020 by Fiberhome Systems, Inc.
+     All rights reserved.";
+     
+  revision 2021-01-14 {
+    description
+     "Add description for leaf dst-start-date-and-time,
+     dst-end-date-and-time and dst-offset,mark them as optional";
+  }
+
+  revision 2018-06-02 {
+    description
+     "Initial revision.";
+  }
+  
+
+
+  // typedef statements
+  
+  typedef time-type {
+    type enumeration {
+      enum LOCAL {
+        value 0;
+        description "local-time";
+      }
+      enum UTC {
+        value 1;
+        description "utc-time";
+      }
+    }
+    description "time-type.";
+  }
+
+  typedef reboot-type {
+    type enumeration {
+      enum REBOOT_ALL {
+        value 1;
+        description "reboot all board";
+      }
+      enum REBOOT_SLOT {
+        value 2;
+        description "reboot service board ";
+      }
+      enum REBOOT_BACKUP_MAINBOARD {
+        value 3;
+        description "reboot backup mainboard ";
+      }
+    }
+    description "reboot type.";
+  }
+
+
+  // grouping statements
+  
+  
+
+  container system-oper{
+
+    config false;
+    container systime-state {
+      description "systime-state";
+
+    leaf system-time {
+      type system:date-and-time;
+      description
+        "system-time";
+    }
+    
+    leaf type {
+      type time-type;
+      description
+        "time-type, local time or utc time.";
+    }
+    
+    leaf timezone-name {
+      type string;
+      description
+        "timezone-name";
+    }
+    
+    leaf offset-mode {
+      type system:offset-mode;
+      description
+        "offset-mode";
+    }
+    
+    leaf offset {
+      type system:time;
+      description
+        "offset HH:MM:SS";
+    }
+  
+    leaf dst-start-date-and-time {
+      type system:date-and-time;
+      description
+        "dst-start-date-time YYYY-MM-DD HH:MM:SS,this leaf is optional";
+    }
+    leaf dst-end-date-and-time {
+      type system:date-and-time;
+      description
+        "dst-end-date-and-time YYYY-MM-DD HH:MM:SS,this leaf is optional";
+    }
+    leaf dst-offset {
+      type uint8;
+      description
+        "dst offset-minute,this leaf is optional";
+    }
+    
+    }
+
+    container file-inchinaunicom {
+      description "file status infomation";
+
+      list file-info{
+        key "file-path file-name";
+        leaf file-path {
+          type string {
+            length "0..127";
+          }
+        }
+    
+        leaf type-access-permission {
+          type string {
+            length "0..12";
+          }
+        }
+    
+        leaf file-owner {
+          type string {
+            length "0..256";
+          }
+        }
+    
+        leaf file-group {
+          type string {
+            length "0..256";
+          }
+        }
+    
+        leaf file-size {
+          type uint32 {
+            range "0..4294967295";
+          }
+        }
+            
+        leaf file-time {
+          type system:date-and-time;
+                    description
+                      "datetime YYYY-MM-DD HH:MM:SS";
+        }
+    
+        leaf file-name {
+          type string {
+            length "1..256";
+          }
+        }
+
+      }
+    }
+  }
+   
+  rpc set-systime {
+    input  {
+
+      leaf date-time {
+        type system:date-and-time;
+        description
+          "date-time";
+      }
+      leaf type {
+        type time-type;
+        description
+          "time-type, local time or utc time.";
+      }
+    }
+  }
+
+  rpc reboot-system {
+
+    description "reboot board system";
+    input  {
+
+      leaf type {
+        type reboot-type;
+        description
+          "reboot-type: reboot all, reboot board or reboot backup mainboard.";
+        mandatory true;
+      }
+      leaf slot {
+        type co-type:slot-num-string;
+        description
+          "slot";
+      }
+    }
+  }
+
+}

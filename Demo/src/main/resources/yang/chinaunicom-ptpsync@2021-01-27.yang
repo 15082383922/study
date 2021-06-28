@@ -1,0 +1,1542 @@
+module chinaunicom-ptpsync {
+
+  // namespace
+  namespace "http://chinaunicom.com/yang/systemmanage/chinaunicom-ptpsync";
+  
+  prefix "ptp";
+
+  // import
+  import ietf-inet-types {
+    prefix "inet"; 
+	revision-date 2013-07-15;
+  }
+  
+  import ietf-yang-types {
+    prefix "yang";
+	revision-date 2013-07-15;
+  }
+  
+  import chinaunicom-interface-common { 
+    prefix "if"; 
+	revision-date 2020-12-31;
+  }
+  
+  
+    import chinaunicom-extension { 
+    prefix "ext"; 
+	revision-date 2020-03-30;
+  }
+
+  organization "Fiberhome Telecommunication Technologies Co.,LTD";
+
+  contact
+    "Fiberhome Telecommunication Technologies Co.,LTD.
+     
+      Postcode: 430073 
+      Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+      Tel: +86 027-81611973
+	  
+      E-mail: zengl@fiberhome.com";
+
+  description
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom ptp package configuration.
+
+     This module contains definitions
+     for the following management objects:
+       ptp: IEEE 1588v2 configuration
+
+	 This YANG module augments the
+                chinaunicom-ptpsync
+     module with configuration data.
+
+     Copyright (c) 2013-2020 by Fiberhome Systems, Inc.
+     All rights reserved.";
+   
+  revision "2021-01-27" {
+    description
+        "deleate leaf encapsulation-format and delay-mechanism
+        in container ptp-interface-cfg,add some discriptions";
+  }
+  
+  revision "2020-07-30" {
+    description
+        "modify relative path syntax,add prefix";
+  }
+
+  revision "2020-06-28" {
+    description
+        "Change interface path from absolute path to relative path";
+  }
+    
+  revision "2020-01-03" {
+    description
+        "ptp-timezone delete enum GMT+08-00 value 27 , duplicate of GMT+08-00-DEFAULT";
+  }
+
+  revision "2019-12-12" {
+    description
+      "import chinaunicom-extension to support dec displayed in-hex";
+  }
+  
+  revision "2018-01-02" {
+    description
+     "Initial revision.";
+  }
+
+  
+  // typedef statements
+  
+  typedef ptp-port-work-mode {
+    type enumeration {
+      enum disable {
+        value 0;
+        description "Disable 1588 function";
+      }
+      enum auto {
+        value 1;
+        description "Decision port status automatically";
+      }
+	  enum master {
+        value 2;
+        description "Force port enter master status";
+      }
+	  enum slave {
+        value 3;
+        description "Force port enter slave status";
+      }
+	  enum passive {
+        value 4;
+        description "Force port enter passive status";
+      }
+	  enum test {
+        value 5;
+        description "Force port enter test status";
+      }
+    }
+    description "Port 1588 work mode";
+  }
+  
+  typedef ptp-port-work-status {
+    type enumeration {
+      enum disable {
+        value 0;
+        description "Port working in disable status";
+      }
+      enum master {
+        value 1;
+        description "Port working in master status";
+      }
+	  enum slave {
+        value 2;
+        description "Port working in slave status";
+      }
+	  enum passive {
+        value 3;
+        description "Port working in passive status";
+      }
+	  enum test {
+        value 4;
+        description "Port working in test status";
+      }
+	  enum faulty {
+        value 5;
+        description "Port working in faulty status";
+      }
+	  enum listening {
+        value 6;
+        description "Port working in listening status";
+      }
+	  enum premaster {
+        value 7;
+        description "Port working in premaster status";
+      }
+    }
+    description "Port 1588 work status";
+  }
+  
+  typedef ptp-global-work-mode {
+    type enumeration {
+      enum disable {
+        value 0;
+        description "Disable 1588 function";
+      }
+      enum bmc {
+        value 1;
+        description "Enable 1588 function and using bmca to decision port status";
+      }
+      enum manual {
+        value 2;
+        description "Enable 1588 function and decision port status manually";
+      }
+    }
+    description "Global 1588 work mode";
+  }
+  
+  typedef ptp-clock-model {
+    type enumeration {
+      enum bc {
+        value 0;
+        description "Boundary clock";
+      }
+      enum oc {
+        value 1;
+        description "Ordinary clock";
+      }
+      enum tc {
+        value 2;
+        description "Transparent clock";
+      }
+	  enum oc-tc {
+        value 3;
+        description "Ordinary clock plus transparent clock";
+      }
+    }
+    description "Clock model";
+  }
+  
+  typedef ptp-sync-mode {
+    type enumeration {
+      enum ptp-only {
+        value 0;
+        description "Using 1588 to recover time and frequency simultaneously";
+      }
+      enum synce-only {
+        value 1;
+        description "Using 1588 to recover time and frequency , also using synce to recover frequency";
+      }
+      enum hybrid {
+        value 2;
+        description "Using 1588 to recover time and  synce to recover frequency";
+      }
+    }
+    description "Sync mode";
+  }
+  
+  typedef ptp-delay-mechanism {
+    type enumeration {
+      enum e2e {
+        value 1;
+        description "Delay request-response mechanism";
+      }
+      enum p2p {
+        value 2;
+        description "Peer delay mechanism";
+      }
+    }
+    description "Delay machanism";
+  }
+  
+  typedef ptp-step-flag {
+    type enumeration {
+      enum one-step {
+        value 0;
+        description "One step";
+      }
+      enum two-step {
+        value 1;
+        description "Two step";
+      }
+    }
+    description "Step flag";
+  }
+  
+  typedef ptp-announce-interval {
+    type enumeration {
+      enum auto {
+        value 0;
+        description "auto select";
+      }
+	  enum 1div16 {
+        value 1;
+        description "1 pkt per 16 seconds";
+      }
+      enum 1div8 {
+        value 2;
+        description "1 pkt per 8 seconds";
+      }
+	  enum 1div4 {
+        value 3;
+        description "1 pkt per 4 seconds";
+      }
+	  enum 1div2 {
+        value 4;
+        description "1 pkt per 2 seconds";
+      }
+	  enum 1div1 {
+        value 5;
+        description "1 pkt per second";
+      }
+	  enum 2div1 {
+        value 6;
+        description "2 pkts per second";
+      }
+	  enum 4div1 {
+        value 7;
+        description "4 pkts per second";
+      }
+	  enum 8div1 {
+        value 8;
+        description "8 pkts per second";
+      }
+	  enum 16div1 {
+        value 9;
+        description "16 pkts per second";
+      }
+    }
+    description "Announce interval";
+  }
+  
+  typedef ptp-message-encapsulation {
+    type enumeration {
+      enum ethernet-mul {
+        value 0;
+        description "Ethernet multicast";
+      }
+      enum ethernet-neg-uni {
+        value 1;
+        description "Ethernet negotiate unicast";
+      }
+	  enum ethernet-force-uni {
+        value 2;
+        description "Ethernet forced unicast";
+      }
+	  enum ipv4-mul {
+        value 3;
+        description "IPv4 multicast";
+      }
+      enum ipv4-neg-uni {
+        value 4;
+        description "IPv4 negotiate unicast";
+      }
+	  enum ipv4-force-uni {
+        value 5;
+        description "IPv4 forced unicast";
+      }
+	  enum ipv6-mul {
+        value 6;
+        description "IPv6 multicast";
+      }
+      enum ipv6-neg-uni {
+        value 7;
+        description "IPv6 negotiate unicast";
+      }
+	  enum ipv6-force-uni {
+        value 8;
+        description "IPv6 forced unicast";
+      }
+    }
+    description "Message encapsulation";
+  }
+  
+  typedef ptp-bmc-standard {
+    type enumeration {
+      enum ieee-1588 {
+        value 0;
+        description "IEEE 1588-2008";
+      }
+      enum itu-t-8275-1 {
+        value 1;
+        description "ITU-T G.8275.1";
+      }
+    }
+    description "Bmc standard";
+  }
+  
+  typedef ptp-time-frequency-connect-rule {
+    type enumeration {
+      enum plan1 {
+        value 0;
+        description "CMCC";
+      }
+      enum plan2 {
+        value 1;
+        description "CUCC";
+      }
+    }
+    description "Time and frequency connect rule";
+  }
+  
+  typedef ptp-time-source {
+    type enumeration {
+      enum atomic {
+        value 16;
+        description "Atomic clock";
+      }
+      enum gps {
+        value 32;
+        description "Gps clock";
+      }
+	  enum radio {
+        value 48;
+        description "Radio clock";
+      }
+	  enum ptp {
+        value 64;
+        description "Ptp clock";
+      }
+	  enum ntp {
+        value 80;
+        description "Ntp clock";
+      }
+	  enum handset {
+        value 96;
+        description "Handset clock";
+      }
+	  enum other {
+        value 144;
+        description "Other clock";
+      }
+	  enum internal-osc {
+        value 160;
+        description "Internal osc clock";
+      }
+    }
+    description "Time source";
+  }
+  
+  typedef ptp-enable-flag {
+    type enumeration {
+      enum disable {
+        value 0;
+        description "Disable";
+      }
+      enum enable {
+        value 1;
+        description "Enable";
+      }
+    }
+    description "Enable flag";
+  }
+  
+  typedef ptp-ext-inf-work-mode {
+    type enumeration {
+      enum input-signal {
+        value 0;
+        description "Input 1pps plus tod";
+      }
+      enum output-signal {
+        value 1;
+        description "Output 1pps plus tod";
+      }
+    }
+    description "External interface work mode";
+  }
+  
+  typedef ptp-ext-inf-comp-attr {
+    type enumeration {
+      enum positive {
+        value 0;
+        description "Positive";
+      }
+      enum negative {
+        value 1;
+        description "Negative";
+      }
+    }
+    description "External interface compensate attribute";
+  }
+  
+  typedef ptp-sync-interval {
+    type enumeration {
+      enum auto {
+        value 0;
+        description "auto select";
+      }
+	  enum 1div2 {
+        value 1;
+        description "1 pkt per 2 seconds";
+      }
+      enum 1div1 {
+        value 2;
+        description "1 pkt per second";
+      }
+	  enum 2div1 {
+        value 3;
+        description "2 pkts per second";
+      }
+	  enum 4div1 {
+        value 4;
+        description "4 pkts per second";
+      }
+	  enum 8div1 {
+        value 5;
+        description "8 pkts per second";
+      }
+	  enum 16div1 {
+        value 6;
+        description "16 pkts per second";
+      }
+	  enum 32div1 {
+        value 7;
+        description "32 pkts per second";
+      }
+	  enum 64div1 {
+        value 8;
+        description "64 pkts per second";
+      }
+	  enum 128div1 {
+        value 9;
+        description "128 pkts per second";
+      }
+	  enum 256div1 {
+        value 10;
+        description "256 pkts per second";
+      }
+    }
+    description "Sync interval";
+  }
+  
+  typedef ptp-path-asym-comp-attr {
+    type enumeration {
+      enum equal {
+        value 0;
+        description "Master-to-slave path delay is equal to slave-to-master path delay";
+      }
+      enum larger {
+        value 1;
+        description "Master-to-slave path delay is larger than slave-to-master path delay";
+      }
+	  enum smaller {
+        value 2;
+        description "Master-to-slave path delay is smaller than slave-to-master path delay";
+      }
+    }
+    description "Path asymmetrical compensate attribute";
+  }
+  
+  typedef ptp-bool-flag {
+    type enumeration {
+      enum false-value {
+        value 0;
+        description "False";
+      }
+      enum true-value {
+        value 1;
+        description "True";
+      }
+    }
+    description "Bool value";
+  }
+  
+  typedef ptp-clock-accuracy {
+    type enumeration {
+      enum 25ns {
+        value 32;
+        description "25ns";
+      }
+      enum 100ns {
+        value 33;
+        description "100ns";
+      }
+	  enum 250ns {
+        value 34;
+        description "250ns";
+      }
+	  enum 1us {
+        value 35;
+        description "1us";
+      }
+	  enum 2p5us {
+        value 36;
+        description "2.5us";
+      }
+	  enum 10us {
+        value 37;
+        description "10us";
+      }
+	  enum 25us {
+        value 38;
+        description "25us";
+      }
+	  enum 100us {
+        value 39;
+        description "100us";
+      }
+	  enum 250us {
+        value 40;
+        description "250us";
+      }
+	  enum 1ms {
+        value 41;
+        description "1ms";
+      }
+	  enum 2p5ms {
+        value 42;
+        description "2.5ms";
+      }
+	  enum 10ms {
+        value 43;
+        description "10ms";
+      }
+	  enum 25ms {
+        value 44;
+        description "25ms";
+      }
+	  enum 100ms {
+        value 45;
+        description "100ms";
+      }
+	  enum 250ms {
+        value 46;
+        description "250ms";
+      }
+	  enum 1s {
+        value 47;
+        description "1s";
+      }
+	  enum 10s {
+        value 48;
+        description "10s";
+      }
+	  enum l10s {
+        value 49;
+        description ">10s";
+      }
+	  enum unknown {
+        value 254;
+        description "Unknown";
+      }
+    }
+    description "Clock accuracy";
+  }
+  
+  typedef ptp-clock-accuracy-cfg {
+    type enumeration {
+      enum 25ns {
+        value 1;
+        description "25ns";
+      }
+      enum 100ns {
+        value 2;
+        description "100ns";
+      }
+	  enum 250ns {
+        value 3;
+        description "250ns";
+      }
+	  enum 1us {
+        value 4;
+        description "1us";
+      }
+	  enum 2p5us {
+        value 5;
+        description "2.5us";
+      }
+	  enum 10us {
+        value 6;
+        description "10us";
+      }
+	  enum 25us {
+        value 7;
+        description "25us";
+      }
+	  enum 100us {
+        value 8;
+        description "100us";
+      }
+	  enum 250us {
+        value 9;
+        description "250us";
+      }
+	  enum 1ms {
+        value 10;
+        description "1ms";
+      }
+	  enum 2p5ms {
+        value 11;
+        description "2.5ms";
+      }
+	  enum 10ms {
+        value 12;
+        description "10ms";
+      }
+	  enum 25ms {
+        value 13;
+        description "25ms";
+      }
+	  enum 100ms {
+        value 14;
+        description "100ms";
+      }
+	  enum 250ms {
+        value 15;
+        description "250ms";
+      }
+	  enum 1s {
+        value 16;
+        description "1s";
+      }
+	  enum 10s {
+        value 17;
+        description "10s";
+      }
+	  enum l10s {
+        value 18;
+        description ">10s";
+      }
+	  enum unknown {
+        value 19;
+        description "Unknown";
+      }
+    }
+    description "Clock accuracy";
+  }
+  
+  typedef ptp-valid-flag {
+    type enumeration {
+      enum invalid {
+        value 0;
+        description "Invalid";
+      }
+      enum valid {
+        value 1;
+        description "Valid";
+      }
+    }
+    description "Valid flag";
+  }
+  
+  typedef ptp-sync-src-status {
+    type enumeration {
+      enum invalid {
+        value 0;
+        description "Invalid";
+      }
+      enum measuring {
+        value 1;
+        description "Measuring";
+      }
+	  enum holdover {
+        value 2;
+        description "Holdover";
+      }
+	  enum running {
+        value 3;
+        description "Running";
+      }
+    }
+    description "Sync source status";
+  }
+  
+  typedef ptp-lock-flag {
+    type enumeration {
+      enum unlock {
+        value 0;
+        description "Unlock";
+      }
+      enum lock {
+        value 1;
+        description "Lock";
+      }
+    }
+    description "Lock flag";
+  }
+  
+  typedef ptp-timezone {
+    type enumeration {
+      enum GMT+08-00-DEFAULT {
+        value 0;
+        description "GMT+08:00";
+      }
+      enum GMT-11-00 {
+        value 1;
+        description "GMT-11:00";
+      }
+	  enum GMT-10-00 {
+        value 2;
+        description "GMT-10:00";
+      }
+	  enum GMT-09-30 {
+        value 3;
+        description "GMT-09:30";
+      }
+	  enum GMT-09-00 {
+        value 4;
+        description "GMT-09:00";
+      }
+	  enum GMT-08-30 {
+        value 5;
+        description "GMT-08:30";
+      }
+	  enum GMT-08-00 {
+        value 6;
+        description "GMT-08:00";
+      }
+	  enum GMT-07-00 {
+        value 7;
+        description "GMT-07:00";
+      }
+	  enum GMT-06-00 {
+        value 8;
+        description "GMT-06:00";
+      }
+	  enum GMT-05-00 {
+        value 9;
+        description "GMT-05:00";
+      }
+	  enum GMT-04-00 {
+        value 10;
+        description "GMT-04:00";
+      }
+	  enum GMT-03-30 {
+        value 11;
+        description "GMT-03:30";
+      }
+	  enum GMT-03-00 {
+        value 12;
+        description "GMT-03:00";
+      }
+	  enum GMT-02-00 {
+        value 13;
+        description "GMT-02:00";
+      }
+	  enum GMT-01-00 {
+        value 14;
+        description "GMT-01:00";
+      }
+	  enum GMT+00-00 {
+        value 15;
+        description "GMT+00:00";
+      }
+	  enum GMT+01-00 {
+        value 16;
+        description "GMT+01:00";
+      }
+	  enum GMT+02-00 {
+        value 17;
+        description "GMT+02:00";
+      }
+	  enum GMT+03-00 {
+        value 18;
+        description "GMT+03:00";
+      }
+	  enum GMT+03-30 {
+        value 19;
+        description "GMT+03:30";
+      }
+	  enum GMT+04-00 {
+        value 20;
+        description "GMT+04:00";
+      }
+	  enum GMT+04-30 {
+        value 21;
+        description "GMT+04:30";
+      }
+	  enum GMT+05-00 {
+        value 22;
+        description "GMT+05:00";
+      }
+	  enum GMT+05-30 {
+        value 23;
+        description "GMT+05:30";
+      }
+	  enum GMT+06-00 {
+        value 24;
+        description "GMT+06:00";
+      }
+	  enum GMT+06-30 {
+        value 25;
+        description "GMT+06:30";
+      }
+	  enum GMT+07-00 {
+        value 26;
+        description "GMT+07:00";
+      }
+	  enum GMT+09-00 {
+        value 28;
+        description "GMT+09:00";
+      }
+	  enum GMT+09-30 {
+        value 29;
+        description "GMT+09:30";
+      }
+	  enum GMT+10-00 {
+        value 30;
+        description "GMT+10:00";
+      }
+	  enum GMT+10-30 {
+        value 31;
+        description "GMT+10:30";
+      }
+	  enum GMT+11-00 {
+        value 32;
+        description "GMT+11:00";
+      }
+	  enum GMT+11-30 {
+        value 33;
+        description "GMT+11:30";
+      }
+	  enum GMT+12-00 {
+        value 34;
+        description "GMT+12:00";
+      }
+    }
+    description "Timezone";
+  }
+  
+  typedef ptp-external-interface-index {
+    type enumeration {
+      enum 1pps-tod-1 {
+        value 0;
+        description "1PPS+TOD 1";
+      }
+      enum 1pps-tod-2 {
+        value 1;
+        description "1PPS+TOD 2";
+      }
+	  enum 1pps-tod-3 {
+        value 2;
+        description "1PPS+TOD 3";
+      }
+    }
+    description "Port external interface index";
+  }
+  
+  // grouping statements
+  
+  grouping ptp-global-basic-info {
+    description
+      "Configuration data for global PTP basic parameters";
+
+    leaf work-mode {
+      type ptp-global-work-mode;
+	  default "disable";
+      description
+        "Global 1588 work mode";
+    }
+	  
+	leaf clock-model {
+      type ptp-clock-model;
+	  default "bc";
+      description
+        "Clock model";
+    }
+	  
+	leaf sync-mode {
+	  type ptp-sync-mode;
+	  default "synce-only";
+      description
+        "Sync mode";
+    }
+	  
+	leaf timezone {
+      type ptp-timezone; 
+	  default "GMT+08-00-DEFAULT";
+      description
+        "Timezone";
+    }
+		  
+    leaf sync-domain {
+	  type uint8 {
+        range "0..255";
+      }
+	  default "0";
+      description
+        "Sync domain";
+    }
+	
+	leaf bmc-standard {
+	  type ptp-bmc-standard;
+	  default "ieee-1588";
+      description
+        "Bmc standard";
+    }
+		  
+    leaf time-frequency-correlation-mechanism {
+	  type ptp-time-frequency-connect-rule;
+	  default "plan1";
+      description
+       "Time and frequency connect rule";
+    }
+		  
+    leaf synchronous-hop-threshold {
+	  type uint8 {
+        range "0..255";
+      }
+	  default "40";
+      description
+        "Stepremoved threshold";
+    }	  
+  }
+  
+  grouping ptp-global-control-info {
+    description
+      "Configuration data for global PTP control parameters";
+
+    leaf delay-mechanism {
+	  type ptp-delay-mechanism;
+	  default "e2e";
+      description
+        "Delay machanism";
+    }
+	  
+	leaf step-flag {
+	  type ptp-step-flag;
+	  default "one-step";
+      description
+        "Step flag,this item is optional.";
+    }  
+  }
+  
+  grouping ptp-global-packet-encapsulation {
+    description
+      "Configuration data for global PTP packet encapsulation parameters";
+
+    leaf encapsulation-format {
+	  type ptp-message-encapsulation;
+	  default "ethernet-mul";
+      description
+        "Message encapsulation";
+    } 
+  }
+  
+  grouping ptp-global-packet-interval {
+    description
+      "Configuration data for global PTP packet interval parameters";
+
+    leaf announce-timeout {
+	  type uint8 {
+        range "3..255";
+      }
+	  default "3";
+      description
+        "Annonuce timeout ratio,this item is optional.";
+    }
+
+    leaf pdelay-request-interval {
+	  type ptp-announce-interval;
+      default "auto";
+      description
+        "Peer delay request interval,this item is optional.";
+    }
+  }
+	
+  grouping ptp-alarm-threshold {
+    description
+      "Configuration data for PTP alarm threshold parameters";
+    
+    leaf ptp-quality-threshold {
+	  type uint8 {
+        range "1..255";
+      }
+	  default "6";
+      description
+        "Ptp input clockclass threshold";
+    }
+			  
+	leaf pps-tod-quality-threshold {
+	  type uint8 {
+        range "0..5";
+      }
+	  default "0";
+      description
+        "1pps+tod input clockclass threshold";
+    }
+			  
+	leaf ptp-error-threshold {
+	  type uint16 {
+        range "0..65535";
+      }
+	  default "500";
+      description
+        "Time total offset sum threshold";
+    }
+			  
+	leaf ext-ptp-diff-threshold {
+	  type uint16 {
+        range "0..65535";
+      }
+	  default "500";
+      description
+        "1pps+tod to ptp offset threshold";
+    }
+			  
+	leaf passive-diff-threshold {
+	  type uint16 {
+        range "0..65535";
+      }
+	  default "200";
+      description
+        "passive port offset to slave port offset threshold";
+    }
+  }
+  
+  grouping ptp-local-clock {
+    description
+      "Configuration data for PTP local clock parameters";
+    
+    leaf clock-id {
+	  type uint64 {
+        range "0..18446744073709551615";
+		ext:display-in-hex;
+      }
+	  default "18446744073709551615";
+      description
+        "Local clock identity,this item is optional.";
+    }
+		  
+	leaf priority1 {
+	  type uint8 {
+	    range "0..255";
+	  }
+	  default "128";
+	  description
+	    "Local clock priority1";
+    }
+		  
+	leaf clock-class {
+	  type uint8 {
+        range "0..255";
+      }
+	  default "187";
+      description
+        "Local clock class";
+    }
+			  
+	leaf clock-accuracy {
+	  type ptp-clock-accuracy-cfg;
+	  default "unknown";
+      description
+        "Local clock accuracy";
+    }
+			  
+	leaf offset-scaled-log-variance {
+	  type uint16 {
+        range "0..65535";
+        ext:display-in-hex;
+      }
+	  default "65535";
+      description
+        "Local clock offset scaled log variance";
+    }
+			
+    leaf priority2 {
+	  type uint8 {
+	    range "0..255";
+	  }
+	  default "128";
+	  description
+	    "Local clock priority2";
+    }
+		  
+    leaf time-source {
+	  type ptp-time-source;
+	  default "internal-osc";
+	  description
+	    "Local clock time source";
+    }
+  
+    leaf local-domain {
+	  type uint8 {
+	    range "0..255";
+	  }
+	  default "0";
+	  description
+	    "Local clock domain";
+    }
+  
+    leaf slave-only {
+	  type ptp-enable-flag;
+	  default "disable";
+	  description
+	    "Slave only";
+    }
+  
+    leaf local-priority {
+	  type uint8 {
+	    range "0..255";
+	  }
+	  default "128";
+	  description
+	    "Local priority";
+    }
+  
+    leaf leap-second {
+	  type uint16 {
+	    range "0..65535";
+	  }
+	  default "36";
+	  description
+	    "Local leap second";
+    }
+  }
+  
+  grouping ptp-external-basic-info {
+    description
+      "Configuration data for PTP external interface basic parameters";
+    
+	leaf signal-direction {
+	  type ptp-ext-inf-work-mode;
+	  default "output-signal";
+	  description
+	    "1pps+tod interface signal direction";
+    }
+  
+    leaf input-delay-compensate-attribute {
+	  type ptp-ext-inf-comp-attr;
+	  default "positive";
+	  description
+	    "1pps+tod interface input compensate attribute";
+    }
+  
+    leaf input-delay-compensate-value {
+	  type uint32 {
+	    range "0..100000";
+	  }
+	  default "0";
+	  description
+	    "1pps+tod interface input compensate value";
+    }
+  
+    leaf output-delay-compensate-attribute {
+	  type ptp-ext-inf-comp-attr;
+	  default "positive";
+	  description
+	    "1pps+tod interface output compensate attribute";
+    }
+  
+    leaf output-delay-compensate-value {
+	  type uint32 {
+	    range "0..100000";
+	  }
+	  default "0";
+	  description
+	    "1pps+tod interface output compensate value";
+    }
+  
+    leaf clock-id {
+	  type uint64 {
+	    range "0..18446744073709551615";
+		ext:display-in-hex;
+	  }
+	  default "18446744073709551615";
+	  description
+	    "1pps+tod interface identity";
+    }
+  
+    leaf priority1 {
+	  type uint8 {
+	    range "0..255";
+	  }
+	  default "128";
+	  description
+	    "1pps+tod interface priority1";
+    }
+  
+    leaf offset-scaled-log-variance {
+	  type uint16 {
+	    range "0..65535";
+        ext:display-in-hex;
+	  }
+	  default "65535";
+	  description
+	    "1pps+tod interface offset scaled log variance";
+    }
+  
+    leaf priority2 {
+	  type uint8 {
+	    range "0..255";
+	  }
+	  default "128";
+	  description
+	    "1pps+tod interface priority2";
+    }
+  
+    leaf port-id {
+	  type uint8 {
+	    range "1..5";
+	  }
+	  default "1";
+	  description
+	    "1pps+tod interface port id";
+    }
+  
+    leaf not-slave {
+	  type ptp-bool-flag;
+	  default "false-value";
+	  description
+	    "1pps+tod interface not slave attribute";
+    }
+  
+    leaf not-master {
+	  type ptp-bool-flag;
+	  default "false-value";
+	  description
+	    "1pps+tod interface not master attribute";
+    }
+  
+    leaf local-priority {
+	  type uint8 {
+	    range "0..255";
+	  }
+	  default "128";
+	  description
+	    "1pps+tod interface local priority";
+    } 
+  }
+  
+  grouping ptp-external-advanced-info {
+    description
+      "Configuration data for PTP external advanced info parameters";
+    
+	leaf global-priority1 {
+	  type uint8 {
+	    range "0..255";
+	  }
+	  default "0";
+	  description
+	    "1pps+tod interfaces global priority1";
+    }
+  
+    leaf global-priority2 {
+	  type uint8 {
+	    range "0..255";
+	  }
+	  default "0";
+	  description
+	    "1pps+tod interfaces global priority2";
+    }
+  
+    leaf global-utc-offset {
+	  type uint8 {
+	    range "35..255";
+	  }
+	  default "35";
+	  description
+	    "1pps+tod interfaces global utc offset";
+    }
+  }
+  
+  grouping ptp-interface-basic-info {
+    description
+      "Configuration data for PTP interface basic info parameters";
+    
+	leaf work-mode {
+	  type ptp-port-work-mode;
+	  default "disable";
+      description
+        "Work mode";
+    }
+	  
+	leaf not-slave {
+	  type ptp-bool-flag;
+	  default "false-value";
+      description
+        "Not slave";
+    }
+	  
+    leaf not-master {
+	  type ptp-bool-flag;
+	  default "false-value";
+      description
+        "Not master";
+    }
+	  
+	leaf local-priority {
+	  type uint8 {
+        range "0..255";
+      }
+	  default "128";
+      description
+        "Local priority";
+    }
+  }
+  
+  grouping ptp-interface-control-info {
+    description
+      "Configuration data for PTP interface control info parameters";
+    
+	leaf step-flag {
+	  type ptp-step-flag;
+	  default "one-step";
+      description
+        "Step flag";
+    }
+  }
+  
+  grouping ptp-interface-packet-encapsulation {
+    description
+      "Configuration data for PTP interface packet encapsulation parameters";
+    
+	leaf destination-mac-address {
+	  type yang:mac-address;
+	  description
+		"MAC Address";
+	}
+	
+	leaf source-ipv4-address {
+	  type inet:ipv4-address;
+	  description
+		"Source IPv4 address";
+	}
+	
+	leaf destination-ipv4-address {
+	  type inet:ipv4-address;
+	  description
+		"Destination IPv4 address";
+	}
+	
+	leaf source-ipv6-address {
+	  type inet:ipv6-address;
+	  description
+		"Source IPv6 address";
+	}
+	
+	leaf destination-ipv6-address {
+	  type inet:ipv6-address;
+	  description
+		"Destination IPv6 address";
+	}
+	
+	leaf vlan {
+	  type uint16 {
+		range "0..4095";
+	  }
+	  default "0";
+	  description
+		"Vlan id";
+	}
+  }
+  
+  grouping ptp-interface-packet-interval {
+    description
+      "Configuration data for PTP interface packet interval parameters";
+    
+	leaf announce-interval {
+	  type ptp-announce-interval;
+	  default "auto";
+      description
+        "Announce interval";
+	}
+	
+	leaf announce-timeout {
+	  type uint8 {
+		range "3..255";
+	  }
+	  default "3";
+	  description
+		"Announce timeout ratio";
+	}
+		  
+	leaf sync-interval {
+	  type ptp-sync-interval;
+	  default "auto";
+	  description
+		"Sync interval";
+	}
+
+	leaf sync-timeout {
+	  type uint8 {
+		range "1..16";
+	  }
+	  default "3";
+	  description
+		"Sync timeout ratio";
+	}	
+	
+	leaf delay-request-minium-interval {
+	  type ptp-announce-interval;
+	  default "auto";
+	  description
+		"Delay request minium interval";
+	}
+	
+	leaf delay-response-timeout {
+	  type uint8 {
+		range "1..16";
+	  }
+	  default "3";
+	  description
+		"Delay response timeout ratio";
+	}
+	
+	leaf pdelay-request-minium-interval {
+	  type ptp-announce-interval;
+	  default "auto";
+	  description
+		"PDelay request minium interval";
+	}
+  }
+  
+  grouping ptp-line-asymmetry {
+    description
+      "Configuration data for PTP interface line asymmetry parameters";
+    
+	leaf attribute {
+	  type ptp-path-asym-comp-attr;
+	  default "equal";
+      description
+        "Path asymmetry attribute";
+	}
+	
+	leaf value {
+	  type uint32 {
+		range "0..100000";
+	  }
+	  default "0";
+	  description
+		"Path asymmetry value";
+	}
+  }
+  
+  container ptp {
+	
+  	container global-cfg {
+	  description "PTP global configuration";
+
+	  uses ptp-global-basic-info; 
+	  uses ptp-global-control-info;
+	  uses ptp-global-packet-encapsulation;
+	  uses ptp-global-packet-interval;
+	  uses ptp-alarm-threshold;
+   	}
+
+	container local-clock-cfg {
+      description "PTP local clock configuration";
+
+	  uses ptp-local-clock; 
+	}
+
+	container external-interfaces-cfg {
+	  description "PTP external interfaces configuration";
+
+	  list external-interface-cfg {
+		key "index";
+		description
+		  "List of external interfaces";
+
+		leaf index {
+		  type ptp-external-interface-index;
+		  description
+			"External interface key";
+		}
+		  
+		uses ptp-external-basic-info;
+	  }
+		
+	  uses ptp-external-advanced-info; 
+	}  
+  }
+  
+  augment "/if:if/if:interfaces/if:interface" {
+	description 
+	  "Ptp interface configuration";
+
+	container ptp-interface-cfg {
+	  when "../if:type = 'ETH-PHY' or
+		../if:type = 'OTN-PHY' or
+		../if:type = 'OSC-PHY' or
+		../if:type = 'FLEXE-PHY'" {
+          description
+            "Only eth or otn or osc or flexe interfaces need to support ptp";
+      }
+
+      uses ptp-interface-basic-info; 
+	  uses ptp-interface-control-info; 
+	  uses ptp-interface-packet-encapsulation; 
+	  uses ptp-interface-packet-interval; 
+	  uses ptp-line-asymmetry; 
+	}
+  }
+}

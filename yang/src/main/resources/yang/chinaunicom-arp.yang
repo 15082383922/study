@@ -1,0 +1,263 @@
+module chinaunicom-arp {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+  namespace "http://chinaunicom.com/yang/ipservice/chinaunicom-arp";
+  prefix "arp";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  import ietf-yang-types { prefix "yang"; }
+  import ietf-inet-types { prefix "inet"; }
+  import chinaunicom-datatype-common { prefix "co-type"; }
+  import chinaunicom-interface-common { prefix "if"; }
+  import chinaunicom-l2vpn { prefix "l2vpn"; }
+  import chinaunicom-bd { prefix "bd"; }
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Communications Techlonogy Co., Ltd.
+
+     Postcode: 430073
+     Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+
+     E-mail: ykou@fiberhome.com";
+
+  description
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom-V5 arp package configuration.
+
+     This module contains definitions for the following management objects:
+       arp: ...
+
+     Copyright (c) 2013-2016 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision 2017-08-26 {
+    description "Initial version.";
+  }
+
+  /* typedefs */
+  typedef if-ref {
+    type union {
+      type if:mgmt-name;
+      type if:ethphy-name;
+      type if:ethvir-name;
+      type if:ethlag-name;
+      type if:veth-name;
+      type if:ethsub-name;
+      type if:flexetunnel-name;
+      type if:dcn-name;
+      type if:bdif-name;
+      type if:wlan-name;
+      type if:lte-name;
+    }
+  }
+
+  typedef vlan-type-enum {
+    type enumeration {
+      enum none   { value 1; }
+      enum dot1q  { value 2; }
+      enum qinq   { value 3; }
+    }
+  }
+
+  container arp {
+
+    container arp-global {
+      leaf expire-time {
+        description "expire-time";	
+        type uint32 {
+          range "120..86400";
+        }
+        default "1200";
+      }
+
+      leaf learning-strict {
+        description "learning-strict";
+        type co-type:is-enable;
+        default "disable";
+      }
+
+      leaf unicast-probe-times {
+        description "unicast-probe-times";
+        type uint32 {
+          range "1..10";
+        }
+        default "4";
+      }
+
+      leaf broadcast-probe-times {
+        description "broadcast-probe-times";
+        type uint32 {
+          range "1..10";
+        }
+        default "1";
+      }
+
+      leaf max-limit {
+        description "max-limit";
+        type uint32 {
+          range "0..600000";
+        }
+        default "0";
+      }
+    }
+
+    container arp-dual-sending-cfg {
+      leaf aging-time {
+        description "aging-time";
+        type uint32 {
+          range "0..86400";
+        }
+        default "3600";
+      }
+
+      leaf sending-count {
+        description "sending-count";
+        type uint32 {
+          range "1..200";
+        }
+        default "50";
+      }
+
+      leaf sending-interval {
+        description "sending-interval";
+        type uint32 {
+          range "1..10";
+        }
+        default "1";
+      }
+    }
+
+    container arp-interfaces {
+      list arp-interface {
+        key "if-name";
+
+        leaf if-name {
+          description "if-name";
+          type arp:if-ref;
+        }
+
+        leaf arp-learning-strict {
+          description "arp-learning-strict";
+          type co-type:is-enable;
+          default "disable";
+        }
+
+        leaf arp-safe-guard {
+          description "arp-safe-guard";
+          type co-type:is-enable;
+          default "disable";
+        }
+
+        leaf arp-proxy {
+          description "arp-proxy";
+          type co-type:is-enable;
+          default "disable";
+        }
+
+        leaf arp-proxy-inter-vlan {
+          description "arp-proxy-inter-vlan";
+          type co-type:is-enable;
+          default "disable";
+        }
+
+        leaf arp-max-limit {
+          description "arp-max-limit";
+          type uint32 {
+            range "0..65536";
+          }
+          default "0";
+        }
+      }
+    }
+
+    container arp-statics {
+      list arp-static {
+        key "vrf-name ip-addr";
+
+        leaf vrf-name {
+          description "vrf-name"; 
+          type co-type:vpn-name-with-global;
+        }
+
+        leaf ip-addr {
+          description "ip-addr";
+          type inet:ipv4-address;
+        }
+
+        leaf mac-addr {
+          description "mac-addr";
+          type yang:mac-address;
+          mandatory true;
+        }
+
+        leaf if-name {
+          description "if-name";
+          type arp:if-ref;
+        }
+
+        leaf vlan-type {
+          description "vlan-type";
+          type arp:vlan-type-enum;
+          default "none";
+        }
+
+        container dot1q {
+          must "../vlan-type='dot1q'";
+
+          leaf vlan-id {
+            description "vlan-id";
+            type uint16 {
+              range "1..4094";
+            }
+          }
+        }
+
+        container qinq {
+          must "../vlan-type='qinq'";
+
+          leaf svlan-id {
+            description "svlan-id";
+            type uint16 {
+              range "1..4094";
+            }
+          }
+
+          leaf cvlan-id {
+            description "cvlan-id";
+            type uint16 {
+              range "1..4094";
+            }
+          }
+        }
+      }
+    }
+  }
+
+  augment "/l2vpn:l2vpn/l2vpn:vpws/l2vpn:vpws-list/l2vpn:accessif-list"
+  {
+    container arp-vpws-ac
+    {
+      leaf arp-dual-sending
+      {
+        description "arp-dual-sending";
+        type co-type:is-enable;
+        default "disable";
+      }
+    }
+  }
+
+  augment "/bd:bd/bd:bridge-domains/bd:bridge-domain"
+  {
+    container arp-bd
+    {
+      leaf arp-suppress
+      {
+        description "arp-suppress";
+        type co-type:is-enable;
+        default "disable";
+      }
+    }
+  }
+}

@@ -1,0 +1,427 @@
+module chinaunicom-bfd-oper {
+
+	/*** NAMESPACE / PREFIX DEFINITION ***/
+
+	namespace "http://chinaunicom.com/yang/oam/chinaunicom-bfd-oper";
+
+	prefix "bfd-oper";
+
+	/*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+
+	import chinaunicom-interface-common{	prefix "if";}
+
+	import ietf-inet-types { prefix "inet"; }
+	
+        import chinaunicom-mpls { prefix "mpls"; }
+
+	import chinaunicom-extension { prefix "ext"; }
+
+	
+	organization "Fiberhome Systems, Inc.";
+
+	contact
+	"Fiberhome Communications Techlonogy Co., Ltd.
+	 
+	 Postcode: 430073 
+	 Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+
+	 E-mail: yang- author@fiberhome.com";
+
+	description
+	"This module contains a collection of YANG definitions
+	 for Fiberhome  bfd package configuration.
+
+	 This module contains definitions
+	 for the following management objects:
+	   bfd:  configuration
+
+	 Copyright (c) 2013-2020 by Fiberhome Systems, Inc.
+	 All rights reserved.";
+     
+    revision "2020-09-07" {
+	  description
+	    "Add notification for telemetry.";
+    }
+	 
+	revision 2019-10-21 {
+	description
+	 "lsp-type type modify.";
+	}
+
+	revision "2018-03-29" {
+	description
+	 "Initial version.";
+	} 
+
+	typedef session-type {
+		type enumeration {
+			enum dynamic {
+				value 0;
+				description "dynamic";
+			}
+			enum static {
+				value 1;
+				description "static";
+			}
+		}
+		description "session type";
+	}
+    
+	typedef bfd-state-type {
+		type enumeration {
+			enum admindown {
+				value 0;
+				description "admindown";
+			}
+			enum down {
+				value 1;
+				description "down";
+			}
+			enum init {
+				value 2;
+				description "init";
+			}
+			enum up {
+				value 3;
+				description "up";
+			}
+		}
+		description "bfd state";
+	}
+	
+	typedef bind-type {
+		type enumeration {
+			enum ip {
+				value 0;
+				description "ip";
+			}
+			enum rsvp_lsp {
+				value 1;
+				description "rsvp_lsp";
+			}
+			enum rsvp_tunnl {
+				value 2;
+				description "rsvp_tunnl";
+			}
+			enum ldp_lsp {
+				value 3;
+				description "ldp_lsp";
+			}
+			enum ldp_tunnl {
+				value 4;
+				description "ldp_tunnl";
+			}
+			enum pw {
+				value 5;
+				description "pw";
+			}
+			enum ip_mcast {
+				value 6;
+				description "ip_mcast";
+			}
+			enum sr_te {
+				value 7;
+				description "sr_te";
+			}
+			enum bgp_tunnl {
+				value 8;
+				description "bgp_tunnl";
+			}
+			enum vxlan {
+				value 9;
+				description "vxlan";
+			}
+		}
+		description "bind type";
+	}
+
+	
+	typedef bfd-oper-if-ref{
+		type union {
+			type if:ethphy-name;
+			type if:ethlag-name;
+			type if:ethvir-name;
+			type if:ethsub-name;
+			type if:veth-name;
+			type if:flexetunnel-name;
+		}
+	}
+	
+  typedef bfdPeerDiag {
+    type enumeration {
+      enum no_diag {
+        value 0;
+        description "no_diag";
+      }
+      enum ctrl_detect_exp {
+        value 1;
+        description "ctrl_detect_exp";
+      }
+      enum echo_failed {
+        value 2;
+        description "echo_failed";
+      }
+      enum nbr_session_down {
+        value 3;
+        description "nbr_session_down";
+      }
+      enum fwd_reset {
+        value 4;
+        description "fwd_reset";
+      }
+      enum path_down {
+        value 5;
+        description "path_down";
+      }
+      enum concat_path_down {
+        value 6;
+        description "concat_path_down";
+      }
+      enum admin_down {
+        value 7;
+        description "admin_down";
+      }
+      enum rev_concat_path_down {
+        value 8;
+        description "rev_concat_path_down";
+      }
+      enum bfd_num_on_lpu_overflow {
+        value 9;
+        description "bfd_num_on_lpu_overflow";
+      }
+    }
+    description
+      "enumeration bfdPeerDiag";
+  }
+
+  grouping bfd-trap-common
+  {
+      leaf bfdPeerIndex {
+        type uint32;
+      }
+
+      leaf bfdPeerPeerIp {
+        type inet:ip-address;
+      }
+
+      leaf bfdPeerSessType {
+        type bind-type;
+      }
+
+      leaf bfdPeerDiag {
+        type bfdPeerDiag;
+      }
+  }
+
+	
+  container bfd-oper{
+        config false;
+	    description "bfd-oper container";
+		
+	container ip-bfd-state {
+		description "ip-bfd-state";
+		
+		container ip-bfd-summary {
+			description "ip-bfd-summary";
+			leaf session-count {
+				type uint16{
+					range "0..4095";
+				}
+				description "session-count";
+			}
+		}
+			
+		list ip-bfd-list {
+			key "local-discriminator";
+			description "ip-bfd-list";
+			
+			leaf local-discriminator {
+				type uint32;
+				description "local-discriminator";
+			}
+			
+			leaf remote-discriminator {
+				type uint32;
+				description "remote-discriminator";
+			}
+			
+			leaf bfd-state {
+				type bfd-state-type;
+				default "down";
+				description "bfd-state";
+			}
+			
+			leaf local-addr {
+				type inet:ip-address;
+				description "local-addr";
+			}
+			
+			leaf peer-addr {
+				type inet:ip-address;
+				description "peer-addr";
+			}
+			
+			leaf outif-name {
+				type bfd-oper-if-ref;
+				description "outif-name";
+			}
+			
+			leaf bind-application {
+				type bind-type;
+				default "ip";
+				description "bind application";
+			}
+			leaf session-type {
+				type session-type;
+				default "dynamic";
+				description "session type";
+			}
+			leaf up-time {
+				type string {
+                    length "0..31";
+                }
+				description "up time";
+			}
+		}
+	}
+	
+	
+	container tunnel-bfd-state {
+		description "tunnel-bfd-state";
+
+		container tunnel-bfd-summary {
+			description "tunnel-bfd-summary";
+			
+			leaf session-count {
+				type uint16{
+					range "0..4095";
+				}
+				description "session-count";
+			}
+		}
+			
+		list tunnel-bfd-list {
+			key "local-discriminator";
+			description "tunnel-bfd-list";
+			
+			leaf local-discriminator {
+				type uint32;
+				description "local-discriminator";
+			}
+			
+			leaf remote-discriminator {
+				type uint32;
+				description "remote-discriminator";
+			}
+
+			leaf tunnel-name {
+				type string {
+					length "1..31";
+				}
+				description "tunnel-name";
+			}
+			
+			leaf bfd-state {
+				type bfd-state-type;
+				default "down";
+				description "bfd-state";
+			}
+			
+			leaf lsp-type {
+				type mpls:lsp-type;
+				default "primary-lsp";
+				description "lsp-type";
+			}
+			leaf session-type {
+				type session-type;
+				default "dynamic";
+				description "session type";
+			}
+			leaf up-time {
+				type string {
+                    length "0..31";
+                }
+				description "up time";
+			}
+		}
+	}
+	
+	container pw-bfd-state {
+		description "pw-bfd-state";
+
+		container pw-bfd-summary {
+			description "pw-bfd-summary";
+			
+			leaf session-count {
+				type uint16 {
+					range "0..4095";
+				}
+				description "session-count";
+			}
+		}
+			
+		list pw-bfd-list {
+			key "local-discriminator";
+			description "pw-bfd-list";
+			
+			leaf local-discriminator {
+				type uint32;
+				description "local-discriminator";
+			}
+			
+			leaf remote-discriminator {
+				type uint32;
+				description "remote-discriminator";
+			}
+
+			leaf peer-addr {
+				type inet:ip-address;
+				description "peer-addr";
+			}
+			
+			leaf pw-id {
+				type uint32 {
+					range "1..4294967295";
+				}
+				description "pw-id";
+			}
+			
+			leaf bfd-state {
+				type bfd-state-type;
+				default "down";
+				description "bfd-state";
+			}
+			leaf session-type {
+			
+				type session-type;
+				default "dynamic";
+				description "session type";
+			}
+			leaf up-time {
+				type string {
+                    length "0..31";
+                }
+				description "up time";
+			}
+		}
+	}
+
+  }
+	
+  notification fhBfdSessPeerDown {
+    ext:telemetry-available;
+    description
+     "A notification sent when bfd session down.";
+	 
+    uses bfd-trap-common;
+  }
+
+  notification fhBfdSessPeerUp {
+    ext:telemetry-available;
+    description
+     "A notification sent when bfd session up.";
+	 
+    uses bfd-trap-common;
+  }
+}
