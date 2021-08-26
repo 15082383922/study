@@ -1,0 +1,72 @@
+module chinaunicom-pcc-oper {
+
+  namespace "http://chinaunicom.com/yang/pce/chinaunicom-pcc-oper";
+
+  prefix "pcc-oper";
+
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+    
+    			Postcode: 430073
+    			Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+    			Tel: +XXXXXXXXXXXX
+    
+    			E-mail: gzxu@fiberhome.com";
+
+  description
+    "This module contains a collection of YANG definitions
+    	     for Fiberhome chinaunicom pcep pcc domain configuration.
+    
+    	     This module contains definitions
+    	     for the following management objects:
+    	     domain configuration for all instances
+    
+    	     Copyright (c) 2013-2016 by Fiberhome Systems, Inc.
+    	     All rights reserved.";
+
+  revision "2018-07-24" {
+    description
+      "pcc oper first version.";
+  }
+
+
+  container pcc-oper {
+    config false;
+    description
+      "pcc operation status information.";
+
+    container pcc-server-info {
+      config false;
+      description
+        "pcc server information.";
+      
+      list server-ip-info {
+        key "server-ip";
+        description
+          "pcc server ip information list";
+
+        leaf server-ip {
+          type inet:ip-address-no-zone;
+          description
+            "pcc server ipv4 or ipv6 address.";
+        }
+
+        leaf is-best {
+          type boolean;
+          description
+            "whether it is best pce.";
+        }
+        
+        leaf is-connected {
+          type boolean;
+          description
+            "the current connection is normal or not.";
+        }
+      }
+    }
+  }
+}

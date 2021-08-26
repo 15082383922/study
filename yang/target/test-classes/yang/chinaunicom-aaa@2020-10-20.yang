@@ -1,0 +1,551 @@
+module chinaunicom-aaa{
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/securitymanage/chinaunicom-aaa";
+
+
+  prefix "aaa";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  
+  import chinaunicom-radius {	revision-date 2020-09-16; prefix "rds"; } 
+  
+  import chinaunicom-tacacs {	revision-date 2020-09-15; prefix "tcs"; } 
+  
+  import ietf-yang-types {	revision-date 2013-07-15;prefix "yang";}
+  
+  import chinaunicom-datatype-common {	revision-date 2020-08-14;prefix "co-type";}
+  
+
+  /*** META INFORMATION ***/
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+     
+		Postcode: 430073 
+		Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+		Tel: +XXXXXXXXXXXX
+
+		E-mail: zgzhang5713@fiberhome.com";
+
+  description 
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom twamp package configuration.
+
+     This module contains definitions
+     for the following management objects:
+       twamp: twamp configuration for all instances
+
+     Copyright (c) 2013-2023 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision "2020-10-20" {
+    description
+      "chinaunicom V5 1.3 revision.";
+  }
+
+  revision "2020-10-12" {
+    description
+      "chinaunicom V5 1.2 revision.";
+  }
+
+  revision "2020-09-28" {
+    description
+      "chinaunicom V5 1.1 revision.";
+  }
+
+  revision "2018-09-18" {
+    description
+      "chinaunicom V5 1.0 revision.";
+  }
+
+    typedef aaa-scheme-name {
+      type string {
+	    length "1..31";
+	  }
+	  description "aaa scheme name";
+    }
+	typedef aaa-user-name {
+	  type string {
+	    length "6..63";
+	  }
+	  description "aaa domain or usr name";
+	}
+	
+    typedef aaa-authen-mode {
+        type enumeration {
+            enum invalid {
+                value 0;
+                description "invalid authentication mode";
+            }
+            enum none {
+                value 1;
+                description "none authen mode";
+            }
+            enum local {
+                value 2;
+                description "local authen mode";
+            }
+            enum radius {
+                value 3;
+                description "radius authen mode";
+            }
+			enum tacacs {
+                value 4;
+                description "tacacs authen mode";
+            }
+        }
+        description "Authentication mode";
+    }
+	
+	typedef aaa-author-mode {
+        type enumeration {
+            enum invalid {
+                value 0;
+                description "invalid authorization mode";
+            } 
+            enum none {
+                value 1;
+                description "none author mode";
+            }
+            enum local {
+                value 2;
+                description "local author mode";
+            }
+	        enum tacacs {
+                value 3;
+                description "tacacs author mode";
+            }
+        }
+        description "Authorization mode";
+    }
+	
+	typedef aaa-account-mode {
+        type enumeration {
+            enum invalid {
+                value 0;
+                description "invalid account mode";
+            } 
+            enum none {
+                value 1;
+                description "none account mode";
+            }
+            enum radius {
+                value 2;
+                description "radius account mode";
+            }
+            enum tacacs {
+                value 3;
+                description "tacacs account mode";
+            }
+        }
+        description "account mode";
+    }
+	
+	typedef aaa-user-service-type {
+	    type enumeration {
+		    enum none {
+			    value 0;
+				description "none service-type";
+			}
+			enum 8021x {
+			    value 1;
+				description "8021x service-type";
+			}
+			enum ftp {
+			    value 2;
+				description "ftp service-type";
+			}
+			enum ppp {
+			    value 4;
+				description "ppp service-type";
+			}
+			enum ssh {
+			    value 8;
+				description "ssh service-type";
+			}
+			enum telnet {
+			    value 10;
+				description "telnet service-type";
+			}
+			enum terminal {
+			    value 20;
+				description "terminal service-type";
+			}
+			enum web {
+			    value 40;
+				description "web service-type";
+			}
+			enum all {
+			    value 127;
+				description "all service-type";
+			}
+		}
+		description "aaa user service-type";
+	}
+
+	typedef aaa-user-state {
+	    type enumeration {
+		    enum block {
+			    value 1;
+				description "block state";
+			}
+			enum active {
+			    value 2;
+				description "active state";
+			}
+		}
+		description "aaa user state";
+	}
+		
+	typedef account-fail-policy {
+      type enumeration {
+        enum offline {
+          value 0;
+          description
+		  "policy offline";
+        }
+        enum online {
+          value 1;
+          description
+		  "policy online";
+        }
+      }
+      description
+	    "Account fail policy";
+    }
+	
+	typedef account-interval-type {
+      type enumeration {
+        enum second {
+          value 1;
+          description
+		  "Account interval type second";
+        }
+        enum minute {
+          value 2;
+          description
+		  "Account interval type minute";
+        } 
+      }
+      description
+	    "Account interval type";
+    }
+	
+	typedef passwd-mode-type {
+      type enumeration {
+        enum simple {
+		  value 1;
+          description
+          "Simple PasswordType.";
+        }
+        enum cipher {
+		  value 2;
+          description
+            "Cipher PasswordType.";
+        }
+    }
+    description
+      "password type";
+    }
+	
+	typedef aaa-author-cmd-mode {
+	  type enumeration {
+	    enum invalid {
+		  value 0;
+		  description "invalid author cmd mode";
+		}
+        enum local {
+		  value 1;
+		  description "local author cmd mode";
+        }
+        enum tacacs {
+		  value 2;
+		  description "tacacs author cmd mode";
+		}
+	  }
+	}
+
+  container aaa{
+	  description "aaa top container";
+		container aaa-domains { 
+			description "aaa domain cfg container"; 
+	        list aaa-domain {
+			    key "domain";
+				leaf domain {
+					type aaa:aaa-scheme-name;
+					description "domain name";
+				}
+				leaf authentication {
+					type aaa:aaa-scheme-name;
+					description "authentication name";
+				}
+				leaf authorization {
+					type aaa:aaa-scheme-name;
+					description "authorization name";
+				}
+				leaf accounting {
+					type aaa:aaa-scheme-name;
+					description "accounting name";
+				}
+				leaf radius-profile-name {
+				    type rds:radius-profile-name;
+					description "radius-id";
+				}
+				leaf tacacs-profile-name {
+				    type tcs:tacacs-profile-name;
+					description "tacacs-id";
+				}
+				container domain-ip-pool {
+				
+					description "ip-pool binded to domain";
+					leaf pool-name {
+						type string {
+						  length "1..31";
+						}
+						description
+							"Bind pool index refrence to /pool-ipv4-configuration/pool-name.";
+					}	
+				}
+				
+				container domain-user-access {
+					description "domain-user-access configuration";
+					leaf access-limit-max-number {
+						type uint32 {
+							range "1..279552";
+						}
+						default 147456;
+						description
+							"access limit max number";
+					}
+					leaf user-max-session {
+						type uint32 {
+							range "0..262144";
+						}
+						description
+							"user max session";
+					}
+				}
+			}
+		}
+		
+		container aaa-locals {
+		    description "aaa local cfg container";
+            list aaa-local {
+			    key "user";
+				leaf user {
+					type aaa:aaa-user-name;
+					description "usr-domain name";
+				}
+				leaf passwd {
+				    type string {
+					    length "8..64";
+					}
+					description "local password";
+				}
+				leaf passwd-type {
+					type aaa:passwd-mode-type;
+					description "the type of local password";
+				}
+				leaf privilege {
+				    type uint8 {
+					    range "0..15";
+					}
+					default 4;
+					description "local user privilege";
+				}
+				leaf state {
+				    type aaa:aaa-user-state;
+					default active;
+					description "aaa user state";
+				}
+				leaf access-limit {
+				    type uint16 {
+					    range "0..10000";
+					}
+					default 0;
+					description "access limit";
+				}
+				leaf stype-8021x {
+				    type boolean;
+					default false;
+					description "stype-8021x";
+				}
+				leaf stype-ftp {
+				    type boolean;
+					default false;
+					description "stype-ftp";
+				}
+				leaf stype-ppp {
+				    type boolean;
+					default false;
+					description "stype-ppp";
+				}
+				leaf stype-ssh {
+				    type boolean;
+					default false;
+					description "stype-ssh";
+				}
+				leaf stype-telnet {
+				    type boolean;
+					default false;
+					description "stype-telnet";
+				}
+				leaf stype-terminal {
+				    type boolean;
+					default false;
+					description "stype-terminal";
+				}
+				leaf stype-all {
+				    type boolean;
+					default true;
+					description "stype-all";
+				}
+				leaf stype-web {
+				    type boolean;
+					default false;
+					description "stype-web";
+				}
+				leaf ftp-dir {
+					type string {
+					  length "1..255";
+					}
+					description "FTP user directory.";
+				}
+				leaf expire-date {
+					type yang:date-and-time;
+					description "the expire date of the local user";
+				}
+				leaf idle-cut {
+					type uint16 {
+					  range "1..10000";
+					}
+					description "the max idle time of the local user";
+				}
+			}			
+		}
+		
+		container aaa-authen-schemes {
+		    description "aaa authentication scheme list.";
+			list aaa-authen-scheme {
+			    key "scheme";
+			    leaf scheme {
+					type aaa:aaa-scheme-name;
+				    description "aaa authen scheme";
+			    }
+			    leaf authen-mode-first {
+			        type aaa:aaa-authen-mode;
+					default local;
+				    description "aaa authen first mode";
+			    }
+			    leaf authen-mode-second {
+			        type aaa:aaa-authen-mode;
+					default invalid;
+				    description "aaa authen second mode";
+			    }
+			    leaf authen-mode-third {
+			        type aaa:aaa-authen-mode;
+					default invalid;
+				    description "aaa authen third mode";
+			    }
+			    leaf authen-mode-fourth {
+			        type aaa:aaa-authen-mode;
+					default invalid;
+				    description "aaa authen fourth mode";
+			    }
+				leaf authen-fail-policy {
+					type co-type:is-enable;
+					default disable;
+					description "aaa authen fail policy";
+				}
+			}
+		}
+		
+		container aaa-author-schemes {
+			list aaa-author-scheme {
+			    description "aaa authorization scheme list.";
+			    key "scheme";
+				leaf scheme {
+					type aaa:aaa-scheme-name;
+					description "aaa author scheme";
+				}
+				leaf author-mode-first {
+				    type aaa:aaa-author-mode;
+					default local;
+					description "aaa author first mode";
+				}
+				leaf author-mode-second {
+				    type aaa:aaa-author-mode;
+					default invalid;
+					description "aaa author second mode";
+				}
+				leaf author-mode-third {
+				    type aaa:aaa-author-mode;
+					default invalid;
+					description "aaa author third mode";
+				}
+				leaf author-fail-policy {
+					type co-type:is-enable;
+					default disable;
+					description "author fail policy";
+				}
+                container aaa-author-cmd-cfgs {
+                    list aaa-author-cmd-cfg {
+                        description "aaa authorization cmd config list.";
+                        key "author-cmd-privilege";
+                        leaf author-cmd-privilege {
+                            type uint8 {
+                                range "1..15";
+                            }
+                            description "author cmd privilege";
+                        }
+                        leaf author-cmd-mode {
+                            type aaa:aaa-author-cmd-mode;
+                            description "aaa author cmd mode";
+                        }
+                    }
+                }
+			}
+		}
+	    container aaa-account-schemes {
+			list aaa-account-scheme {
+				description "aaa accounting scheme list.";
+			    key "scheme";
+				leaf scheme {
+					type aaa:aaa-scheme-name;
+					description "aaa account scheme";
+				}
+				leaf account-mode {
+				    type aaa:aaa-account-mode;
+					default none;
+					description "aaa account mode";
+				}
+				leaf start-fail-policy {
+				  type aaa:account-fail-policy;
+				  default offline;
+				  description
+					"Accounting start fail policy";
+				}
+				container account-interval {
+				  description
+					"account interval configuration";
+				  leaf interval {
+				    type uint32 {
+					  range "1..65535";
+				    }
+				  description
+					"Accounting interim fail count";
+				  }
+				  leaf interval-type {
+					type aaa:account-interval-type;
+					description
+					  "Accounting interval type";
+				  }
+				}
+			}
+		}
+	}
+}

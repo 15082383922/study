@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
+    <option name="USE_RELEASE_OPTION" value="false" />
     <annotationProcessing>
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -12,31 +13,36 @@
         <module name="Thead" />
         <module name="test" />
         <module name="javaweb" />
+        <module name="go" />
         <module name="yang" />
         <module name="mysql" />
         <module name="javase" />
+        <module name="demo1" />
+        <module name="network" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="Demo" target="1.5" />
-      <module name="javase" target="1.5" />
+      <module name="demo1" target="1.8" />
+      <module name="go" target="8" />
+      <module name="javase" target="8" />
       <module name="javaweb" target="1.5" />
       <module name="jvm" target="1.5" />
       <module name="mysql" target="1.5" />
-      <module name="security" target="1.5" />
+      <module name="network" target="1.8" />
+      <module name="security" target="1.8" />
       <module name="spring" target="1.5" />
-      <module name="test" target="1.5" />
-      <module name="test (1)" target="1.8" />
+      <module name="test" target="1.8" />
       <module name="Thead" target="1.5" />
-      <module name="Thread" target="6" />
       <module name="yang" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="demo1" options="-parameters" />
+      <module name="network" options="-parameters" />
       <module name="security" options="-parameters" />
       <module name="test" options="-parameters" />
-      <module name="test (1)" options="-parameters" />
+      <module name="yang" options="-parameters -Xlint:deprecation" />
     </option>
   </component>
 </project>

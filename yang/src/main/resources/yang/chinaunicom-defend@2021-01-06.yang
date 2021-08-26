@@ -1,0 +1,542 @@
+module chinaunicom-defend {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace  "http://chinaunicom.com/yang/securitymanage/chinaunicom-defend";
+
+  prefix "defend";
+  
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  import chinaunicom-acl {	revision-date 2020-12-29; prefix "acl"; } 
+  import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type";}
+  
+  organization "UTStarcom Telecom Co., Ltd.";
+
+  contact
+    "UTStarcom Telecom Co., Ltd.
+     
+     Postcode: 310053 
+     Address: 368 Liuhe Road, Binjiang District,Hangzhou, Zhejiang
+
+     E-mail: sheng.yu@utstar.com";
+
+  description
+    "This module contains a collection of YANG definitions
+     for UTStarcom IPRAN local attack defense.  The CPU defend
+	 policy restricts the packets sent to the CPU to prevent the
+	 CPU usage from being too high due to malicious attacks or 
+	 excessive invalid packets.
+
+   	 
+     Copyright (c) 2013-2020 by UTStarcom Telecom Co., Ltd.
+     All rights reserved.";
+
+  revision 2021-01-06 {
+    description
+     "Correct the mistake in description of typedef queue-priority-type.";
+  }
+
+  revision 2020-12-10 {
+    description
+     "Initial version.";
+  }
+
+  // typedef statements
+        typedef protocol-enum{
+		type enumeration {
+		    enum null{
+				value 0;
+				description
+					"NULL";
+			}
+			enum ospf{
+				value 1;
+				description
+					"OSPF";
+			}
+			enum isis{
+				value 2;
+				description
+					"ISIS";
+			}
+		    enum bgp{
+				value 3;
+				description
+					"BGP";
+			}
+		    enum ldp{
+				value 4;
+				description
+					"LDP";
+			}	
+			
+			enum ldp-udp{
+				value 5;
+				description
+					"LDP_UDP";
+			}	
+			
+			enum rsvp{
+				value 6;
+				description
+					"RSVP";
+			}	
+			
+			enum rip{
+				value 7;
+				description
+					"RIP";
+			}	
+			
+			enum msdp{
+				value 8;
+				description
+					"MSDP";
+			}	
+			
+			enum pim{
+				value 9;
+				description
+					"PIM";
+			}		
+			
+			enum snmp{
+				value 10;
+				description
+					"SNMP";
+			}	
+
+			enum radius{
+				value 11;
+				description
+					"RADIUS";
+			}	
+			
+			enum lsp-ping{
+				value 12;
+				description
+					"LSP_PING";
+			}
+			
+			enum igmp{
+				value 13;
+				description
+					"IGMP";
+			}		
+		
+			enum icmp{
+				value 14;
+				description
+					"ICMP";
+			}		
+
+			enum vrrp{
+				value 15;
+				description
+					"VRRP";
+			}	
+			
+			enum dhcp-client{
+				value 16;
+				description
+					"DHCP_CLIENT";
+			}		
+		
+		    enum lacp{
+				value 17;
+				description
+					"LACP";
+			}	
+			
+		    enum bfd{
+				value 18;
+				description
+					"BFD";
+			}
+			
+		    enum tacacs{
+				value 19;
+				description
+					"TACACS";
+			}			
+
+		    enum ntp{
+				value 20;
+				description
+					"NTP";
+			}		
+			
+		    enum ftp-server{
+				value 21;
+				description
+					"FTP_SERVER";
+			}			
+		
+		    enum ftp-client{
+				value 22;
+				description
+					"FTP_CLIENT";
+			}
+		    enum telnet-server{
+				value 23;
+				description
+					"TELNET_SERVER";
+			}
+		    enum telnet-client{
+				value 24;
+				description
+					"TELNET_CLIENT";
+			}	
+			
+			enum  ssh-server{
+				value 25;
+				description
+					"SSH_SERVER";
+			}	
+			
+			enum ssh-client{
+				value 26;
+				description
+					"SSH_CLIENT";
+			}	
+			
+			enum ospfv3{
+				value 27;
+				description
+					"OSPFV3";
+			}	
+			
+			enum  is-isv6{
+				value 28;
+				description
+					"IS_ISV6";
+			}	
+			
+			enum bgp4-plus{
+				value 29;
+				description
+					"BGP4_PLUS";
+			}		
+			
+			enum riping{
+				value 30;
+				description
+					"RIPNG";
+			}	
+
+			enum icmpv6{
+				value 31;
+				description
+					"ICMPV6";
+			}	
+			
+			enum vrrp6{
+				value 32;
+				description
+					"VRRP6";
+			}
+			
+			enum dhcpv6{
+				value 33;
+				description
+					"DHCPV6";
+			}		
+		
+			enum pim6{
+				value 34;
+				description
+					"PIM6";
+			}		
+
+			enum unknown-arp{
+				value 35;
+				description
+					"UNKNOWN_ARP";
+			}	
+			
+			enum unknown-multicast{
+				value 36;
+				description
+					"UNKNOWN_MULTICAST";
+			}		
+		
+		    enum tcpsyn{
+				value 37;
+				description
+					"TCPSYN";
+			}	
+			
+		    enum dhcp-service{ 
+				value 38;
+				description
+					"DHCP_SERVICE";
+			}
+			
+		    enum pppoe {
+				value 39;
+				description
+					"PPPOE";
+			}			
+
+		    enum dhcpv6-service{
+				value 40;
+				description
+					"DHCP6_SERVICE";
+			}		
+			
+		    enum mld{
+				value 41;
+				description
+					"MLD";
+			}			
+		
+		    enum arp{
+				value 42;
+				description
+					"ARP";
+			}				
+		}
+		description
+			"protocol id ";
+	}
+	
+	typedef defend-name {
+        type string {
+            length "1..31";
+        }
+    }
+ 
+    typedef defend-type{
+	     type enumeration {
+		     enum whitelist{
+			     value 1;
+				 description "whitelist";
+			 }			 
+		     enum protocol{
+			     value 2;
+				 description "protocol";
+			 }			 
+		     enum blacklist{
+			     value 3;
+				 description "blacklist";
+			 }		 
+		     enum user-defined-flow{
+			     value 4;
+				 description "user-defined-flow";
+			 }			 
+		 }
+		 
+	 description "rule type for cpu-defend policy, such as whitelist,blacklist,user-defined-flow,protocol";
+	}
+	
+    typedef queue-priority-type{
+	     type enumeration {
+		     enum low{
+			     value 1;
+				 description "the lowest quene priority to cpu";
+			 }			 
+		     enum middle{
+			     value 2;
+				 description "the middle quene priority to cpu ";
+			 }			 
+		     enum high{
+			     value 3;
+				 description "the highest quene priority to cpu";
+			 }			 			 
+		 }
+	     description "queue scheduling rule for sending CPU packets ";
+	}
+	
+    typedef app-default-action{
+	     type enumeration {
+		     enum min-to-cpu{
+			     value 0;
+				 description "using the Minimum speed to cpu of the packet";
+			 }			 
+		     enum drop{
+			     value 1;
+				 description "the default action is DROP the packet";
+			 }			 
+		 }
+        description "default action for application apperceive";	 
+	}
+
+	grouping policy-cfg{
+        description
+            "cpu-defend switch state config";
+			
+		leaf abnormal-packet-defend{
+		    type co-type:is-enable; 
+			default enable;
+			description "abnormal packet defend enable ";
+        }
+		
+		leaf application-apperceive{
+		    type co-type:is-enable; 
+			default enable;
+			description "application apperceive enable ";
+        }
+		
+		leaf application-default-action{
+		    type defend:app-default-action; 
+			default drop;
+			description "application apperceive default action";
+        }	
+
+		leaf udp-packet-defend{
+		    type co-type:is-enable; 
+			default enable;
+			description "UDP flood enable ";
+        }	
+
+		leaf tcp-syn-flood{
+		    type co-type:is-enable; 
+			default enable;
+			 description "TCP SYN flood enable";
+        }	
+
+		leaf source-route-defend{
+		    type co-type:is-enable; 
+			default disable;
+			description "source route defend disable";
+        }	
+
+		leaf fragment-defend{
+		     type co-type:is-enable;
+			 default disable;
+
+			 description "fragment defend enable";
+        }	
+		
+		leaf arp-flood{
+		     type co-type:is-enable;
+			 default disable;
+			 description "arp flood enable";
+        }	
+
+         leaf car-total-packet{
+			type uint32{
+			    range 0..16000000;
+			}
+            units kbps;
+            default 160000;			
+		    description "total speedrate to CPU of packets ,units kbps ";						 
+        }
+    }	
+    			
+    grouping schedul-info{
+		leaf cir{
+			type uint32{
+				range 64..100000000;
+			}
+			units kbps;
+			default 64;
+			description "Committed Information Rate, units kbps";		   
+		}		
+		leaf cbs{
+			type uint8{
+				 range 2..128;
+			 }
+			units Kbyte;
+			default 2;
+			description "Committed burst size ,units Kbyte";
+		}
+		
+		leaf priority{
+			type defend:queue-priority-type;
+			description "queue scheduling rule for sending CPU packets ,high/middle/low";		   
+		}		     		
+	}
+
+    container defend {	
+        container defend-configs{
+	        list defend-config{
+			    key "policy-name";
+                leaf policy-name{
+			        type defend:defend-name;
+			         description "cpu-defend policy name";						 
+                }
+				
+			    uses  policy-cfg;	
+				
+				container whitelist-cfg{
+		            leaf acl-name{
+     		             type acl:acl-name;
+			             description "acl name";		   
+                    }	
+				}					
+				container blacklist-cfg{
+		            leaf acl-name{
+     		             type acl:acl-name;
+			             description "acl name";		   
+                    }	
+				}
+				
+				container userflow-cfgs{
+				    list userflow-cfg{
+					    key "userflow-id";
+						leaf userflow-id{
+     		                 type uint16{
+                                range 1..64;
+							 }
+			                description "userflow index";		   
+                        }	
+		                leaf acl-name{
+     		                 type acl:acl-name;
+			                description "acl name";		   
+                        }
+				    }
+                }
+				
+			    container car-cfgs{
+				    list car-cfg{
+				        key "type protocol-type userflow-id";
+				        leaf type{
+					        type defend:defend-type;
+					        description "the car of whitelist blacklist userflow or protocol ";
+				        }					
+				        leaf protocol-type{
+					        type defend:protocol-enum;
+					        description "detail protocol enum of cir ,when type is not protocol, set to default null  ";
+				        }						
+				        leaf userflow-id{
+     		                 type uint16{
+                                range 1..64;
+							 }
+					        description "usrflow-id, when type is't equal user-defined-flow, set to default 1";
+				        }	
+						
+                        uses schedul-info;												
+					}
+			    }
+				
+				container max-tcp-connect{
+			     	leaf tcp-connect-value{
+					    type uint32{
+                             range 0..30000;
+						}
+						default 0;
+					    description "the maxnum of tcp connect ";						 
+				    } 
+				}								
+		    }
+		}	
+		
+		container slot-cfgs{
+		    list slot-cfg{
+			    key "slot-id";
+	            leaf slot-id{
+		            type co-type:slot-num-string;
+		            description "cpu-defend policy appled in this slot";						 
+		        } 
+	            leaf policy-name{
+			        type defend:defend-name;
+		             description "cpu-defend policy name";						 
+		        } 
+	        }			
+		}
+
+    }
+	
+	
+}

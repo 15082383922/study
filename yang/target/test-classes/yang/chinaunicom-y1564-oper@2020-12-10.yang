@@ -1,0 +1,478 @@
+module chinaunicom-y1564-oper{
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/systemdiagnose/chinaunicom-y1564-oper";
+
+
+  prefix "y1564-oper";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+  import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type"; }
+
+  import chinaunicom-interface-common {	revision-date 2020-12-31; prefix "if"; } 
+
+  //import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+  
+  //import chinaunicom-l3vpn  {	revision-date 2019-10-24; prefix "l3vpn"; }
+  
+
+  /*** META INFORMATION ***/
+
+  organization "UTStarcom Telecom Co., Ltd.";
+
+  contact
+    "UTStarcom Telecom Co., Ltd.
+     
+     Postcode: 310053 
+     Address: 368 Liuhe Road, Binjiang District,Hangzhou, Zhejiang
+
+     E-mail: sheng.yu@utstar.com";
+     
+  description 
+    "This module contains a collection of YANG definitions
+     for UTStarcom IPRAN Y.1564 operational configuration.
+     Copyright (c) 2013-2020 by UTStarcom Telecom Co., Ltd.
+     All rights reserved.";
+
+  revision 2020-12-10{
+      description 
+        "1. First revision.
+         2. Remove unused import modules to keep the compiler silence.";
+  }
+
+  
+    typedef if-ref {
+		type union {
+			type if:ethphy-name;
+			type if:ethlag-name;
+			type if:veth-name;
+			type if:ethsub-name;
+		}
+	}
+	
+	typedef test-result {
+    type enumeration {
+		  enum fail {
+				value 1;
+				description "fail";
+		  }
+		  enum success {
+				value 2;
+				description "success";
+		  }
+		  enum none {
+				value 3;
+				description "none";
+		  }	  
+		}
+	}
+	
+	typedef test-time{
+		type string {
+			length 19;
+		  pattern '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}';
+		}
+		description "test time YYYY-MM-DD HH:MM:SS";
+	}
+
+	typedef color-method {
+    type enumeration {
+		  enum vlan-pcp {
+				value 0;
+				description "vlan-pcp";
+		  }
+		  enum ip-dscp {
+				value 1;
+				description "ip-dscp";
+		  }  
+		  
+		}
+	}
+	
+	typedef reflect-state {
+    type enumeration {
+		  enum reflect {
+				value 0;
+				description "reflect";
+		  }
+		  enum ip-dscp {
+				value 1;
+				description "not-reflect";
+		  }  
+		  
+		}
+	}
+	
+	typedef test-state {
+    type enumeration {
+		  enum not-start {
+				value 1;
+				description "not-start";
+		  }
+		  enum in-progress {
+				value 2;
+				description "in-progress";
+		  }  
+		  enum end {
+				value 3;
+				description "end";
+		  }  
+		}
+	}
+	
+	grouping test-result-data {
+    description "test-result-data";
+  	
+		leaf min-ir {
+		type uint32;
+		description "min-ir";
+		}
+		leaf max-ir {
+		type uint32;
+		description "max-ir";
+		}
+		leaf mean-ir {
+		type uint32;
+		description "mean-ir";
+		}
+		leaf min-ftd {
+		type uint32;
+		description "min-ftd";
+		}
+		leaf max-ftd {
+		type uint32;
+		description "max-ftd";
+		}
+		leaf mean-ftd {
+		type uint32;
+		description "mean-ftd";
+		}
+		leaf min-fdv {
+		type uint32;
+		description "min-fdv";
+		}
+		leaf max-fdv {
+		type uint32;
+		description "max-fdv";
+		}
+		leaf mean-fdv {
+		type uint32;
+		description "mean-fdv";
+		}
+		leaf fl-count {
+		type uint32;
+		description "fl-count";
+		}
+		leaf fl-rate {
+		type co-type:float6;
+		description "fl-rate";
+		}
+		leaf disorder-packets {
+		type uint32;
+		description "disorder-packets";
+		}
+		leaf unavail-count {
+		type uint32;
+		description "unavail-count";
+		}
+		leaf avail {
+		type co-type:float6;
+		description "avail";
+		}
+		leaf test-num {
+		type uint32;
+		description "test-num";
+		}
+		leaf pack-len {
+		type uint32;
+		description "pack-len";
+		}
+    }
+	
+	container y1564-oper{
+	  config false;
+	  description "y1564-oper top container";				
+		container y1564-sender-summary-states{ 
+			description "y1564 sender summary states container"; 
+			list y1564-sender-summary-state{
+				key sender-id;
+				leaf sender-id {
+					type uint32 {
+						range "1..32";
+					}
+					description "sender-id";
+				}
+				list y1564-sender-summary-flow-state{
+					key flow-id;
+					leaf flow-id {
+						type uint32 {
+							range "1..8";
+						}
+						description "flow-id";
+					}
+					leaf line-rate {
+						type uint32;
+						description "line-rate";
+					}
+					leaf ct-time {
+						type uint32;
+						description "ct-time";
+					}
+					leaf pt-time {
+						type uint32;
+						description "pt-time";
+					}
+					leaf start-time {
+						type y1564-oper:test-time;
+						description "start-time";
+					}
+					leaf stop-time {
+						type y1564-oper:test-time;
+						description "stop-time";
+					}
+					leaf cir-result {
+						type y1564-oper:test-result;
+						description "cir-result";
+					}
+					leaf cir-eir-result {
+						type y1564-oper:test-result;
+						description "cir-eir-result";
+					}
+					leaf tp-result {
+						type y1564-oper:test-result;
+						description "tp-result";
+					}
+					leaf pm-result {
+						type y1564-oper:test-result;
+						description "pm-result";
+					}
+					leaf test-state {
+						type y1564-oper:test-state;
+						description "test-state";
+					}
+				}
+			}
+		}
+		
+		container y1564-sender-cir-states{ 
+			description "y1564 sender cir states container";
+			list y1564-sender-cir-state{
+				key sender-id;
+				leaf sender-id {
+					type uint32 {
+						range "1..32";
+					}
+					description "sender-id";
+				}
+				list y1564-sender-cir-flow-state{
+					key flow-id;
+					leaf flow-id {
+						type uint32 {
+							range "1..8";
+						}
+						description "flow-id";
+					}
+					leaf flow-result {
+						type y1564-oper:test-result;
+						description "flow-result";
+					}
+					leaf test-time {
+						type uint32;
+						description "test-time";
+					}
+					list y1564-sender-cir-step-state{
+						key step-id;
+						leaf step-id {
+							type uint32 {
+								range "1..4";
+							}
+							description "step-id";
+						}
+						leaf step-result {
+							type y1564-oper:test-result;
+							description "step-result";
+						}
+						container cir-step-result{
+							uses test-result-data{
+								}
+							}
+					}
+				}
+			}
+		}
+		
+		container y1564-sender-cir-eir-states{ 
+			description "y1564 sender cir-eir states container";
+			list y1564-sender-cir-eir-state{
+				key sender-id;
+				leaf sender-id {
+					type uint32 {
+						range "1..32";
+					}
+					description "sender-id";
+				}
+				list y1564-sender-cir-eir-flow-state{
+					key flow-id;
+					leaf flow-id {
+						type uint32 {
+							range "1..8";
+						}
+						description "flow-id";
+					}
+					leaf flow-result {
+						type y1564-oper:test-result;
+						description "flow-result";
+					}
+					leaf test-time {
+						type uint32;
+						description "test-time";
+					}
+					leaf color-method {
+						type y1564-oper:color-method;
+						description "color-method";
+					}
+					leaf color-result {
+						type y1564-oper:test-result;
+						description "color-result";
+					}
+					container cir-eir-green-result{
+						uses test-result-data{
+						}
+					}
+					container cir-eir-yellow-result{
+						uses test-result-data{
+						}
+					}
+				}
+			}
+		}
+		
+		container y1564-sender-tp-states{ 
+			description "y1564 sender tp states container";
+			list y1564-sender-tp-state{
+				key sender-id;
+				leaf sender-id {
+					type uint32 {
+						range "1..32";
+					}
+					description "sender-id";
+				}
+				list y1564-sender-tp-flow-state{
+					key flow-id;
+					leaf flow-id {
+						type uint32 {
+							range "1..8";
+						}
+						description "flow-id";
+					}
+					leaf flow-result {
+						type y1564-oper:test-result;
+						description "flow-result";
+					}
+					leaf test-time {
+						type uint32;
+						description "test-time";
+					}
+					leaf test-rate {
+						type uint32;
+						description "test-rate";
+					}
+					leaf color-method {
+						type y1564-oper:color-method;
+						description "color-method";
+					}
+					leaf color-result {
+						type y1564-oper:test-result;
+						description "color-result";
+					}				
+					container tp-green-result{
+						uses test-result-data{
+						}
+					}
+					container tp-yellow-result{
+						uses test-result-data{
+						}
+					}	
+				}
+			}
+		}
+		
+		container y1564-sender-pm-states{ 
+			description "y1564 sender pm states container";
+			list y1564-sender-pm-state{
+				key sender-id;
+				leaf sender-id {
+					type uint32 {
+						range "1..32";
+					}
+					description "sender-id";
+				}
+				list y1564-sender-pm-flow-state{
+					key flow-id;
+					leaf flow-id {
+						type uint32 {
+							range "1..8";
+						}
+						description "flow-id";
+					}
+					leaf flow-result {
+						type y1564-oper:test-result;
+						description "flow-result";
+					}
+					leaf test-time {
+						type uint32;
+						description "test-time";
+					}			
+					container pm-result{
+						uses test-result-data{
+						}
+					}
+				}
+			}
+		}
+		
+		container y1564-reflector-states{ 
+			description "y1564 reflector states container";
+			list y1564-reflector-state{
+				key reflector-id;
+				leaf reflector-id {
+					type uint32 {
+						range "1..4294967295";
+					}
+					description "reflector-id";
+				}
+				leaf reflect-state {
+					type y1564-oper:reflect-state;
+					description "reflect-state";
+				}
+				leaf send-packet {
+					type uint32;
+					default 0;
+					description "send-packet";
+				}			
+				leaf receive-packet {
+					type uint32;
+					default 0;
+					description "receive-packet";
+				}
+			}
+		}
+	}
+		
+	rpc y1564-sender-cmd {
+		input {
+			leaf sender-id {
+				type uint32 {
+					range "1..4294967295";
+				}
+				description "sender-id";
+		}
+			leaf test-onoff {
+				type co-type:is-enable;
+				description "test-onoff";
+			}
+		}
+	}
+}

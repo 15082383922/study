@@ -1,0 +1,69 @@
+module chinaunicom-evpn-mac-oper {
+    namespace "http://chinaunicom.com/yang/vpnservice/chinaunicom-evpn-mac-oper";
+	prefix evpn-mac-oper;
+    import ietf-yang-types {	revision-date 2013-07-15; prefix "yang"; }
+    /*import chinaunicom-interface-common  {	revision-date 2020-12-31; prefix "if"; }*/
+
+	organization "UTStarcom";
+	contact "<zhubin@utstar.com>";
+	description "evpn vpls mac status";
+
+	revision "2021-07-15" {
+		description "Initial version";
+	}
+
+
+    /* typedefs */
+    /*typedef if-ref {
+        type union {
+          type if:mgmt-name;
+          type if:ethphy-name;
+          type if:ethvir-name;
+          type if:ethlag-name;
+          type if:veth-name;
+          type if:ethsub-name;
+          type if:flexetunnel-name;
+        }
+    }*/
+  
+    typedef macs-type {
+        type enumeration {
+          enum static     { value 1; }
+          enum dynamic    { value 2; }
+        }
+    }
+
+	container evpn-mac-oper {
+        config false;
+        
+        list evpn-mac {
+            key "evpn-name mac-addr";
+            
+            leaf evpn-name{
+                description "evpn instance name";
+                type string;
+            }
+
+            leaf mac-addr{
+                description "mac-address";
+                type yang:mac-address;
+            }
+
+            leaf peer-ip{
+                description "peer ip";
+                type string;
+            }
+
+            leaf if-name {
+                description "interface name";
+                /*type evpn-mac-oper:if-ref;*/
+                type string;
+            }
+
+            leaf type {
+                description "mac type";
+                type evpn-mac-oper:macs-type;
+            }
+        }
+	}
+}

@@ -1,0 +1,445 @@
+module chinaunicom-clocksync {
+
+	/*** NAMESPACE / PREFIX DEFINITION ***/
+
+	namespace "http://chinaunicom.com/yang/systemmanage/chinaunicom-clocksync";
+
+	prefix "clk";
+
+	/*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+	import chinaunicom-interface-common {	revision-date 2020-12-31; prefix "if"; }
+	import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type"; }
+	
+	organization "Fiberhome Systems, Inc.";
+
+	contact
+	"Fiberhome Communications Techlonogy Co., Ltd.
+	 
+	 Postcode: 430073 
+	 Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+
+	 E-mail: duhu@fiberhome.com";
+
+	description
+	"This module contains a collection of YANG definitions
+	 for Fiberhome  clocksync package configuration.
+
+	 This module contains definitions
+	 for the following management objects:
+	   clk:  configuration
+
+	 Copyright (c) 2013-2020 by Fiberhome Systems, Inc.
+	 All rights reserved.";
+	 
+	revision "2020-12-17" {
+	description
+	 "modify leaf freq-report-limit,leaf leaf freq-recover-limit.";
+	} 
+	 
+	revision "2020-11-12" {
+	description
+	 "modify leaf wait-to-restore,leaf freq-report-limit,container 
+	 add leaf free-run-ssm-level,leaf external-timing-squelch-action,
+	 leaf external-timing-squelch-threhold,
+	 leaf frequency-deviation-monitor-en";
+	} 
+
+	revision "2019-09-16" {
+	description
+	 "remove the element pll of output-ql,
+	 remove the element auto-s1 of ssm-limit";
+	} 
+	revision "2018-06-12" {
+	description
+	 "v1.0.1";
+	} 
+
+	typedef ql-value{
+		type enumeration {
+			enum "unknown" {
+				value 0;
+				description "unknown";
+			}
+			enum "g811" {
+				value 2;
+				description "g811";
+			}
+			enum "g812-tran" {
+				value 4;
+				description "g812-tran";
+			}
+			enum "g812_local" {
+				value 8;
+				description "g812_local";
+			}
+			enum "g813" {
+				value 11;
+				description "g813";
+			}
+			enum "nosync" {
+				value 15;
+				description "nosync";
+			}
+			enum "auto-s1" {
+				value 31;
+				description "auto-s1";
+			}
+		}
+	description "clk ql value";
+	}
+	
+	typedef sa-value{
+		type enumeration {
+			enum "sa4" {
+				value 0;
+				description "sa4";
+			}
+			enum "sa5" {
+				value 1;
+				description "sa5";
+			}
+			enum "sa6" {
+				value 2;
+				description "sa6";
+			}
+			enum "sa7" {
+				value 3;
+				description "sa7";
+			}
+			enum "sa8" {
+				value 4;
+				description "sa8";
+			}
+		}
+	description "clk sa value";
+	}
+	
+	typedef ext-type{
+		type enumeration {
+			enum "hz" {
+				value 0;
+				description "hz";
+			}
+			enum "hdb3" {
+				value 1;
+				description "hdb3";
+			}
+		}
+		description "ext type";
+	}
+	
+	typedef ql-enable{
+		type enumeration {
+			enum "enable" {
+				value 0;
+				description "enable";
+			}
+			enum "disable" {
+				value 1;
+				description "disable";
+			}
+		}
+		description "ql func enable";
+	}
+	
+
+	typedef ext-name {
+		type co-type:string64 {
+			pattern '(bits\d+|pll)' {
+				description "bits<0-2>
+				 pll";
+			}
+		}
+		description "if-type=\"EXT-NAME\"";
+    }
+	
+	
+	grouping global_basic{
+		leaf work-mode {
+			type enumeration {
+				enum "auto" {
+					value 0;
+					description "set auto";
+				}
+				enum "hold" {
+					value 1;
+					description "set hold";
+				}
+				enum "free" {
+					value 2;
+					description "set free";
+				}
+			}
+			default "free";
+			description
+				"Global clk work mode";
+		}	
+		leaf ql-en{
+			type ql-enable;
+			default "disable";
+			description
+				"clk ql en ";
+		}	
+		leaf wait-to-restore{
+			type uint8 {
+				range "0..15";
+				}
+			default "5";
+			units "minute";
+			description
+				"wait to restore time";
+		}			
+		leaf esmc-enable{
+			type ql-enable;
+			default "enable";
+			description
+				"esmc enable";
+		}	
+		leaf pm-statistics-enable{
+			type co-type:is-enable;
+			default "disable";
+			description
+				"pm_freq_offset enable";
+		}
+		leaf freq-report-limit{
+			type int32 {
+				range "-14..14";
+				}
+			default "14";
+			units "ppm";
+			description
+				"freq_offset report limit";
+		}
+		leaf freq-recover-limit{
+			type int32 {
+				range "-14..14";
+				}
+			default "9";
+			units "ppm";
+			description
+				"freq_offset recover limit";
+		}
+		leaf free-run-ssm-level{
+			type ql-value;
+			default "g813";
+			description
+				"free run ssm level";
+		}
+		leaf external-timing-squelch-action{
+			type enumeration {
+				enum "cut" {
+					value 0;
+					description "cut";
+				}
+				enum "ais" {
+					value 1;
+					description "ais";
+				}
+			}
+			default "cut";
+			description
+				"external timing squelch action";
+		}
+		leaf external-timing-squelch-threhold{
+			type ql-value;
+			default "nosync";
+			description
+				"external timing squelch threshold";
+		}
+		leaf frequency-deviation-monitor-en{
+			type enumeration {
+				enum "disable" {
+					value 0;
+					description "disable";
+				}
+				enum "enable" {
+					value 1;
+					description "enable";
+				}
+			}
+			default "disable";
+			description
+				"frequency deviation monitor enable";
+		}
+	}
+	
+	grouping sa-select {
+		leaf input-sa{
+			type sa-value;
+			default "sa4";
+			description
+				"clk-sa-value";
+		}
+		leaf output-sa{
+			type sa-value;
+			default "sa4";
+			description
+				"clk-sa-value";
+		}
+	}
+	
+	grouping ssm-limit {
+		leaf ext_clk1{
+		    must " ../ext_clk1 != 'auto-s1'"{
+            error-message "ext_clk1 cannot be 'auto-s1'";
+	    }
+			type ql-value;
+			default "g813";
+			description
+				"ext_clk1 ssm-limit";
+		}
+		leaf ext_clk2{
+		    must " ../ext_clk2 != 'auto-s1'"{
+            error-message "ext_clk2 cannot be 'auto-s1'";
+	    }
+			type ql-value;
+			default "g813";
+			description
+				"ext_clk2 ssm-limit";
+		}
+		leaf ext_clk3{
+		    must " ../ext_clk3 != 'auto-s1'"{
+            error-message "ext_clk3 cannot be 'auto-s1'";
+	    }
+			type ql-value;
+			default "g813";
+			description
+				"ext_clk2 ssm-limit";
+		}
+		leaf system{
+		    must " ../system != 'auto-s1'"{
+            error-message " system cannot be 'auto-s1'";
+	    }
+			type ql-value;
+			default "g813";
+			description
+				"system ssm-limit";
+		}
+	}
+	
+	grouping ext-cfg {
+		leaf input-type{
+			type ext-type;
+			default "hz";
+			description
+				"ext interface input-type";
+		}
+		leaf output-type{
+			type ext-type;
+			default "hz";
+			description
+				"ext interface output-type";
+		}
+		leaf output-en{
+			type enumeration {
+				enum "off" {
+					value 0;
+					description "off";
+				}
+				enum "on" {
+					value 1;
+					description "on";
+				}
+			}
+			default "off";
+			description
+				"ext interface output-en";
+		}
+	}
+	
+	grouping source-input {
+		leaf input-ql{
+			type ql-value;
+			default "g813";
+			description
+				"input_ql";
+		}
+		leaf input-priority{
+			type uint8{
+				range "0..255";
+			}
+			default "255";
+			description
+				"to-priority";
+		}	
+		leaf wait-to-restore{
+			type enumeration {
+				enum "off" {
+					value 0;
+					description "off";
+				}
+				enum "on" {
+					value 1;
+					description "on";
+				}
+			}
+			default "off";
+			description
+				"wait-to-restore-switch";
+		}
+	}
+	
+	grouping source-output {	
+		leaf output-ql{
+		    when "../ext-name != 'pll'"{
+            description "../ext-name != pll";
+        }
+			type ql-value;
+			default "unknown";
+			description
+				"output ql";
+		}	
+		leaf output-priority{
+			type uint8{
+				range "0..255";
+			}
+			default "255";
+			description
+				"t4-priority";
+		}				
+	}
+	
+	container clk {
+		container clock-basic-cfg {
+			description "clk global configuration";	
+			uses global_basic;		
+			uses sa-select;		
+			uses ssm-limit;
+		}	
+		
+		container source-cfg-exts {
+			list source-cfg-ext{
+				key "ext-name";
+				description "source cfg ext";
+				leaf ext-name{
+					type ext-name; 
+					description
+						"ext-name";
+				}
+				uses ext-cfg;	
+				uses source-input{
+				}	
+				uses source-output{
+				}	
+			}			
+		}
+	}
+
+	
+	augment "/if:if/if:interfaces/if:interface" {	
+		container clocksync {
+			when "/if:if/if:interfaces/if:interface/if:type = 'ETH-PHY' or" +
+			"/if:if/if:interfaces/if:interface/if:type = 'OTN-PHY' or" +
+			"/if:if/if:interfaces/if:interface/if:type = 'OSC-PHY' or" +
+			"/if:if/if:interfaces/if:interface/if:type = 'FLEXE-PHY'" {
+			  description
+				"Only eth or otn or osc or flexe interfaces need to support clk";
+			}
+			uses source-input{
+			}
+			uses source-output{
+			}
+		}
+	}
+}

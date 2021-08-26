@@ -1,0 +1,395 @@
+module chinaunicom-clocksync-oper {
+
+	/*** NAMESPACE / PREFIX DEFINITION ***/
+
+	namespace "http://chinaunicom.com/yang/systemmanage/chinaunicom-clocksync-oper";
+
+	prefix "clk-oper";
+
+	/*** LINKAGE (IMPORTS / INCLUDES) ***/
+	import chinaunicom-interface-common {	revision-date 2020-12-31; prefix "if"; }
+	import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type"; }
+	import chinaunicom-clocksync {	revision-date 2021-01-25;prefix "clk";}
+	
+	organization "Fiberhome Systems, Inc.";
+
+	contact
+	"Fiberhome Communications Techlonogy Co., Ltd.
+	 
+	 Postcode: 430073 
+	 Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+
+	 E-mail: duhu@fiberhome.com";
+
+	description
+	"This module contains a collection of YANG definitions
+	 for Fiberhome  clocksync  sta.
+
+	 This module contains definitions
+	 for the following management objects:
+	   clk-oper:  sta
+	   clock-cmd : control
+
+	 Copyright (c) 2013-2020 by Fiberhome Systems, Inc.
+	 All rights reserved.";
+	 
+	revision "2020-12-17" {
+	description
+	 "add enumeration suspended in locked-source-state;
+	  remove set-clock-no-active";
+	} 
+	 
+	revision "2020-11-12" {
+	description
+	 "add clear-clock-wtr, set-lock-out;
+	 modify locked-source-state; remove bit1,bit2 
+	 and set-clock-source-pause";
+	} 
+	 
+	revision "2019-09-16" {
+	description
+	 "modify value of source-summary";
+	} 
+	revision "2018-05-17" {
+	description
+	 "Initial version.";
+	} 
+	
+	typedef output-state{
+		type enumeration {
+			enum "eo-disable" {
+				value 0;
+				description "eo-disable";
+			}
+			enum "eo-enable" {
+				value 1;
+				description "eo-enable";
+			}
+			enum "eo-ais" {
+				value 2;
+				description "eo-ais";
+			}
+		}
+	description "clk ootput state";
+	}
+	
+	
+	typedef work-state{
+		type enumeration {
+			enum "a-lock" {
+				value 1;
+				description "auto lock";
+			}
+			enum "a-acq" {
+				value 2;
+				description "auto acq";
+			}
+			enum "a-hold" {
+				value 3;
+				description "auto hold";
+			}
+			enum "a-free" {
+				value 4;
+				description "auto free";
+			}
+			enum "f-hold" {
+				value 5;
+				description "fouce hold";
+			}
+			enum "f-free" {
+				value 6;
+				description "fouce free";
+			}
+		}
+	}
+	
+
+	typedef input-source-state {
+		type enumeration {
+			enum "normal" {
+				value 0;
+				description "normal";
+			}
+			enum "interupt" {
+				value 1;
+				description "interupt";
+			}
+			enum "ms-ais" {
+				value 2;
+				description "ms-ais";
+			}
+			enum "lof" {
+				value 3;
+				description "lof";
+			}
+			enum "los" {
+				value 4;
+				description "los";
+			}
+			enum "rs-exc" {
+				value 5;
+				description "rs-exc";
+			}
+			enum "rs-deg" {
+				value 6;
+				description "rs-deg";
+			}
+			enum "pause" {
+				value 7;
+				description "pause";
+			}
+		}
+	}	
+	
+	typedef locked-source-state {
+		type enumeration {
+			enum "normal" {
+				value 0;
+				description "normal";
+			}
+			enum "failure" {
+				value 1;
+				description "failure";
+			}
+			enum "suspend" {
+				value 2;
+				description "suspend";
+			}
+		}
+	}			
+	
+	typedef locked-source-type {
+		type enumeration {
+			enum "hz" {
+				value 0;
+				description "hz";
+			}
+			enum "hdb3" {
+				value 1;
+				description "hdb3";
+			}
+			enum "unknown" {
+				value 255;
+				description "unknown";
+			}
+		}
+	}			
+	
+	typedef pause-operation {
+		type enumeration {
+			enum "off" {
+				value 0;
+				description "off";
+			}
+			enum "on" {
+				value 1;
+				description "on";
+			}
+		}
+	}	
+
+	typedef swtich-operation {
+		type enumeration {
+			enum "clear" {
+				value 0;
+				description "clear";
+			}
+			enum "force" {
+				value 1;
+				description "force";
+			}
+			enum "manual" {
+				value 2;
+				description "manual";
+			}
+			enum "non" {
+				value 3;
+				description "non";
+			}
+		}
+	}			
+		
+	typedef active-operation {
+		type enumeration {
+			enum "no-active" {
+				value 0;
+				description "no-active";
+			}
+			enum "active" {
+				value 1;
+				description "active";
+			}
+		}
+	}	
+	
+	typedef clear-wtr-operation {
+		type enumeration {
+			enum "disable" {
+				value 0;
+				description "disable clear wtr operation";
+			}
+			enum "enable" {
+				value 1;
+				description "enable clear wtr operation";
+			}
+		}
+	}
+	
+	typedef lock-out-operation {
+		type enumeration {
+			enum "off" {
+				value 0;
+				description "off";
+			}
+			enum "on" {
+				value 1;
+				description "on";
+			}
+		}
+	}	
+	
+	typedef clk-if-ref {
+		type union {
+			type if:ethphy-name;
+			type if:sdhphy-name;
+			type if:pdhphy-name;
+			type if:otnphy-name;
+			type if:oscphy-name;
+			type if:flexephy-name;
+			type co-type:string-nil;
+			type clk:ext-name;
+	        type if:otheroptphy-name;
+		}
+	}
+
+	container clk-oper {
+		config false;
+		container clock-basic-state {
+			description "clk global configuration";
+			leaf src-slot-addr {
+				type co-type:slot-num-string;
+				description 
+					"src slot address";
+			}
+			leaf work-state{
+				type work-state;
+				description
+					"work-state";
+			}
+			leaf bits0-output-state {
+				type output-state;
+				description
+					"bits0-output-state";
+			}
+			leaf bits1-output-state {
+				type output-state;
+				description
+					"bits1-output-state";
+			}
+			leaf bits2-output-state {
+				type output-state;
+				description
+					"bits2-output-state";
+			}
+			leaf locked-source-name {
+				type clk-if-ref; 
+				description 
+					"locked-source-name";
+			}
+			leaf locked-source-type {
+				type locked-source-type;
+				description 
+					"locked-source-type";
+			}			
+			leaf locked-source-state {
+				type locked-source-state;
+				description 
+					"locked-source-state";
+			}			
+			leaf output-source-name {
+				type clk-if-ref; 
+				description 
+					"output-source-name";
+			}
+			leaf locked-source-ssm{
+				type clk:ql-value;
+				description
+					"locked-source-ssm";
+			}
+		}	
+		
+		container source-states {
+			container source-sum{
+				leaf source-summary {
+					type uint8{
+						range "0..64";
+					}
+					description
+						"source-summary";
+				}
+			}
+			list source-state{
+				key "interface-name";
+				description "source state";
+				leaf interface-name {
+					type clk-if-ref ; 
+				}
+				leaf input-state {
+					type input-source-state;
+					description
+						"input-state";
+				}
+				leaf input-ql {
+					type clk:ql-value;
+					description
+						"input-ql";
+				}
+				leaf output-ql {
+					type clk:ql-value;
+					description
+						"output-ql";
+				}
+			}			
+		}
+	}
+
+	rpc set-switch-clock{
+		input{
+			leaf interface-name {		
+				type clk-if-ref; 
+			}
+			leaf operation {
+				type swtich-operation;
+				description
+					"swtich-operation";			
+			}
+		}
+	}
+	
+	rpc clear-clock-wtr{
+		input{
+			leaf interface-name {		
+				type clk-if-ref; 
+			}
+			leaf operation {
+				type clear-wtr-operation;
+				description
+					"clear-wtr-operation";			
+			}
+		}
+	}
+
+	rpc set-lock-out{
+		input{
+			leaf interface-name {		
+				type clk-if-ref; 
+			}
+			leaf operation {
+				type lock-out-operation;
+				description
+					"set lock out operation";			
+			}
+		}
+	}
+	
+}

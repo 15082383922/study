@@ -1,6 +1,6 @@
 package com.chancy.quartz;
 
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 
 import java.util.Date;
 
@@ -10,7 +10,4 @@ public class TestTask {
 
     }
 
-    public static void main(String[] args) {
-        new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
-    }
 }

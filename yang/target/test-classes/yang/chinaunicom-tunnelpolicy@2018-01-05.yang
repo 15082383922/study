@@ -1,0 +1,150 @@
+module chinaunicom-tunnelpolicy {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/vpnservice/chinaunicom-tunnelpolicy";
+
+
+  prefix "tnl-plcy";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+  import chinaunicom-mpls {	revision-date 2020-10-29; prefix "mpls"; }
+  
+  /*** META INFORMATION ***/
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+     
+		Postcode: 430073 
+		Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+		Tel: +XXXXXXXXXXXX
+
+		E-mail: yang- author@fiberhome.com";
+
+  description 
+    "This YANG module defines the tunnel policy configuration
+     data for tunnel management service.
+
+     Copyright (c) 2013-2016 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision "2018-01-05" {
+    description
+      "Initial version.";
+  }
+  
+ typedef tunl-id-ref {
+    type mpls:tunnel-id;
+    description "tunl-id-ref";    
+  } 
+ typedef policy-name {
+    type string {
+      length "1..39";
+    }
+    description "tunnel policy name";    
+  }
+ typedef tunnel-type{
+   type enumeration {
+                enum gre {
+                  value 1;
+                  description "gre:
+                    Specifies the GRE tunnel.";
+                }
+                enum lsp {
+                  value 2;
+                  description "lsp:
+                    Specifies the LDP LSP, BGP LSP,SR-BE,or static LSP.";
+                }
+                enum cr-lsp {
+                  value 3;
+                  description "cr-lsp:
+                    Specifies the CR-LSP tunnel.";
+                }
+              }
+		}
+ container tnl-plcy {
+	description "tunnel policy container"; 
+	container tunnel-policies {
+	 description "tunnel policy names container"; 
+     list tunnel-policy-list {
+      key "tunnel-policy-name";
+
+      leaf tunnel-policy-name {
+        description
+          "Specify tunnel policy name.";
+        type tnl-plcy:policy-name;
+		}
+	  leaf tunnel-policy-mode {
+		  description
+            "Specify tunnel policy mode.";
+		  type enumeration {
+			   enum TUNNEL-SELECTION-SEQUENCE;
+			   enum TUNNEL-BINGDING;
+		    }
+	    }
+	
+       container tunnel-type-sequences {
+		    when "../tunnel-policy-mode = 'TUNNEL-SELECTION-SEQUENCE'";
+            description
+              "Specify Tunnel Selection Sequence.";  
+            leaf first-tunnel-type {
+			  description
+                "Specify tunnel type.";
+              mandatory "true";
+              type tunnel-type ;
+            }
+			leaf second-tunnel-type {
+			  description
+                "Specify tunnel type.";
+              type tunnel-type ;
+            }
+			leaf third-tunnel-type {
+			  description
+                "Specify tunnel type.";
+              type tunnel-type ;
+            }
+			leaf load-balance-number {
+              description
+                "Specify tunnel load balance number.";
+              mandatory "true";
+              type uint32 {
+                range "1..6";
+              }
+            }
+          }
+		  
+        list binding-policy {
+	                  when "../tunnel-policy-mode = 'TUNNEL-BINGDING'";
+              key "destination";
+              leaf destination {
+                description
+                  "Specifies the destination address of the tunnel.";
+                type inet:ipv4-address-no-zone;
+              }
+              leaf tunnel-id {
+                description
+                  "Specifies the tunnel id of the bound tunnel interface.";
+				mandatory "true";
+				type tnl-plcy:tunl-id-ref;
+                  }
+			  leaf down-switch {
+                description
+                  "Indicates that the tunnel switchover is enabled.
+                   After this parameter is configured, an available
+                   tunnel, with the priority as LSP, CR-LSP, and then
+                   GRE, is adopted when the bound TE tunnel fails.";
+
+                default "0";
+                type uint8 {
+                range "0..255";
+				   }
+				}  
+			 }      
+	     }
+	  }
+   }
+}

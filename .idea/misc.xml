@@ -13,12 +13,14 @@
         <option value="$PROJECT_DIR$/javaweb/pom.xml" />
         <option value="$PROJECT_DIR$/mysql/pom.xml" />
         <option value="$PROJECT_DIR$/jvm/pom.xml" />
-        <option value="$PROJECT_DIR$/Demo/pom.xml" />
         <option value="$PROJECT_DIR$/Thead/pom.xml" />
         <option value="$PROJECT_DIR$/yang/pom.xml" />
         <option value="$PROJECT_DIR$/../../HZ08950/odl/aluminium-sr3/demo/pom.xml" />
         <option value="$PROJECT_DIR$/security/pom.xml" />
         <option value="$PROJECT_DIR$/test/pom.xml" />
+        <option value="$PROJECT_DIR$/network/pom.xml" />
+        <option value="$PROJECT_DIR$/demo1/pom.xml" />
+        <option value="$PROJECT_DIR$/go/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
@@ -27,7 +29,7 @@
       </set>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="1.8.0_201" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project>

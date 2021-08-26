@@ -1,0 +1,417 @@
+module chinaunicom-twamp{
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/systemdiagnose/chinaunicom-twamp";
+
+
+  prefix "twamp";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+  import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type"; }
+
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+
+  //import ietf-yang-types {	revision-date 2013-07-15; prefix "yang"; }
+
+  import chinaunicom-interface-common {	revision-date 2020-12-31; prefix "if"; } 
+  
+  import chinaunicom-l3vpn  {	revision-date 2019-10-24; prefix "l3vpn"; }
+  
+
+
+  /*** META INFORMATION ***/
+
+  organization "UTStarcom Telecom Co., Ltd.";
+
+  contact
+    "UTStarcom Telecom Co., Ltd.
+     
+     Postcode: 310053 
+     Address: 368 Liuhe Road, Binjiang District,Hangzhou, Zhejiang
+
+     E-mail: sheng.yu@utstar.com";
+
+  description 
+    "This module contains a collection of YANG definitions
+     for UTStarcom IPRAN twamp package configuration.
+
+     This module contains definitions
+     for the following management objects:
+       twamp: twamp configuration for all instances
+
+     Copyright (c) 2013-2020 by UTStarcom Telecom Co., Ltd.
+     All rights reserved.";
+     
+  revision "2020-12-01" {
+    description
+      "1. Remove MAC addresses from test session and reflector session tables
+       2. Remove unused import modules to keep the compiler silence.";
+  }  
+
+  revision "2020-10-23" {
+    description
+      "1. Add enumeration type 30000ms, to be consistent with CUCC standard.
+       2. Update the range of duration in table twamp-sender-sessions, to allow duration value 0, which means infinite.
+       3. Add a on-off control in table twamp-sender-sessions.
+      ";
+  }
+
+  revision "2020-07-08" {
+    description
+      "chinaunicom V5 1.2 revision. Twamp light support ipv6 features, mac-addresss configuration, start-up type.";
+  }
+
+  revision "2019-10-31" {
+    description
+      "chinaunicom V5 1.1 revision. Supports twamp full, and modify udp port range";
+  }
+
+  revision "2018-04-12" {
+    description
+      "chinaunicom V5 1.0 revision.";
+  }
+
+	typedef if-ref {
+		type union {
+			type if:ethphy-name;
+			type if:ethlag-name;
+			type if:ethvir-name;
+			type if:ethsub-name;
+			type if:flexetunnel-name;
+		}
+	}
+
+	typedef vrf {
+		type union {
+			type l3vpn:vpn-name;
+		}
+	}
+
+  typedef packet-rate {
+    type enumeration {
+		  enum 1 {
+				value 0;
+				description "1 packet per second";
+		  }
+		  enum 10 {
+				value 1;
+				description "10 packets per second";
+		  }
+		  enum 100 {
+				value 2;
+				description "100 packets per second";
+		  }
+		  enum 1000 {
+				value 3;
+				description "1000 packets per second";
+		  }
+		}
+	}
+	
+  typedef role-type {
+    type enumeration {
+		enum server {
+			value 1;
+		}
+		enum client {
+			value 2;
+		}
+    }
+  }
+
+  typedef startup-type {
+    type enumeration {
+		enum none {
+			value 0;
+		}
+		enum continual {
+			value 1;
+		}
+		enum regular {
+			value 2;
+		}
+	}
+  }
+  
+  container twamp{
+	  description "twamp top container";
+		container twamp-global{
+			description "twamp global cfg container"; 
+			leaf twamp-enable {
+				type co-type:is-enable;
+				description "twamp enable";
+			}
+		}
+
+		container twamp-roles{
+		    description "twamp-full role container";
+			list twamp-role{
+				key role-type;
+				leaf role-type{
+					type role-type;
+					description "role type";
+				}
+				container twamp-servers{
+					when "../role-type = 'server'";
+					description "twamp server cfg container"; 
+					list twamp-server{
+						key vrf-name;
+						leaf vrf-name {
+							type twamp:vrf;
+							description "vrf name";
+						}
+						leaf local-addr {
+							type inet:ipv4-address;
+							description "local address for TCP listening";
+						}
+						leaf local-addr-ipv6 {
+							type inet:ipv6-address;
+							description "local ipv6 address for TCP listening";
+						}
+						leaf local-port {
+							type uint16 {
+								range "862..65535";
+							}
+							default 862;
+							description "local port for TCP listening ";
+						}
+					}
+					leaf control-session-inactive {
+						type uint16 {
+							range "1..6000";
+						}
+						default 900;
+						units "second";
+						description "idle time for control session to be inactive ";
+					}
+				}
+			}
+		}
+
+		container twamp-sender-sessions{ 
+			description "twamp sender session cfg container";
+			list twamp-sender-session{
+				key sender-id;
+				leaf sender-id {
+					type uint32 {
+						range "1..65535";
+					}
+					description "sender-id";
+				}
+				leaf vrf-name {
+					type twamp:vrf;
+					description "vrf name";
+				}
+				leaf src-ip-addr {
+					type inet:ipv4-address;
+					description "source ip address of the sender. Exclusive in ipv4 application scenarios.";
+				}
+				leaf dst-ip-addr {
+					type inet:ipv4-address;
+					description "destination ip address of the sender. Exclusive in ipv4 application scenarios.";
+				}
+				leaf src-ipv6-addr {
+					type inet:ipv6-address;
+					description "source ipv6 address of the sender. Exclusive in ipv6 application scenarios.";
+				}
+				leaf dst-ipv6-addr {
+					type inet:ipv6-address;
+					description "destination ipv6 address of the sender. Exclusive in ipv6 application scenarios.";
+				}
+				leaf src-udp-port {
+					type uint16 {
+						range "862..65535";
+					}
+					description "source udp port of the sender ";
+				}
+				leaf dst-udp-port {
+					type uint16 {
+						range "862..65535";
+					}
+					description "destination udp port of the sender ";
+				}
+				leaf sender-interface {
+					type twamp:if-ref;
+					description "sender interface";
+				}
+				leaf slot {
+					type co-type:slot-num-string;
+					description "slot";
+				}
+				/*
+				leaf dst-mac {
+					type yang:mac-address;
+					description "dest mac address";
+				}
+				leaf src-mac {
+					type yang:mac-address;
+					description "source mac address";
+				}
+				*/
+				leaf vlan-id {
+					type uint16 {
+						range "0..4095";
+					}
+					default 0;
+					description "vlan id in dot1q model";
+				}
+				leaf pe-vlan-id {
+					type uint16 {
+					range "0..4095";
+					}
+					default 0;
+					description "outer vlan id in qinq model";
+				}
+				leaf ce-vlan-id {
+					type uint16 {
+					range "0..4095";
+					}
+					default 0;
+					description "inner vlan id in qinq model";
+				}
+				leaf dscp {
+					type uint8 {
+					range "0..63";
+					}
+					default 0;
+					description "dscp value of packet priority.";
+				}
+				leaf precedence {
+					type uint8 {
+					range "0..7";
+					}
+					default 0;
+					description "ip precedence value of packet priority.";
+				}
+				leaf tos {
+					type uint8 {
+					range "0..15";
+					}
+					default 0;
+					description "tos value of packet priority.";
+				}
+				leaf duration {
+					type uint32 {
+						range "60..604800";
+					}
+					default 60;
+					units "second";
+					description "duration of test ";
+				}
+				leaf packet-rate {
+					type twamp:packet-rate;
+					default 10;
+					units "packets per second";
+					description "packet rate ";
+				}
+				leaf packet-length {
+					type uint32 {
+						range "83..1518";
+					}
+					default 128;
+					units "byte";
+					description "packet length ";
+				}
+				leaf sample-rate {
+					type uint32 {
+						range "1..3600";
+					}
+					default 30;
+					units "second";
+					description "sample rate ";
+				}
+				leaf sample-timeout {
+					type uint16 {
+						range "1..10";
+					}
+					default 3;
+					units "second";
+					description "sample timeout ";
+				}
+				leaf startup-type{
+					type startup-type;
+					description "startup type of test type.";
+				}
+				leaf regular-time {
+					type uint16 {
+						range "10..60";
+					}
+					default 30;
+					units "minute";
+					description "regular time of regular test mode in minutes. Only effective when startup-type is regular.";
+				}
+			}
+		}
+
+		container twamp-reflector-sessions{ 
+			description "twamp reflector session cfg container"; 
+			list twamp-reflector-session{
+				key reflector-id;
+				leaf reflector-id {
+					type uint32 {
+						range "1..65535";
+					}
+					description "reflector-id";
+				}
+				leaf vrf-name {
+					type twamp:vrf;
+					description "vrf name";
+				}
+				leaf src-ip-addr {
+					type inet:ipv4-address;
+					description "source ip address of the reflector. Exclusive in ipv4 application scenarios.";
+				}
+				leaf dst-ip-addr {
+					type inet:ipv4-address;
+					description "destination ip address of the reflector. Exclusive in ipv4 application scenarios.";
+				}
+				leaf src-ipv6-addr {
+					type inet:ipv6-address;
+					description "source ipv6 address of the reflector. Exclusive in ipv6 application scenarios.";
+				}
+				leaf dst-ipv6-addr {
+					type inet:ipv6-address;
+					description "destination ipv6 address of the reflector. Exclusive in ipv6 application scenarios.";
+				}
+				leaf src-udp-port {
+					type uint16 {
+						range "862..65535";
+					}
+					description "source udp port of the reflector ";
+				}
+				leaf dst-udp-port {
+					type uint16 {
+						range "862..65535";
+					}
+					description "destination udp port of the reflector ";
+				}
+				leaf reflector-interface {
+					type twamp:if-ref;
+					description "reflector interface";
+				}
+				leaf slot {
+					type co-type:slot-num-string;
+					description "slot";
+				}
+				leaf on-off {
+					type co-type:is-enable;
+					default enable;
+					description "reflector on-off";
+				}
+				/*
+				leaf dst-mac {
+					type yang:mac-address;
+					description "dest mac address";
+				}
+				leaf src-mac {
+					type yang:mac-address;
+					description "source mac address";
+				}
+				*/
+			}
+		}
+	}
+
+}

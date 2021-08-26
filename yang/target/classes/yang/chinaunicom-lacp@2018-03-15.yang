@@ -1,0 +1,166 @@
+module chinaunicom-lacp {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/systemmanage/chinaunicom-lacp";
+
+  prefix "lacp";
+  
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  import ietf-yang-types {	revision-date 2013-07-15; prefix "yang"; }  
+  import chinaunicom-interface-common {	revision-date 2020-12-31; prefix "if";}
+  
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Communications Techlonogy Co., Ltd.
+     
+     Postcode: 430073 
+     Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+
+     E-mail: jjrong@fiberhome.com";
+
+  description
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom-R8000  Link Aggregation Control Protocol (LACP) for
+     managing aggregate interfaces.  It works in conjunction with
+    the OpenConfig interfaces and aggregate interfaces models.
+
+     Copyright (c) 2013-2016 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision 2018-03-15 {
+    description
+     "Initial version.";
+  }
+
+  // typedef statements
+
+	typedef if-ref {
+		type if:ethphy-name;
+	}
+    
+  typedef port-mode {
+    type enumeration {
+      enum ACTIVE {
+		value 1;
+        description
+          "Interface is an active member, i.e., will detect and
+          maintain aggregates";
+      }
+      enum PASSIVE {
+		value 2;
+        description
+          "Interface is a passive member, i.e., it participates
+          with an active partner";
+      }
+    }
+    description
+      "Describes the LACP membership type, active or passive, of the
+      interface in the aggregate";
+    reference "IEEE 802.1AX-2008";
+  }
+
+  typedef port-time-out {
+    type enumeration {
+      enum SHORT {
+		value 1;  
+        description
+          "Participant wishes to use short timeouts, i.e., expects
+          frequent transmissions to aggressively detect status
+          changes. Short timeout is 3 seconds.";
+      }
+	  enum LONG {
+		value 2;
+        description
+          "Participant wishes to use long timeouts to detect
+          status of the aggregate, i.e., will expect less frequent
+          transmissions. Long timeout is 90 seconds.";
+      }
+      
+    }
+    description
+      "Type of timeout used, short or long, by LACP participants";
+    reference "IEEE 802.1AX-2008";
+  }
+  
+  
+  // grouping statements
+  
+   grouping lacpPortInfo {
+    description
+      "Top-level grouping for LACP-enabled interfaces";
+
+        leaf priority{
+          type uint16{
+            range "0..65535";
+          }
+          default 32768;		  
+          description "priority";
+        }
+		
+		leaf mode {
+		  type lacp:port-mode;
+          default ACTIVE;
+          description
+            "ACTIVE is to initiate the transmission of LACP packets.
+             PASSIVE is to wait for peer to initiate the transmission of
+             LACP packets.";
+            //TODO:some implementations configure the LACP mode on each
+            //member interface rather than on the LAG interface.  There
+            //may be use cases for this identified at a later time.
+        }
+		
+		leaf timeout {
+		  type lacp:port-time-out;
+          default LONG;
+		  description
+            "The timeout type (short or long) used by the
+            participant";
+        }
+
+  }
+  
+  grouping lacpSystemInfo {
+    description
+      "Configuration data for LACP aggregate system infomation";
+    leaf lacp-sys-priority {
+      type uint16{
+        range "0..65535";
+      }
+	  default 32768;
+      description
+        "Sytem priority used by the node on this LAG interface.
+        Lower value is higher priority for determining which node
+        is the controlling system.";
+    }
+	
+	leaf lacp-system-id {
+      type yang:mac-address;
+      description
+        "MAC address that defines the local system ID for the
+          aggregate interface";
+    }
+  }
+  
+	container lacp {
+	
+    container lacp-config{
+     
+      uses lacpSystemInfo;
+
+      list lacp-port{
+        key "ifname";
+        description "enable lacp interface";
+        
+        leaf ifname{
+            type lacp:if-ref;
+            description "ifname";
+        }   
+        
+        uses lacpPortInfo;
+
+      }
+    }	
+	}
+}

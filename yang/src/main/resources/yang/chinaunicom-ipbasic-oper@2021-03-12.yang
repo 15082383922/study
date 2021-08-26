@@ -1,0 +1,96 @@
+module chinaunicom-ipbasic-oper {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/ipservice/chinaunicom-ipbasic-oper";
+
+  prefix "ipbasic-oper";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  //import ietf-yang-types {	revision-date 2013-07-15; prefix "yang"; }
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+  import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type"; }
+  
+  organization "UTStarcom Telecom Co., Ltd.";
+
+  contact
+    "UTStarcom Telecom Co., Ltd.
+     
+     Postcode: 310053 
+     Address: 368 Liuhe Road, Binjiang District,Hangzhou, Zhejiang
+
+     E-mail: sheng.yu@utstar.com";
+     
+  description 
+    "This module contains definitions
+     for the following management objects:
+     for the following management objects:
+       pmtu: Path MTU Discovery for IP version 6   
+       other: any other modules
+     Copyright (c) 2013-2020 by UTStarcom Telecom Co., Ltd.
+     All rights reserved.";
+
+  revision 2021-03-12{
+      description 
+        "First revision.";
+  }
+  
+  typedef ipv6-pmtu-type-enum {
+    type enumeration {
+	    enum dynamic {
+		    value 1;
+		    description "PMTU_TYPE_DYNAMIC";
+	    }
+
+	    enum static {
+		    value 2;
+	  	    description "PMTU_TYPE_STATIC";
+	    }
+  	}
+	description "pmtu type of pmtu oper data";
+  }
+  
+container ipbasic-oper {
+	config false;
+	
+	container ipv6-state{
+	  description "ipv6 operation";
+
+      container ipv6-pmtu-states {
+        list ipv6-pmtu-state {
+          key "vrf-name ipv6-addr";
+          description "pmtu global data";
+        
+          leaf vrf-name {
+            type co-type:vpn-name-with-global;
+            description "name of VRF";
+          }
+      
+          leaf ipv6-addr {
+            type inet:ipv6-address-no-zone;
+            description "IPv6 Address";
+          }
+      
+          leaf path-mtu {
+            type uint32 {
+                range "1280..10000";
+            }
+            description "PMTU value for the specified IPV6 address";
+          }
+      
+          leaf pmtu-type {
+            type ipv6-pmtu-type-enum;
+            description "pmtu type";
+          }
+      
+          leaf expire-time {
+            type uint32{
+              range "0..100";
+            }
+            description "pmtu expire time";
+          }
+        }
+      }
+    }
+  }
+}

@@ -22,16 +22,13 @@ public class App {
         SchemaContext schema = TestUtils.parseYangSources2(file);
         Optional<Module> module = Optional.empty();
         if (schema != null) {
-            module = schema.getModules().stream().filter(e->e.getName().equals("chinaunicom-bgp")).findFirst();
+            module = schema.getModules().stream().filter(e->e.getName().equals("chinaunicom-ipfrr-oper")).findFirst();
         }
         if (module.isPresent()) {
             Module module1 = module.get();
             System.out.printf(module1.getPrefix());
         }
 
-
-        Object s = 5;
-        System.out.println(s.toString());
     }
 
 

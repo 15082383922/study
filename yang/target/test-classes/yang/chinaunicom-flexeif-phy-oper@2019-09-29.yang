@@ -1,0 +1,160 @@
+module chinaunicom-flexeif-phy-oper
+{
+  /*** NAMESPACE ***/
+  namespace "http://chinaunicom.com/yang/interface/flexeinterface/chinaunicom-flexeif-phy-oper";
+   
+  /*** PREFIX DEFINITION ***/
+  prefix "flexephyif-oper";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  import chinaunicom-interface-common  
+  { 
+	revision-date 2020-12-31;
+    prefix "if";
+  }
+  
+
+  import chinaunicom-flexeif-phy
+  {
+	revision-date 2020-06-29;
+    prefix "flexephyif";
+  }
+  
+  /*** META INFORMATION ***/
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+     
+     Postcode: 430073
+     Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+     Email: ylhan@fiberhome.com";
+
+  description 
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom flexe phy state.
+     
+     This module contains definitions
+     for the following management objects:
+       FlexE PHY OPER
+     
+     Copyright (c) 2013-2018 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision 2019-09-29
+  {
+    description "add fec-mode.";
+  }
+  
+  revision 2018-04-27;
+
+  /* typedefs */
+  typedef link-state
+  {
+    type enumeration
+    {
+      enum link-up
+      {
+        value 1;
+        description "if link-state up";
+      }
+      enum link-down
+      {
+        value 2;
+        description "if link-state down";
+      }
+    }
+  }
+  
+  typedef if-state
+  {
+    type enumeration
+    {
+      enum up
+      {
+        value 1;
+        description "if state up";
+      }
+      enum down
+      {
+        value 2;
+        description "if state down";
+      }
+      enum admin-down
+      {
+        value 3;
+        description "if state admin-down";
+      }
+      enum off-line
+      {
+        value 6;
+        description "if state off-line";
+      }
+    }
+  } 
+
+  grouping flexeif-phy-basic-info
+  {
+    leaf linkstate
+    {
+      type flexephyif-oper:link-state;
+      description "link state";
+    }
+  
+    leaf operstate
+    {
+      type flexephyif-oper:if-state;
+      description "flexe phy operstate";
+    }
+    
+    leaf unavailable-bandwidth
+    {
+      type uint16
+      {
+        range "0..400";
+      }
+      description "flexe phy unavailable bandwidth, 0-400G";
+    }
+
+    leaf group-id
+    {
+      type uint32
+      {
+        range "1..1048575";
+      }
+      description "index of the flexe group binding the flexe phy";
+    }
+
+    leaf fec-mode
+    {
+      type flexephyif:fec-mode;
+      description "flexe phy fec mode";
+    }
+
+  }
+  
+  /* YANG Model */
+  container flexeif-phy-oper
+  {
+    config false;
+    description "flexeif-phy oper configuration";
+
+    container flexeif-phy-states
+    {
+      list flexeif-phy-state
+      {
+        description "flexephy state information";
+
+        key "flexeif-phy-name";
+
+        leaf flexeif-phy-name 
+        {
+          type if:flexephy-name;
+          description "flexephy name";
+        }
+
+        uses flexephyif-oper:flexeif-phy-basic-info;
+      }
+    }
+  }
+}

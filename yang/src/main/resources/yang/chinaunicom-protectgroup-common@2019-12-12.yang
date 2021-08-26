@@ -1,0 +1,323 @@
+module chinaunicom-protectgroup-common {
+
+  namespace "http://chinaunicom.com/yang/protectgroup/chinaunicom-protectgroup-common";
+  prefix "protgrp-co";
+  
+    import chinaunicom-datatype-common
+    {
+	revision-date 2020-08-14;
+        prefix co-type;
+    }
+   description
+   "Protect Common Datatype in chinaunicomv5.";
+
+  revision 2019-12-12 {
+    description
+     "Adjust the default value of switching-direction, change bidirection to unidirection";
+  }
+  revision 2019-11-04 {
+    description
+     "Modify the type of revertive element,uses the define in co-type";
+  }
+  revision 2018-06-11 {
+    description
+     "chinaunicom V5 1.0 revision";
+  }
+
+  /* PTN PROTECTION */
+  
+  /* typedefs */
+  typedef revertive-mode{
+    type enumeration{
+      enum revertive {
+        value 0;
+        description "revertive";
+      }
+	  enum non-revertive {
+        value 1;
+        description "non-revertive";
+      }
+	}
+	description "revertive-mode";
+  }
+  
+  typedef path-state{
+    type enumeration{
+      enum init {
+        value 0;
+        description "init";
+      }
+	  enum normal {
+        value 1;
+        description "normal";
+      }
+	  enum sf {
+        value 2;
+        description "signal-fail";
+      }
+	  enum sd {
+        value 3;
+        description "signal-degrade";
+      }
+	}
+	description "path-state";
+  }
+  
+  typedef lps-switch-state{
+    type enumeration{
+      enum none {
+        value 0;
+        description "none";
+      }
+	  enum normal {
+        value 1;
+        description "normal";
+      }
+      enum switch {
+        value 2;
+        description "switch";
+      }
+	  enum wait-to-restore {
+        value 3;
+        description "wait-to-restore";
+      }
+	  enum lockout-of-protection {
+        value 4;
+        description "lockout-of-protection";
+      }
+	  enum forced-switch {
+        value 5;
+        description "forced-switch";
+      }
+	  enum manual-switch-to-working {
+        value 6;
+        description "manual-switch-to-working";
+      }
+	  enum manual-switch-to-protection {
+        value 7;
+        description "manual-switch-to-protection";
+      }
+      enum switch-fail {
+        value 8;
+        description "switch-fail";
+      }
+	}
+	description "lps-switch-state";
+  }
+
+  typedef lps-switch-cmd-type{
+    type enumeration{
+	  enum clear {
+        value 1;
+        description "clear";
+      }
+      enum lockout-of-protection {
+        value 2;
+        description "lockout-of-protection";
+      }
+	  enum forced-switch {
+        value 3;
+        description "forced-switch";
+      }
+	  enum manual-switch-to-protection {
+        value 4;
+        description "manual-switch-to-protection";
+      }
+	  enum manual-switch-to-working {
+        value 5;
+        description "manual-switch-to-working";
+      }
+	  enum exercise {
+        value 6;
+        description "exercise";
+      }
+	}
+	description "lps-switch-state";
+  }
+
+  typedef detect-mode{
+    type enumeration{
+      enum port {
+        value 0;
+        description "port";
+      }
+	  enum oam {
+        value 1;
+        description "oam";
+      }
+	  enum bfd {
+        value 2;
+        description "bfd";
+      }
+	  enum up-level-path {
+        value 3;
+        description "up-level-path";
+      }
+	}
+	description "detect-mode";
+  }
+
+  /* OTN PROTECTION */
+
+    grouping prot-basic-cfg
+    {
+        leaf prot-type
+        {
+            type enumeration
+            {
+                enum oduk-1p1
+                {
+                    value 1;
+                }
+                enum oduk-mbn
+                {
+                    value 2;
+                }
+                enum oduk-ring
+                {
+                    value 3;
+                }
+                enum oduk-aps
+                {
+                    value 4;
+                }
+                enum och-1p1
+                {
+                    value 5;
+                }
+                enum och-mbn
+                {
+                    value 6;
+                }
+                enum och-ring
+                {
+                    value 7;
+                }
+                enum och-aps
+                {
+                    value 8;
+                }
+                enum ocp-line
+                {
+                    value 9;
+                }
+                enum ocp-channel
+                {
+                    value 10;
+                }
+                enum omsp
+                {
+                    value 11;
+                }
+                enum olp-1p1
+                {
+                    value 12;
+                }
+                enum dual-homing
+                {
+                    value 13;
+                } 
+                enum olp-1b1
+                {
+                    value 14;
+                }
+                enum trib-1p1
+                {
+                    value 15;
+                }               
+            }
+            mandatory true;
+        }
+        leaf switching-direction
+        {
+            type enumeration
+            {
+                enum unidirection
+                {
+                    value 1;
+                }
+                enum bidirection
+                {
+                    value 2;
+                } 
+            }
+            default "unidirection";
+        }
+        leaf revertive
+        {
+            type co-type:is-enable;
+            default "enable";
+        } 
+        leaf wait-to-restore
+        {
+            type uint8
+            {
+                range "0..12";
+            }
+            default 8;
+            units "min";
+        }
+        leaf holdoff-timer
+        {
+            type uint16
+            {
+                range "0..10000";
+            }
+            default 0;
+            units "ms";
+        }
+    }
+    grouping prot-tigger-cfg
+    {
+        leaf prot-trigger-level
+        {
+            type enumeration
+            {
+                enum pm
+                {
+                    value 1;
+                }
+                enum tcm1
+                {
+                    value 2;
+                }
+                enum tcm2
+                {
+                    value 3;
+                }
+                enum tcm3
+                {
+                    value 4;
+                }
+                enum tcm4
+                {
+                    value 5;
+                }
+                enum tcm5
+                {
+                    value 6;
+                }
+                enum tcm6
+                {
+                    value 7;
+                }
+            }
+            default "pm";
+        }
+        leaf trigger-condition
+        {
+            type enumeration
+            {
+                enum sd
+                {
+                    value 1;
+                }
+                enum sf
+                {
+                    value 2;
+                }
+            }
+            default "sd";
+        }
+    }
+}

@@ -1,0 +1,134 @@
+module chinaunicom-flexeif-clientctrl
+{
+  /*** NAMESPACE ***/
+  namespace "http://chinaunicom.com/yang/interface/flexeinterface/chinaunicom-flexeif-clientctrl";
+   
+  /*** PREFIX DEFINITION ***/
+  prefix "flexecltctrlif";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  import chinaunicom-interface-common  
+  { 
+	revision-date 2020-12-31;
+    prefix "if";
+  }
+
+  
+  /*** META INFORMATION ***/
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+     
+      Postcode: 430073
+      Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+      Email: ylhan@fiberhome.com";
+
+  description 
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom flexe client configuration.
+     
+     This module contains definitions
+     for the following management objects:
+       FlexE CLIENT
+     
+     Copyright (c) 2013-2018 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision "2020-06-29" 
+  {
+    description "optimize the grammar of when";
+  }
+  revision 2018-04-27;
+
+  /* typedefs */
+  typedef client-work-mode
+  {
+    type enumeration   
+    {
+      enum transparent
+      {
+        value 0;
+        description "work-mode transparent";
+      }
+      enum terminate
+      {
+        value 1;
+        description "work-mode terminate";
+      }
+    }
+    description "flexecltctrlif work-mode";
+  }
+
+  typedef slot-select-64bit
+  {
+      type uint64
+      {
+         range "0..18446744073709551615";
+      }
+  }
+  
+  typedef flexe-ref
+  {
+    type union
+    {
+      type if:flexephy-name;
+    }
+    description "flexe phy interfaces name ref";
+  }
+  
+  grouping flexe-client-basic
+  {
+    leaf work-mode
+    {
+      type flexecltctrlif:client-work-mode;
+      default "transparent";
+    }
+	
+    leaf client-num
+    {
+      type uint16
+      {
+        range "1..65534";
+      }	
+      description "config overhead client-num, mandatory";
+    }
+  }
+  
+  /* FLEXECLIENTCTRLIF YANG Model */
+  augment "/if:if/if:interfaces/if:interface"
+  {
+    when "type = 'FLEXE-CLIENT'";
+    container flexeclient-ctrlinterface
+    {
+      description "flexe client";
+      
+      uses flexe-client-basic;
+      
+      list client-timeslot
+      {
+        key flexe-name;
+        description "control-flexe-name";
+        
+        leaf flexe-name
+        {
+	  type flexecltctrlif:flexe-ref;
+          description "flexe phy for timeslot configuration";
+        }
+        
+        leaf timeslot1-64
+        {
+          type slot-select-64bit;
+          mandatory true;
+          description "config flexe-client timeslot from 1-64 by bit,from low to high";
+        }
+
+        leaf timeslot65-128
+        {
+          type slot-select-64bit;
+          description "config flexe-client timeslot from 65-128 by bit,from low to high";
+        }
+      }
+    }
+  }
+}

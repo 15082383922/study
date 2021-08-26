@@ -1,0 +1,151 @@
+module chinaunicom-ipprefix {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+	
+  namespace "http://chinaunicom.com/yang/ipprotocol/chinaunicom-ipprefix";
+	
+  prefix "ipprefix";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+  
+
+  /*** META INFORMATION ***/
+
+  /*** META INFORMATION ***/
+  organization "UTStarcom Telecom Co., Ltd.";
+
+  contact
+    "UTStarcom Telecom Co., Ltd.
+     
+     Postcode: 310053 
+     Address: 368 Liuhe Road, Binjiang District,Hangzhou, Zhejiang
+
+     E-mail: sheng.yu@utstar.com";
+     
+  description 
+    "This module contains definitions
+     for the following management objects:
+       ipprefix: ip prefix list configuration
+     Copyright (c) 2013-2021 by UTStarcom Telecom Co., Ltd.
+     All rights reserved.";
+
+  revision 2021-04-02{
+      description 
+        "First revision.";
+  }
+ 
+  typedef list-name {
+	  type string {
+	    length "1..63";
+	  }
+  }
+  
+  typedef ipprefix-mode{
+    type enumeration {
+	  enum permit {
+	    value 2;
+	  }
+	  enum deny {
+	    value 3;
+	  }
+	}
+  }
+  
+  typedef ipprefix-type{
+    type enumeration {
+      enum any {
+        value 2;
+      }
+      enum prefix {
+	    value 3;
+        description "match rules by prefix name";
+      }
+    }
+  }
+  
+  container ipprefix {
+    container ip-prefix-list {
+       description "name / label of the prefix set -- this is used to
+                                reference the set in match conditions";
+	 
+	 list ipv4-prefix{ 
+		 key "ipv4-prefix-name";
+		 
+		 leaf ipv4-prefix-name {
+		   type ipprefix:list-name;
+		 }
+		 
+		 list ipv4-prefix-node {
+		   key "seq";
+		   
+		   leaf seq {
+		     type uint32{
+		       range "1..4294967295";
+		     }
+		   }
+		 
+		   leaf operation {
+		     type ipprefix-mode;
+		   }
+		   leaf ge {
+		     type uint16{
+		       range "1..32";
+		     }
+		   }
+		   leaf le {
+		     type uint16{
+		       range "1..32";
+		      }
+		   }
+		   leaf ipv4-prefix {
+		     type inet:ipv4-prefix;
+		   }
+		   leaf prefix-type {
+		     type ipprefix-type;
+		   }
+		 }	 
+	 }
+	 
+	 list ipv6-prefix{	
+		 key "ipv6-prefix-name";
+		 
+		 leaf ipv6-prefix-name {
+		   type ipprefix:list-name;
+		 }
+		 
+		 list ipv6-prefix-node {
+		   key "seq";
+		 
+		   leaf seq {
+		     type uint32{
+		       range "1..4294967295";
+		      }
+		   }
+		 
+		   leaf operation {
+		     type ipprefix-mode;
+		   }
+		   leaf ge {
+		     type uint16{
+		       range "1..128";
+		      }
+		   }
+		   leaf le {
+		     type uint16{
+		       range "1..128";
+		      }
+		   }
+		 
+		   leaf ipv6-prefix {
+		     type inet:ipv6-prefix;
+		   }
+		   leaf prefix-type {
+		     type ipprefix-type;
+		   }
+		 }
+	  }
+    }
+  }
+}

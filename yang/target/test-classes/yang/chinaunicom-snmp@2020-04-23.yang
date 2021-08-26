@@ -1,0 +1,450 @@
+module chinaunicom-snmp{
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/systemmanage/chinaunicom-snmp";
+
+
+  prefix "snmp";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+
+  import chinaunicom-interface-common {	revision-date 2020-12-31; prefix "if"; }
+  
+  import chinaunicom-datatype-common {	revision-date 2020-08-14;prefix "co-type";}
+  
+
+  /*** META INFORMATION ***/
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+     
+		Postcode: 430073 
+		Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+		Tel: +XXXXXXXXXXXX
+
+		E-mail: yang- author@fiberhome.com";
+
+  description 
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom snmp configuration.
+
+     This module contains definitions
+     for the following management objects:
+       snmp: snmp configuration for all instances
+
+     Copyright (c) 2013-2023 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision "2020-04-23" {
+    description
+    "if-ref add lb-name.";
+  }
+  
+  revision "2019-10-16" {
+    description
+      "chinaunicom V5 1.0 revision.";
+  }
+
+    /* Typedef Definitions */
+	  typedef if-ref {
+		type union {
+		  type if:mgmt-name;
+		  type if:ethphy-name;
+		  type if:ethvir-name;
+		  type if:ethlag-name;
+		  type if:veth-name;
+		  type if:ethsub-name;
+		  type if:flexetunnel-name;
+		  type if:lb-name;
+		}
+	  }	
+
+	typedef snmp-community-name {
+	  type string {
+	    length "1..24";
+	  }
+	}
+
+	typedef snmp-security-name {
+	  type string {
+	    length "1..24";
+	  }
+	}
+
+	typedef snmp-view-name {
+	  type string {
+	    length "1..24";
+	  }
+	}
+
+	typedef snmp-group-name {
+	  type string {
+	    length "1..24";
+	  }
+	}
+
+	typedef snmp-user-name {
+	  type string {
+	    length "1..24";
+	  }
+	}
+	
+	typedef snmp-security-model {
+	  type enumeration {
+	    enum any {
+		  value 0;
+		}
+		enum v1 {
+		  value 1;
+		}
+		enum v2c {
+		  value 2;
+		}
+		enum usm {
+		  value 3;
+		}
+		enum tsm {
+		  value 4;
+		}
+		enum ksm {
+		  value 5;
+		}
+	  }
+	}
+
+	typedef snmp-view-type {
+	  type enumeration {
+	    enum included {
+		  value 0;
+		}
+		enum excluded {
+		  value 1;
+		}
+	  }
+	}	
+	
+	typedef snmp-security-level {
+	  type enumeration {
+	    enum no-auth-no-priv {
+		  value 0;
+		}
+		enum auth-no-priv {
+		  value 1;
+		}
+		enum auth-priv  {
+		  value 2;
+		}
+	  }
+	}	
+	
+	typedef snmp-match-type {
+	  type enumeration {
+	    enum exact {
+		  value 0;
+		}
+		enum prefix {
+		  value 1;
+		}
+	  }
+	}	
+	
+	typedef snmp-auth-type {
+	  type enumeration {
+	    enum md5 {
+		  value 0;
+		}
+		enum sha {
+		  value 1;
+		}
+	  }
+	}
+
+	typedef snmp-priv-type {
+	  type enumeration {
+	    enum des {
+		  value 0;
+		}
+		enum aes {
+		  value 1;
+		}
+	  }
+	}	
+
+	typedef snmp-access-type {
+	  type enumeration {
+	    enum write-read {
+		  value 0;
+		}
+		enum read-only {
+		  value 1;
+		}
+	  }
+	}	
+	
+	typedef snmp-trap-type {
+	  type enumeration {
+	    enum trapsink {
+		  value 0;
+		}
+		enum trap2sink {
+		  value 1;
+		}
+		enum informsink {
+		  value 2;
+		}
+	  }
+	}
+	
+	typedef snmp-state-type {
+	  type enumeration {
+	    enum start {
+		  value 0;
+		}
+		enum stop {
+		  value 1;
+		}
+	  }
+	}	
+
+  /* Configuration data nodes */
+  container snmp {
+    description
+      "Configuration parameters for SNMP.";
+	  
+		container snmp-global {
+		    description "global cfg container";
+			    leaf snmp-state-cfg {
+			        type snmp:snmp-state-type;
+					default stop;
+				    description "The snmp status of this entry.";
+			    }				
+		}	
+		
+		container mib-views {
+		    description "view cfg container";
+            list mib-view {
+			    key "view-name sub-tree";
+				leaf view-name {
+					type snmp:snmp-view-name;
+					description "The snmp view of this entry.";
+				}
+				leaf sub-tree {
+				    type string {
+					    length "1..128";
+					}
+					description "The sub tree of this entry,eg:0.1 .";
+				}
+				leaf view-mask {
+				    type string {
+					    length "0..24";
+					}
+					description "The mask of the sub tree,eg:0xff .";
+				}					
+			    leaf view-type {
+			        type snmp:snmp-view-type;
+					default included;
+				    description "The view type of this entry";
+			    }				
+			}			
+		}
+
+		container group-accesss {
+		    description "access cfg container";
+            list group-access {
+			    key "group-name";
+				leaf group-name {
+					type snmp:snmp-group-name;
+					description "The snmp group of this entry.";
+				}
+				leaf context {
+				    type string {
+					    length "0..24";
+					}
+					description "The snmp context of this entry.";
+				}					
+			    leaf access-security-model {
+			        type snmp:snmp-security-model;
+					default v2c;
+				    description "The security model of this entry.";
+			    }	
+			    leaf access-security-level {
+			        type snmp:snmp-security-level;
+					default no-auth-no-priv;
+				    description "The security level of this entry.";
+			    }	
+			    leaf match-type {
+			        type snmp:snmp-match-type;
+					default exact;
+				    description "The match type of this entry.";
+			    }	
+				leaf read-view-name {
+					type snmp:snmp-view-name;
+					description "The read view name of this entry.";
+				}
+				leaf write-view-name {
+					type snmp:snmp-view-name;
+					description "The write view name of this entry.";
+				}
+				leaf notify-view-name {
+					type snmp:snmp-view-name;
+					description "The notify view name of this entry.";
+				}				
+			}			
+		}	
+
+		container securities {
+		    description "security cfg container";
+            list security {
+			    key "security-name security-model";
+				leaf security-name {
+					type snmp:snmp-security-name;
+					description "The snmp security name of this entry.";
+				}
+			    leaf security-model {
+			        type snmp:snmp-security-model;
+				    description "The snmp security model of this entry.";
+			    }
+				leaf group-name {
+					type snmp:snmp-group-name;
+					description "The snmp group name of this entry.";
+				}						
+			}			
+		}	
+		
+		container communities {
+		    description "community cfg container";
+            list community {
+			    key "community-name";
+				leaf community-name {
+					type snmp:snmp-community-name;
+					description "The snmpCommunityName of this entry.";
+				}
+				leaf security-name {
+					type snmp:snmp-security-name;
+					description "The snmpCommunitySecurityName of this entry.";
+				}				
+			}			
+		}
+
+		container usm-users {
+		    description "user cfg container";
+            list usm-user {
+			    key "user-name";
+				leaf user-name {
+					type snmp:snmp-user-name;
+					description "The snmp user of this entry.";
+				}				
+			    leaf auth-type {
+			        type snmp:snmp-auth-type;
+					default md5;
+				    description "The auth type of this entry.";
+			    }	
+				leaf auth-str {
+				    type string {
+					    length "9..64";
+					}
+					description "The auth string of this entry.";
+				}	
+			    leaf priv-type {
+			        type snmp:snmp-priv-type;
+					default des;
+				    description "The pri type of this entry.";
+			    }
+				leaf priv-str {
+				    type string {
+					    length "9..64";
+					}
+					description "The pri string of this entry.";
+				}					
+			    leaf access-type {
+			        type snmp:snmp-access-type;
+					default write-read;
+				    description "The access type of this entry.";
+			    }
+			    leaf user-security-level {
+			        type snmp:snmp-security-level;
+				    description "The security level of this entry.";
+			    }					
+			}			
+		}		
+		
+		container trap-servers {
+		    description "trap server container";
+            list trap-server {
+			    key "trap-type host-addr host-ipv6-addr trap-vrf-name";
+			    leaf trap-type {
+			        type snmp:snmp-trap-type;
+				    description "";
+			    }	
+				leaf host-addr {
+					type inet:ipv4-address;
+					description
+						"The ipv4 trap server of this entry,when configuring ipv6 host address,this parameter is supplementd with 0.";
+				}
+			    leaf host-ipv6-addr {
+					type inet:ipv6-address;
+					description 
+					    "The ipv6 trap server of this entry,when configuring ipv4 host address,this parameter is supplementd with 0.";
+				}
+			   leaf trap-vrf-name {
+				type co-type:vpn-name-with-global;
+				description
+				  "config vrf for this association, need vrf activate before use";		
+			    }		
+				leaf community-name {
+					type snmp:snmp-community-name;
+					description "The snmp commnity of this entry.";
+				}	
+				leaf trap-port {
+					type uint32 {
+					  range "0..4294967295";
+					}
+					description "The trap port of this entry.";
+				}				
+			}			
+		}
+
+		container snmp-vrfs {
+		    description "vrf cfg container";
+			list snmp-vrf {
+			    key "vrf-name";
+			   leaf vrf-name {
+				type co-type:vpn-name-with-global;
+				description
+				  "config vrf for this association, need vrf activate before use";		
+			  }	
+			}			  
+		}		
+
+		container snmp-acls {
+		    description "acl cfg container";
+			list snmp-acl {
+			    key "acl-name";
+			    leaf acl-name {
+				    type string {
+					    length "1..32";
+					}
+					description "The acl name of this entry.";
+				}	
+			}			  
+		}	
+		
+		container snmp-sources {
+		    description "snmp source cfg container";
+            list snmp-source {
+			    key "snmp-source-interface";	
+				leaf snmp-source-interface {
+				type snmp:if-ref;
+				description
+				"The interface whose IP address is used by this association
+				as the source address.";			
+				}
+			}				
+		}	
+	}		
+}

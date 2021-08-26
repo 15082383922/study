@@ -1,0 +1,263 @@
+module chinaunicom-staticroute {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/ipprotocol/routing/chinaunicom-staticroute";
+
+
+  prefix "s-route";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+
+  import chinaunicom-l3vpn {	revision-date 2019-10-24; prefix "l3vpn"; }
+  
+  import chinaunicom-interface-common {	revision-date 2020-12-31; prefix "if"; }
+  
+  
+
+ // import FH-chinaunicom-R8000-rip-datatypes { prefix "dt1"; }
+
+
+  /*** META INFORMATION ***/
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+     
+		Postcode: 430073 
+		Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+		Tel: +XXXXXXXXXXXX
+
+		E-mail: yang- author@fiberhome.com";
+
+  description 
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom-R8000 static-route package configuration.
+
+     This module contains definitions
+     for the following management objects:
+       static-route: static-route configuration for all instances
+
+     This YANG module augments the
+       FH-chinaunicom-R8000-snmp-agent-cfg
+     module with configuration data.
+
+     Copyright (c) 2013-2016 by Fiberhome Systems, Inc.
+     All rights reserved.";
+  
+  revision "2020-06-17" {
+    description
+      "Add track route.";
+  }
+  
+  revision "2018-04-16" {
+    description
+      "chinaunicom R8000 6.0 revision.";
+  }
+  
+ typedef vrf-ref {
+	type union {
+		type l3vpn:vpn-name;
+		type string {
+			pattern '_public_';
+		}
+	}
+  }
+  
+  typedef if-ref {
+	type union {
+		type if:ethphy-name;
+		type if:ethvir-name;
+        type if:ethlag-name;
+        type if:veth-name;
+        type if:ethsub-name;
+        type if:flexetunnel-name;
+        type if:mgmt-name;
+        type if:tunnel-name;
+        type if:vcg-name;
+		type if:null-name;
+		type if:lte-name;
+	    type if:wlan-name;
+		type string {
+			pattern 'nil';
+		}
+	}
+  }
+  
+  typedef is-vpn-peer-enum{
+    type enumeration{
+		enum non-vpn-peer {
+			   value 0;
+			   description "apply label of noknown";
+				}
+		enum vpn-peer {
+			  value 1;
+			  description "apply label of per_vrf";
+			}
+  }
+  }
+  
+    typedef af-mode-enum{
+    type enumeration{
+		enum ipv4 {
+			   value 1;
+			   description "ipv4 address-family";
+				}
+		enum ipv6 {
+			  value 2;
+			  description "ipv6 address-family";
+			}
+  }
+  }
+  
+    typedef safi-enum{
+    type enumeration{
+		enum unicast {
+			   value 1;
+			   description " unicast";
+				}
+		enum multicast {
+			  value 2;
+			  description "multicast";
+			}
+  }
+  }
+  
+  typedef track-route-name-type{
+    type string
+    {
+      length 1..31;
+    }
+  }
+
+	container s-route {
+		container route-static{
+		   description 
+		"router static configuration data";		   
+		   list vrf{
+			  key "vrf-name";
+			  description "vrf-name";
+			  
+			  leaf vrf-name {
+				  type s-route:vrf-ref;
+				 description
+				   "static route vrf instance";
+			  }
+			  list afi{
+				key "af-mode safi";
+				description "af-mode";
+
+				leaf af-mode{
+				type af-mode-enum;                 
+				description
+				" afi:ipv4 or ipv6 ";
+				}
+
+				leaf safi{
+				type safi-enum;
+				description
+				" safi :unicast or multicast";
+				}
+
+				list static-route{
+					 key "ip-prefix nh-addr outif is-vpn-peer";
+					 
+					description "nh-vrf and vpn-peer cannot be configured simultaneously / metric and vpn-peer cannot be configured simultaneously";
+								 
+		  
+					leaf ip-prefix{
+					  type inet:ip-prefix;
+					  description
+					  "destination ip";
+					}
+								   
+					leaf nh-addr{
+						type inet:ip-address;
+						description
+						" next hop ip address";
+					}
+								   
+							
+					leaf outif{
+						 type s-route:if-ref;      
+						  description
+						  "out-going interface name ";
+					}
+								   
+					leaf is-vpn-peer{
+						  type is-vpn-peer-enum;
+						  /* default non-vpn-peer; */
+						  description
+						  "is vpn-peer or no vpn-peer";
+						 
+					}
+								   
+					leaf nh-vrf{
+						type s-route:vrf-ref;
+						description
+						" nexthop vrf name ";
+					}
+								   
+								   
+					leaf ad-distance{
+						type uint16 {
+							range "1..254";
+								   }
+						default 1;
+						description
+							"distance";
+					}
+								   
+					leaf metric{
+					   type uint16 {
+					        range "0..65535";
+								   }
+						default 10;
+						description  "metric";
+					}
+					
+					leaf track-bfd-name{
+			          type string {
+			          length "0..32";
+			          }
+			            description "bfd_name";
+			        }
+					
+					leaf track-route-name{
+			          type track-route-name-type;
+			          description "track-rotue name";
+			        }		   
+				}
+							   
+				}
+			}
+		}
+
+		container track-routes {
+			description "track-rotues configurations";
+		    list track-route {
+				description "track-route configurations";
+				key "track-route-name";
+				leaf track-route-name {
+				    type track-route-name-type;
+					description "Name of track-route";
+				}
+				list route {
+					description "binding route info";
+					key "ip-prefix vrf-name";
+					leaf ip-prefix{
+						type inet:ip-prefix;
+						description "destination ip";
+					}
+					leaf vrf-name {
+						type s-route:vrf-ref;
+						description "track route vrf instance";
+					}
+				}
+			}
+		}
+	}
+}

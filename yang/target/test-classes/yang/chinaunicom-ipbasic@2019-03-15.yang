@@ -1,0 +1,81 @@
+module chinaunicom-ipbasic {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/ipservice/chinaunicom-ipbasic";
+
+  prefix "ipbasic";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  import ietf-yang-types {	revision-date 2013-07-15; prefix "yang"; }
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+  import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type"; }
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Communications Techlonogy Co., Ltd.
+
+     Postcode: 430073
+     Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+
+     E-mail: hushx@fiberhome.com";
+
+  description
+    "This module contains a collection of YANG definitions
+     for Fiberhome IPv4 and IPv6 basic configuration.
+	 
+     This module contains definitions
+     for the following management objects:
+       pmtu: Path MTU Discovery for IP version 6   
+       other: any other modules
+
+     Copyright (c) 2013-2016 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision 2019-03-15 {
+    description
+     "Initial version.";
+  }
+
+  container ipbasic {
+	
+	container ipv6-configuration{
+      container ipv6-cfg-global {
+        description "ipv6 global configuration";
+      
+        leaf ipv6-pmtu-time-out {
+          type uint32{
+              range "10..100";
+              }
+          default "10";
+          description "Expire time in minutes";
+        }
+      }
+
+      container ipv6-pmtu-statics {
+        list ipv6-pmtu-static {
+          key "vrf-name ipv6-addr";
+          description "static PMTU configuration in VPN";
+      
+          leaf vrf-name {
+            type co-type:vpn-name-with-global;
+            description "name of VRF";
+          }
+      
+          leaf ipv6-addr {
+            type inet:ipv6-address-no-zone;
+            description "IPv6 Address";
+          }
+      
+          leaf path-mtu {
+            type uint32 {
+                range "1280..10000";
+              }
+            description "PMTU value for the specified IPV6 address";
+          }
+        }
+      }
+	}
+  }
+}

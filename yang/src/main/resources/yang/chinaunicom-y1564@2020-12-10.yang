@@ -1,0 +1,563 @@
+module chinaunicom-y1564{
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/systemdiagnose/chinaunicom-y1564";
+
+
+  prefix "y1564";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+  import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type"; }
+
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+
+  import ietf-yang-types {	revision-date 2013-07-15; prefix "yang"; }
+
+  import chinaunicom-interface-common {	revision-date 2020-12-31; prefix "if"; } 
+  
+  
+  /*** META INFORMATION ***/
+
+  organization "UTStarcom Telecom Co., Ltd.";
+
+  contact
+    "UTStarcom Telecom Co., Ltd.
+     
+     Postcode: 310053 
+     Address: 368 Liuhe Road, Binjiang District,Hangzhou, Zhejiang
+
+     E-mail: sheng.yu@utstar.com";
+     
+  description 
+    "This module contains a collection of YANG definitions
+     for UTStarcom IPRAN telnet configuration.
+     Copyright (c) 2013-2020 by UTStarcom Telecom Co., Ltd.
+     All rights reserved.";
+
+  revision "2020-12-10" {
+    description
+      " 1. Change the value range of y1564-reflector/ageing-time from 1..1440 to 0..1440, 
+           to allow no aging with special value of 0.
+        2. Add more info into the description of leaf exchange-action
+        3. Delete the typedef of service-type, and remove leaf service-type from container of y1564-sender.
+        4. Change the upper limit of framesize from 1522 to 9600 per requirement of ITU-T Y.1564.
+        5. Change the value range and default value of leaf perf-test-duration in container y1564-sender.
+        6. Change the value range of leaf y1564-sender/config-test-duration from 1..600 to 1..60
+        7. Add leaf of simple-test on/off control for y1564-sender/test-flow-list
+      ";
+  }
+
+	typedef if-ref {
+		type union {
+			type if:ethphy-name;
+			type if:ethlag-name;
+			type if:ethvir-name;
+			type if:ethsub-name;
+			type if:flexetunnel-name;
+		}
+	}
+
+  typedef coupling-flag {
+    type enumeration {
+		  enum rfc-mef {
+				value 0;
+				description "coupling flag : rfc-mef";
+		  }
+		  enum rfc2698-trtcm {
+				value 1;
+				description "coupling flag : rfc2698-trtcm";
+		  }
+		}
+	}
+
+  typedef color-mode {
+    type enumeration {
+		  enum aware {
+				value 0;
+				description "color aware";
+		  }
+		  enum blind {
+				value 1;
+				description "color blind";
+		  }
+		}
+	}
+
+  typedef vlan-tag {
+    type enumeration {
+		  enum no-vlan-tag {
+				value 0;
+				description "without vlan tag";
+		  }
+		  enum vlan-tag {
+				value 1;
+				description "with vlan tag";
+		  }
+		}
+	}
+
+  typedef direction {
+    type enumeration {
+		  enum inbound {
+				value 0;
+				description "direction of service";
+		  }
+		  enum outbound {
+				value 1;
+				description "direction of service";
+		  }
+		}
+	}
+
+  typedef color-method {
+    type enumeration {
+		  enum vlan-pcp {
+				value 0;
+				description "method of coloring";
+		  }
+		  enum ip-dscp {
+				value 1;
+				description "method of coloring";
+		  }
+		}
+	}
+	
+  typedef framefill {
+    type enumeration {
+		  enum all-zero {
+				value 0;
+				description "fill the test packets with data of all zero";
+		  }
+		  enum all-one {
+				value 1;
+				description "fill the test packets with data of all one";
+		  }
+		  enum pseudo {
+				value 2;
+				description "fill the test packets with pseudorandom data";
+		  }
+		}
+	}
+
+  typedef test-enable {
+    type enumeration {
+		  enum off {
+				value 0;
+				description " ";
+		  }
+		  enum on {
+				value 1;
+				description " ";
+		  }
+		}
+	}
+
+  /*
+  typedef service-type {
+    type enumeration {
+		  enum vlan-model {
+				value 0;
+				description "model of the tested service";
+		  }
+		  enum non-vlan-model {
+				value 1;
+				description "model of the tested service";
+		  }
+		}
+	}
+	*/
+
+  typedef exchange-action {
+    type enumeration {
+		  enum noswap {
+				value 0;
+				description " ";
+		  }
+		  enum mac {
+				value 1;
+				description " ";
+		  }
+		  enum ip {
+				value 2;
+				description " ";
+		  }
+		  enum mac-and-ip {
+				value 3;
+				description " ";
+		  }
+		  enum udp {
+				value 4;
+				description " ";
+		  }
+		  enum mac-ip-udp {
+				value 5;
+				description " ";
+		  }
+		}
+	}
+
+  grouping bandwidth-profile {
+    description "bandwidth profile  base config";
+  	
+    leaf cir {
+  	type uint32 {
+        range "16..100000000";
+  	}
+  	default 1000;
+  	description "committed information rate";
+    }
+    leaf pir {
+  	type uint32 {
+        range "16..100000000";
+  	}
+  	default 1000;
+  	description "peak information rate";
+    }
+    leaf cbs {
+  	type uint16 {
+        range "32..1024";
+  	}
+  	default 256;
+  	description "commitment burst size";
+    }
+    leaf pbs {
+  	type uint16 {
+        range "32..1024";
+  	}
+  	default 256;
+  	description "peak burst size";
+    } 
+    leaf coupling-flag {
+  	  type y1564:coupling-flag;
+  	  default "rfc-mef";
+  	  description "coupling-flag";
+    } 
+    leaf color-mode {
+  	  type y1564:color-mode;
+  	  default "blind";
+  	  description "color-mode";
+    } 
+  }
+
+  grouping sac {
+    description "Service Acceptance Criteria";
+  	
+    leaf flr {
+  	type uint32 {
+        range "0..100000000";
+  	}
+  	default 0;
+  	description "Frame Loss Ratio";
+    }
+    leaf ftd {
+  	type uint32 {
+        range "16..100000000";
+  	}
+  	default 1000;
+  	description "Frame Transfer Delay";
+    }
+    leaf fdv {
+  	type uint16 {
+        range "0..200";
+  	}
+  	default 50;
+  	description "Frame Delay Variation";
+    }
+    leaf avail {
+  	type uint16 {
+        range "32..1000";
+  	}
+  	default 999;
+  	description "rate of avail packet";
+    } 
+    leaf disorder {
+  	type uint32 {
+        range "0..100000000";
+  	}
+  	default 10000;
+  	description "rate of disorder packet";
+    }
+  }
+	
+  grouping test-flow {
+    description "test flow config";
+  	
+    leaf sender-interface {
+  	type y1564:if-ref;
+  	description "sender interface";
+    }
+    leaf slot {
+  	type co-type:slot-num-string;
+  	description "slot";
+    }
+    leaf dst-mac {
+  	type yang:mac-address;
+  	description "dest mac address";
+    }
+    leaf src-mac {
+  	type yang:mac-address;
+  	description "source mac address";
+    }
+    leaf dst-ip-addr {
+  	type inet:ipv4-address;
+  	description "dest ip address";
+    }
+    leaf src-ip-addr {
+  	type inet:ipv4-address;
+  	description "source ip address";
+    }
+    leaf dst-ipv6-addr {
+  	type inet:ipv6-address;
+  	description "dest ip address";
+    }
+    leaf src-ipv6-addr {
+  	type inet:ipv6-address;
+  	description "source ip address";
+    }
+    leaf dst-udp-port {
+  	type uint16;
+  	default 7;
+  	description "dest udp port";
+    } 
+    leaf src-udp-port {
+  	type uint16 {
+        range "1025..65535";
+  	}
+  	default 49184;
+  	description "source udp port";
+    }
+    leaf vlan-tag {
+  	type y1564:vlan-tag;
+  	description "vlan tag";
+    }
+    leaf vlan-id {
+  	type uint16 {
+        range "0..4095";
+  	}
+  	default 0;
+  	description "vlan id in dot1q model";
+    }
+    leaf pe-vlan-id {
+  	type uint16 {
+        range "0..4095";
+  	}
+  	default 0;
+  	description "outer vlan id in qinq model";
+    }
+    leaf ce-vlan-id {
+  	type uint16 {
+        range "0..4095";
+  	}
+  	default 0;
+  	description "inner vlan id in qinq model";
+    }
+ 		uses bandwidth-profile;
+		uses sac;
+    leaf color-method {
+  	type y1564:color-method;
+  	description "color method";
+    }
+    leaf green-pri {
+  	type uint8 {
+        range "0..63";
+  	}
+  	default 0;
+  	description "privilege of green packet";
+    }
+    leaf yellow-pri {
+  	type uint8 {
+        range "0..63";
+  	}
+	default 0;
+  	description "privilege of yellow packet";
+	}
+
+		list framesize-list{
+		key framesize;
+    leaf framesize {
+  	type uint16 {
+        range "64..9600";
+  	}
+  	description "size of test frame";
+    }
+	}
+		leaf overshoot {
+  		type uint32 {
+        range "0..1000000";
+  		}
+  		default 0;
+  		description "overshoot";
+    }
+    leaf framefill {
+  	type y1564:framefill;
+  	description "framefill";
+  	default all-zero;
+    }
+    leaf simple-test {
+  	type co-type:is-enable;
+  	description "simple test or step-load test";
+  	default disable;
+    }
+  }
+
+  container y1564{
+	  description "y1564 top container";
+		container y1564-global{ 
+			description "y1564 global cfg container"; 
+	    leaf y1564-enable {
+	  	type co-type:is-enable;
+	  	description "y1564 enable";
+	    }
+		}
+		container y1564-senders{			
+			description "y1564 sender cfg container"; 
+			list y1564-sender{
+				key sender-id;
+		    leaf sender-id {
+			  	type uint16 {
+			        range "1..65535";
+			  	}
+		  		description "sender-id";
+		    }
+		    leaf cir-test-enable {
+			  	type y1564:test-enable;
+			  	default on;
+		  		description "cir test onoff";
+		    }
+		    leaf eir-test-enable {
+			  	type y1564:test-enable;
+			  	default on;
+		  		description "eir test onoff";
+		    }
+		    leaf tp-test-enable {
+			  	type y1564:test-enable;
+			  	default on;
+		  		description "traffic-policying test onoff";
+		    }
+		    leaf perf-test-enable {
+			  	type y1564:test-enable;
+			  	default on;
+		  		description "performance test onoff";
+		    }
+		    leaf config-test-duration {
+			  	type uint16 {
+			        range "1..60";
+			  	}
+			  	default 5;
+		  		description "duration of config test, in seconds ";
+		    }
+		    leaf perf-test-duration {
+			  	type uint16 {
+			        range "1..1440";
+			  	}
+			  	default 15;
+		  		description "duration of performance test, in minutes ";
+		    }
+		    /*
+		    leaf service-type {
+			  	type y1564:service-type;
+			  	default vlan-model;
+		  		description "model of testet service";
+		    }
+		    */
+		    leaf exchange-action {
+			  	type y1564:exchange-action;
+			  	default noswap;
+		  		description "exchange-action type of the reflected packets,
+		  		should be in accordance with the configuration on reflector";
+		    }
+		    list test-flow-list{
+					key flow-id;
+			    leaf flow-id {
+				  	type uint8 {
+				        range "1..8";
+				  	}
+			  		description "test flow id";
+			    }
+					uses test-flow;
+		    }
+			}
+		}
+		container y1564-reflectors{ 
+			description "y1564 reflector cfg container";
+			list y1564-reflector{
+				key reflector-id;
+		    leaf reflector-id {
+			  	type uint16 {
+			        range "1..65535";
+			  	}
+		  		description "reflector-id";
+		    }
+		    leaf reflector-interface {
+			  	type y1564:if-ref;
+			  	description "reflector interface";
+		    }
+		    leaf slot {
+			  	type co-type:slot-num-string;
+			  	description "slot";
+		    }
+		    leaf dst-mac {
+			  	type yang:mac-address;
+			  	description "dest mac address";
+		    }
+		    leaf src-mac {
+			  	type yang:mac-address;
+			  	description "source mac address";
+		    }
+		    leaf dst-ip-addr {
+			  	type inet:ipv4-address;
+			  	description "dest ip address";
+		    }
+		    leaf src-ip-addr {
+			  	type inet:ipv4-address;
+			  	description "source ip address";
+		    }
+		    leaf dst-ipv6-addr {
+			  	type inet:ipv6-address;
+			  	description "dest ip address";
+		    }
+		    leaf src-ipv6-addr {
+			  	type inet:ipv6-address;
+			  	description "source ip address";
+		    }
+		    leaf dst-udp-port {
+		  		type uint16;
+			  	default 7;
+			  	description "dest udp port";
+			  } 
+		    leaf src-udp-port {
+			  	type uint16 {
+			        range "1025..65535";
+			  	}
+			  	default 49184;
+			  	description "source udp port";
+		    }
+		    leaf reflector-enable {
+			  	type co-type:is-enable;
+			  	default enable;
+		  		description "reflector enable";
+		    }
+		    leaf ageing-time {
+		  		type uint16 {
+		        range "0..1440";
+		  		}
+			  	default 15;
+			  	description "ageing time";
+			  } 
+		    leaf reflector-all {
+			  	type co-type:is-enable;
+			  	default disable;
+		  		description "reflector all packets";
+		    }
+		    leaf exchange-action {
+			  	type y1564:exchange-action;
+			  	default noswap;
+		  		description "exchange-action";
+		    }
+			}
+		}
+	}
+
+}

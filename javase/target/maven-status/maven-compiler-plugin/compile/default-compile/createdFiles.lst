@@ -1,0 +1,6 @@
+com\chancy\demo\ChatHandler.class
+com\chancy\demo\ChatClient.class
+com\chancy\demo\ServerDemo.class
+com\chancy\demo\ClientDemo.class
+com\chancy\demo\UserInputHandler.class
+com\chancy\demo\ChatServer.class

@@ -1,0 +1,386 @@
+module chinaunicom-telemetry-oper{
+
+  // namespace
+  namespace "http://chinaunicom.com/yang/telemetry/chinaunicom-telemetry-oper";
+
+  prefix "telemetry-oper";
+
+  // import some basic types
+  import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type"; }
+  import ietf-inet-types {	revision-date 2013-07-15; prefix inet; }
+  import chinaunicom-telemetry {	revision-date 2020-08-10; prefix telemetry; }
+
+  // meta
+  organization "Fiberhome Telecommunication Technologies Co.,LTD";
+
+  contact
+    "Fiberhome Telecommunication Technologies Co.,LTD.
+     
+      Postcode: 430073
+      Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+      Tel: +XXXXXXXXXXXX
+      E-mail: zgcheng@fiberhome.com";
+
+  description 
+    "This module contains a collection of YANG definitions
+     for the telemetry operational data.";
+
+  revision 2020-09-09 {
+    description
+      "Add sensor-path-inchinaunicom container, filter for sensor, and local-source-address for subscription, etc.";
+    reference "0.1.2";
+  }
+
+  revision 2020-06-01 {
+    description
+      "Change sample-interval range, and add vpn-name for private network.";
+    reference "0.1.1";
+  }
+
+  revision "2019-10-08" {
+    description
+      "chinaunicom telemetry initial revision.";
+    reference "0.1.0";
+  }
+
+  typedef subscribed-state-type {
+    type enumeration {
+      enum "na" {
+        value 0;
+        description
+          "unsubscribed";
+      }
+      enum "resolved" {
+        value 1;
+        description
+          "subscribed";
+      }
+    }
+    description
+      "Subscribed state type definition for sensor and destination";
+  }
+
+  typedef connect-state-type {
+    type enumeration {
+      enum "na" {
+        value 0;
+        description
+          "not start connect";
+      }
+      enum "active" {
+        value 1;
+        description
+          "connected";
+      }
+      enum "passive" {
+        value 2;
+        description
+          "unconnected after start connect";
+      }
+    }
+    description
+      "connect state type definition for subscription";
+  }
+
+  typedef sample-type {
+    type enumeration {
+      enum "sample" {
+        value 1;
+        description
+          "sample data";
+      }
+      enum "alarm" {
+        value 2;
+        description
+          "alarm data";
+      }
+      enum "event" {
+        value 3;
+        description
+          "event data";
+      }
+    }
+    description
+      "sample type definition for sensor path";
+  }
+
+  container telemetry-oper{
+    config false;
+    description
+      "Telemetry operational data";
+    container sensor-groups {
+      description
+        "sensor group operational data";
+      list sensor-group {
+        key "sensor-name";
+        description
+          "sensor group operational data";
+        leaf sensor-name {
+          type string {
+            length "1..31";
+          }
+          description
+            "sensor group name";
+        }
+        container sensors {
+          description
+            "sensor operational data";
+          list sensor {
+            key "sensor-path";
+            description
+              "sensor operational data";
+            leaf sensor-path {
+              type string {
+                length "1..255";
+              }
+              description
+                "sensor path";
+            }
+            leaf sensor-type {
+              type sample-type;
+              description
+                "sensor type";
+            }
+            leaf subscribed-state {
+              type subscribed-state-type;
+              description
+                "sensor subscribed state";
+            }
+            container filters {
+              description
+                "Filters for sensor path";
+              leaf filters-name {
+                type string {
+                  length "1..31";
+                }
+                description
+                  "The identifier for the filters";
+              }
+              leaf filters-relation {
+                type telemetry:relation-type;
+                default "AND";
+                description
+                  "The relation between the filters";
+              }
+              list filter {
+                max-elements 25;
+                description
+                  "filter configuration";
+                leaf oper-field {
+                  type string {
+                    length "1..31";
+                  }
+                  description
+                    "Operation field";
+                }
+                leaf oper-type {
+                  type telemetry:operation-type;
+                  description
+                    "Operation type";
+                }
+                leaf oper-value {
+                  type string {
+                    length "1..63";
+                  }
+                  description
+                    "Operation value";
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    container destination-groups {
+      description 
+        "destination group operational data";
+      list destination-group {
+        key "destination-name";
+        description 
+          "destination group operational data";
+        leaf destination-name {
+          type string {
+            length "1..31";
+          }
+          description
+            "destination group name";
+        }
+        container destinations {
+          description
+            "destination operational data";
+          list destination {
+            description
+              "destination operational data";
+            leaf destination-address {
+              type inet:ip-address;
+              description
+                "destination IP address";
+            }
+            leaf destination-port {
+              type inet:port-number;
+              description
+                "destination port";
+            }
+            leaf vpn-name {
+              type co-type:vpn-name-with-global;
+              description
+                "vpn instance name";
+            }
+            leaf stream-protocol {
+              type telemetry:proto-type;
+              description
+                "stream protocol type";
+            }
+            leaf subscribed-state {
+              type subscribed-state-type;
+              description
+                "destination subscribed state";
+            }
+            leaf connect-state {
+              type connect-state-type;
+              description
+                "destination connect state";
+            }
+          }
+        }
+      }
+    }
+    container subscriptions {
+      description 
+        "subscription operational data";
+      list subscription {
+        key "subscription-name";
+        description
+          "subscription operational data";
+        leaf subscription-name {
+          type string {
+            length "1..31";
+          }
+          description
+            "subscription name";
+        }
+        leaf stream-protocol {
+          type telemetry:proto-type;
+          description
+            "protocol type";
+        }
+        leaf stream-encoding {
+          type telemetry:encode-type;
+          description
+            "encoding type";
+        }
+        leaf local-source-address {
+          type inet:ip-address;
+          description
+            "The IP address which will be the source of packets from
+             the device to a telemetry collector destination.";
+        }
+        leaf local-source-port {
+          type inet:port-number;
+          description
+            "The source port of packets from the device to a Telemetry collector destination.";
+        }
+        leaf send-packets {
+          type uint64;
+          description
+            "send packets";
+        }
+        leaf error-packets {
+          type uint64;
+          description
+            "error packets for encoding failed";
+        }
+        leaf drop-packets {
+          type uint64;
+          description
+            "drop packets for no active destination";
+        }
+        leaf connect-state {
+          type connect-state-type;
+          description
+            "subscription state";
+        }
+        container sensor-profiles {
+          description
+            "associate sensor groups with subscription";
+          list sensor-profile {
+            description
+              "associate sensor groups with subscription";
+            leaf sensor-name {
+              type string {
+                length "1..31";
+              }
+              description
+                "sensor name to associate with subscription";
+            }
+            leaf sample-interval {
+              type uint32 {
+                range "0..1800000";
+              }
+              units "millisecond";
+              description
+                "sample interval in milliseconds";
+            }
+            leaf subscribed-state {
+              type subscribed-state-type;
+              description
+                "sensor group subscribed state";
+            }
+          }
+        }
+        container destination-profiles {
+          description
+            "associate destination groups with subscription";
+          list destination-profile {
+            description
+              "associate destination groups with subscription";
+            leaf destination-name {
+              type string {
+                length "1..31";
+              }
+              description
+                "destination name to associate with subscription";
+            }
+            leaf subscribed-state {
+              type subscribed-state-type;
+              description
+                "destination group subscribed state";
+            }
+          }
+        }
+      }
+    }
+
+    container sensor-path-inchinaunicom {
+      description
+        "sensor paths operational data";
+      list sensor-path-info {
+        description
+          "sensor path operational data";
+        leaf sensor-path {
+          type string {
+            length "1..255";
+          }
+          description
+            "sensor path";
+        }
+        leaf sensor-type {
+          type sample-type;
+          description
+            "sensor type";
+        }
+        leaf min-period {
+          type uint32;
+          units "millisecond";
+          description
+            "minimum sample interval in milliseconds";
+        }
+        leaf max-object-each-period {
+          type uint32;
+          description
+            "maximum sample object number for each sample interval";
+        }
+      }
+    }
+  }
+}

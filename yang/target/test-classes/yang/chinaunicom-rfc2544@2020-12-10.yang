@@ -1,0 +1,365 @@
+module chinaunicom-rfc2544{
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/systemdiagnose/chinaunicom-rfc2544";
+
+
+  prefix "rfc2544";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+  import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type"; }
+
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+
+  import ietf-yang-types {	revision-date 2013-07-15; prefix "yang"; }
+
+  import chinaunicom-interface-common {	revision-date 2020-12-31; prefix "if"; } 
+  
+
+  /*** META INFORMATION ***/
+
+  organization "UTStarcom Telecom Co., Ltd.";
+
+  contact
+    "UTStarcom Telecom Co., Ltd.
+     
+     Postcode: 310053 
+     Address: 368 Liuhe Road, Binjiang District,Hangzhou, Zhejiang
+
+     E-mail: sheng.yu@utstar.com";
+     
+  description 
+    "This module contains a collection of YANG definitions
+     for UTStarcom IPRAN rfc2544 configuration.
+     Copyright (c) 2013-2020 by UTStarcom Telecom Co., Ltd.
+     All rights reserved.";
+
+  revision "2020-12-10" {
+    description
+      "first revision.";
+  }
+  
+    typedef if-ref {
+		type union {
+			type if:ethphy-name;
+			type if:ethlag-name;
+			type if:ethvir-name;
+			type if:ethsub-name;
+			type if:flexetunnel-name;
+		}
+	}
+	
+	typedef share-mode {
+    type enumeration {
+		  enum lossy {
+				value 0;
+				description "lossy mode";
+		  }
+		  enum lossless {
+				value 1;
+				description "lossless mode";
+		  }
+		}
+	}
+	
+	typedef test-enable {
+    type enumeration {
+		  enum off {
+				value 0;
+				description " ";
+		  }
+		  enum on {
+				value 1;
+				description " ";
+		  }
+		}
+	}
+	
+	typedef exchange-action {
+    type enumeration {
+		  enum noswap {
+				value 0;
+				description " ";
+		  }
+		  enum udp {
+				value 1;
+				description " ";
+		  }
+		}
+	}
+	
+	container rfc2544{
+	  description "rfc2544 top container";
+		container rfc2544-global-cfg{ 
+			description "rfc2544 global cfg container"; 
+	    leaf rfc2544-enable {
+	  	type co-type:is-enable;
+	  	description "rfc2544 enable";
+	    }
+		}
+		container rfc2544-senders-cfg{ 
+			description "rfc2544 senders cfg container"; 
+			list rfc2544-sender-list{
+				key sender-id;
+		    leaf sender-id {
+			  	type uint16 {
+			        range "1..32";
+			  	}
+		  		description "sender-id";
+		    }		
+			leaf test-switch {
+			  	type rfc2544:test-enable;
+			  	default off;
+		  		description "test switch onoff";
+		    }
+			leaf loop-num {
+			  	type uint8 {
+			        range "1..100";
+			  	}
+				default 1;
+		  		description "loop num";
+		    }
+			leaf loop-interval {
+			  	type uint16 {
+			        range "1..300";
+			  	}
+				default 60;
+		  		description "loop interval";
+		    }
+			list frame-size-list{
+					key frame-size;
+			    leaf frame-size {
+				  	type uint16 {
+				        range "64..1518";
+				  	}
+			  		description "test frame size";
+			    }
+		    }
+			leaf throughput-test-switch {
+			  	type rfc2544:test-enable;
+				default off;
+		  		description "throughput test switch onoff";
+		    }
+			leaf throughput-autocalc-switch {
+			  	type rfc2544:test-enable;
+				default on;
+		  		description "throughput autocalc switch onoff";
+		    }
+			leaf throughput-test-rate-upper-limit {
+			  	type uint32 {
+			        range "1..100000000";
+			  	}
+				default 100;
+		  		description "throughput-test-rate-upper-limit";
+		    }
+			leaf throughput-test-rate-lower-limit {
+			  	type uint32 {
+			        range "0..100000000";
+			  	}
+				default 0;
+		  		description "throughput-test-rate-lower-limit";
+		    }
+			leaf throughput-duration {
+			  	type uint32 {
+			        range "10..3600";
+			  	}
+				default 60;
+		  		description "throughput-duration";
+		    }
+			leaf throughput-loss-precision {
+			  	type uint32 {
+			        range "2..1000000000";
+			  	}
+				default 10000;
+		  		description "throughput-loss-precision";
+		    }
+			leaf throughput-loss-rate {
+			  	type uint32 {
+			        range "0..10000000";
+			  	}
+				default 0;
+		  		description "throughput-loss-rate";
+		    }
+			leaf throughput-test-precision {
+			  	type uint32 {
+			        range "1..10000";
+			  	}
+				default 100;
+		  		description "throughput-test-precision";
+		    }
+			leaf throughput-interval {
+			  	type uint8 {
+			        range "1..60";
+			  	}
+				default 4;
+		  		description "throughput-interval";
+		    }
+			leaf loss-test-switch {
+			  	type rfc2544:test-enable;
+				default off;
+		  		description "loss-test-switch onoff";
+		    }
+			leaf loss-test-rate {
+			  	type uint32 {
+			        range "1..10000000";
+			  	}
+				default 100;
+		  		description "loss-test-rate";
+		    }
+			leaf loss-duration {
+			  	type uint32 {
+			        range "10..172800";
+			  	}
+				default 60;
+		  		description "loss-duration";
+		    }
+			leaf delay-test-switch {
+			  	type rfc2544:test-enable;
+				default off;
+		  		description "delay-test-switch onoff";
+		    }
+			leaf delay-test-rate {
+			  	type uint32 {
+			        range "1..10000000";
+			  	}
+				default 100;
+		  		description "delay-test-rate";
+		    }
+			leaf delay-duration {
+			  	type uint32 {
+			        range "10..172800";
+			  	}
+				default 60;
+		  		description "delay-duration";
+		    }	
+			leaf delay-interval {
+			  	type uint8 {
+			        range "1..60";
+			  	}
+				default 4;
+		  		description "delay-interval";
+		    }
+			leaf sender-interface {
+				type rfc2544:if-ref;
+				description "sender interface";
+				}
+			leaf destination-ipv4-address {
+				type inet:ipv4-address;
+				description "destination-ipv4-address";
+				}
+			leaf destination-mac-address {
+				type yang:mac-address;
+				description "destination-mac-address";
+				}
+			leaf source-ipv4-address {
+				type inet:ipv4-address;
+				description "source-ipv4-address";
+				}	
+			leaf ce-vlan-id {
+			  	type uint16 {
+			        range "0..4095";
+			  	}
+				default 0;
+		  		description "ce-vlan-id";
+		    }	
+			leaf pe-vlan-id {
+			  	type uint16 {
+			        range "0..4095";
+			  	}
+				default 0;
+		  		description "pe-vlan-id";
+		    }	
+			leaf tos {
+			  	type uint8 {
+			        range "0..7";
+			  	}
+				default 0;
+		  		description "tos";
+		    }
+			leaf priority-8021p {
+			  	type uint8 {
+			        range "0..7";
+			  	}
+				default 0;
+		  		description "priority-8021p";
+		    }
+			leaf share-mode {
+			  	type rfc2544:share-mode;
+				default lossless;
+		  		description "share-mode";
+		    }			
+			leaf destination-udp-port {
+			  	type uint16 {
+			        range "0..65535";
+			  	}
+				default 7;
+		  		description "0..65535";
+		    }	
+			leaf source-udp-port {
+			  	type uint16 {
+			        range "1025..65535";
+			  	}
+				default 49184;
+		  		description "source-udp-port";
+		    }
+			}
+		}
+		container rfc2544-reflectors-cfg{ 
+			description "rfc2544 reflectors cfg container"; 
+			list rfc2544-reflector-list{
+				key reflector-id;
+			leaf reflector-id {
+			  	type uint16 {
+			        range "1..1024";
+			  	}
+		  		description "reflector-id";
+		    }
+			leaf reflector-interface {
+			  	type rfc2544:if-ref;
+		  		description "reflector-interface";
+		    }
+			leaf dst-mac {
+			  	type yang:mac-address;
+		  		description "dst-mac";
+		    }
+			leaf destination-ipv4-address {
+			  	type inet:ipv4-address;
+		  		description "destination-ipv4-address";
+		    }
+			leaf destination-udp-port {
+			  	type uint16 {
+			        range "0..65535";
+			  	}
+				default 7;
+		  		description "destination-udp-port";
+		    }
+			leaf ce-vlan-id {
+			  	type uint16 {
+			        range "0..4095";
+			  	}
+				default 0;
+		  		description "ce-vlan-id";
+		    }
+			leaf pe-vlan-id {
+			  	type uint16 {
+			        range "0..4095";
+			  	}
+				default 0;
+		  		description "pe-vlan-id";
+		    }
+			leaf share-mode {
+			  	type rfc2544:share-mode;
+				default lossless;
+		  		description "share-mode";
+		    }
+			leaf exchange-action {
+			  	type rfc2544:exchange-action;
+				default noswap;
+		  		description "exchange-action";
+		    }
+			}
+		}
+	}
+}

@@ -1,0 +1,383 @@
+module chinaunicom-isis-oper {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/ipprotocol/routing/chinaunicom-isis-oper";
+
+  prefix "isis-oper";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+  import chinaunicom-isis {	revision-date 2021-03-25; prefix "isis"; }
+
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+    
+  /*** META INFORMATION ***/
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+     
+    Postcode: 430073 
+    Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+    Tel: +XXXXXXXXXXXX
+
+    E-mail: yang- author@fiberhome.com";
+
+  description 
+    "This module contains a collection of YANG definitions
+     for Fiberhome isis package configuration.
+
+     This module contains definitions
+     for the following management objects:
+     isis: IS-IS state for all instances
+
+     Copyright (c) 2013-2016 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision "2019-12-12" {
+    description
+      " Version V1.1
+      add key in list ipv4-routes/ipv6-routes/topologies. ";
+  } 
+  revision "2018-06-19" {
+    description
+      "FOS R8000 6.0 revision.";
+  }
+   
+  typedef Isis-attr-type {
+    type enumeration {
+      enum None {
+        value 1;
+        description "None";
+      }
+      enum Primary {
+        value 2;
+        description "Primary";
+      }
+      enum Secondary {
+        value 3;
+        description "Secondary";
+      }
+      enum ECMP {
+        value 4;
+        description "ECMP";
+      }
+      enum Shortcut {
+        value 5;
+        description "Shortcut";
+      }   
+    }description "Isis attribute types";
+  }
+
+  typedef Isis-sr-label-type{
+    type enumeration {
+      enum None {
+        value 1;
+      }
+      enum Adj-label {
+        value 2;
+      }
+      enum Node-label {
+        value 3;
+      }
+    }
+  }
+
+  container isis-oper {
+    config false;
+    description "IS-IS operational data";
+
+    container isis-instances {
+      description "Per-instance operational data";
+
+      container isis-instances-sum {
+        description "isis instances summary";
+        leaf summary{
+          type uint32;
+        }
+      }
+
+      container ipv4-routes-total-sum{
+        leaf ipv4-routes-summary{
+          type uint32;
+        }
+      }
+
+      container ipv6-routes-total-sum{
+        leaf ipv6-routes-summary{
+          type uint32;
+        }
+      }
+
+      container ipv4-topologies-total-sum{
+        leaf ipv4-topo-summary{
+          type uint32;
+        }
+      }
+
+      container ipv6-topologies-total-sum{
+        leaf ipv6-topo-summary{
+          type uint32;
+        }
+      }
+
+      list isis-instance {
+        description "IS-IS instance";     
+        key "instance-name";      
+        leaf instance-name {
+          description "Instance identifier";
+          type string{
+            length "1..32";
+          }
+        }
+
+        container neighbors{
+          description "isis neighbors ";
+
+          container neighbors-sum{
+            description "isis neighbors summary";
+            leaf summary{
+              type uint32;
+            }
+          }
+
+          list neighbor {
+            description "isis neighbor detail";            
+            key "system-id local-interface neighbor-circuit-type";           
+            leaf system-id{
+              type string{
+                length 1..15;
+              }
+            }
+            leaf local-interface{
+              type isis:Isis-if-ref;
+            }
+            leaf neighbor-state{
+              type enumeration {
+                enum up {
+                  value 0;
+                }
+                enum init{
+                  value 1;
+                }
+                enum down{ 
+                  value 2;
+                }
+              }
+            }
+            leaf neighbor-circuit-type{
+              type isis:Isis-configurable-levels;
+            }
+            leaf circuit-id{
+              type string{
+                length 1..18;
+              }
+            }
+            leaf neighbor-holdtime{
+              type uint32;
+            }
+            leaf neighbor-uptime{
+              type string{
+                length 1..10;
+              }
+            }
+            leaf neighbor-priority{
+              type uint16;
+            }
+          }
+        }
+
+        container ipv4-routes{
+          description "isis ipv4 route";
+
+          container ipv4-routes-sum{
+            description "isis ipv4 route summary";
+            leaf summary{
+              type uint32;
+            }
+          }
+
+          list ipv4-route{
+            description "isis ipv4 route detail";
+            key "destination";
+            leaf route-type{
+              type string{
+                length 1..6 ;
+              }
+            }
+            leaf destination{
+              type inet:ipv4-prefix;
+            }
+            list nexthops{
+              key "next-hop out-interface";
+              leaf metric{
+                type uint32;
+              }
+              leaf next-hop{
+                type inet:ipv4-address;
+              }
+              leaf out-interface{
+                type isis:Isis-if-ref;
+              }
+            }  
+          }
+        }
+
+        container ipv6-routes{
+          description "isis ipv6 route";
+
+          container ipv6-routes-sum{
+            description "isis ipv6 route summary";
+            leaf summary{
+              type uint32;
+            }
+          }
+
+          list ipv6-route{
+            description "isis ipv6 route detail";
+            key "destination";
+            leaf route-type{
+              type string{
+                length 1..6 ;
+              }
+            }
+            leaf destination{
+              type inet:ipv6-prefix;
+            }
+            list nexthops{
+              key "next-hop out-interface";
+              leaf metric{
+                type uint32;
+              }
+              leaf next-hop{
+                type inet:ipv6-address;
+              }
+              leaf out-interface{
+                type isis:Isis-if-ref;
+              }
+            }
+          }
+        }
+
+        list topologies{
+          key "proto-type";                
+          leaf proto-type{
+            type isis:Isis-address-family;
+          }
+
+          container topologies-sum{
+            leaf summary{
+               type uint32;
+            }
+          }
+
+          list topology{
+            key "level system-id";      
+            leaf level{
+              type isis:Isis-configurable-levels;
+            }
+            leaf system-id{
+              type string{
+                length 1..15;
+              }
+            }
+            list nexthops{
+              key "next-hop out-interface";
+              leaf metric{
+                type uint32;
+              }
+              leaf next-hop{
+                type string{
+                  length 1..15;
+                }
+              }
+              leaf out-interface{
+                type isis:Isis-if-ref;
+              }
+            }  
+          }
+        }
+      }
+    }
+
+    container sr-be-path-hops{
+      list sr-be-path-hop{
+        description "query isis sr-path by ipv4 prefix";
+        key "fec";            
+        leaf fec{
+          description "ipv4 prefix";
+          type inet:ipv4-prefix;
+        }
+        leaf sr-be-path-hop-sum{
+          description "number of hops";
+          type uint32;
+        }
+
+        list path-hop{
+          key "hop-index";
+          leaf hop-index{
+            description "serial number of hops";
+            type uint32;
+          }
+          leaf router-id{
+            type inet:ipv4-address-no-zone;
+          }
+          leaf out-if-ip{
+            description "ipv4 address of the outing interface";
+            type inet:ipv4-address-no-zone;
+          }
+          leaf nexthop-address{
+            type inet:ipv4-address-no-zone;
+          }
+          leaf label{
+            type uint32;
+          }
+        }
+      }
+    } 
+
+    container sr-be-stack-infos{
+      list sr-be-stack-info{
+        key "fec";
+        leaf fec{
+          description "ipv4 prefix";
+          type inet:ipv4-prefix;
+        } 
+        leaf nexthop-num{
+          type uint32;
+        }
+
+        list stack-info{
+          key "attr  out-if";
+          leaf attr{
+            type Isis-attr-type;
+          } 
+          leaf out-if{
+            type isis:Isis-if-ref;
+          } 
+          leaf nexthop-address{
+            type inet:ipv4-address-no-zone;
+          }
+          leaf out-label-depth{
+            type uint32;
+          }
+
+          list out-label-stack{
+            key "id";
+            leaf id{
+              type uint32;
+            }
+            leaf label{
+              type uint32;
+            }
+            leaf type{
+              type Isis-sr-label-type;
+            }
+          }
+        }
+      }
+    }
+  }
+}

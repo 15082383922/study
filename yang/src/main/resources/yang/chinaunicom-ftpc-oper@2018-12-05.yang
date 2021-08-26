@@ -1,0 +1,133 @@
+module chinaunicom-ftpc-oper {
+
+  namespace "http://chinaunicom.com/yang/devicemanager/chinaunicom-ftpc-oper";
+
+  prefix "ftpc-oper";
+  
+  import chinaunicom-datatype-common  {	revision-date 2020-08-14; prefix "co-type"; }
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+     Postcode: 430073
+     Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+     Tel: +XXXXXXXXXXXX
+     
+     E-mail: yang-author@fiberhome.com";
+
+  description
+    "This module contains a collection of YANG definitions
+     for Fiberhome ftp client info.
+     
+     This module contains definitions
+     for the following management objects:
+         ***
+     E-mail: yang-author@fiberhome.com
+     All rights reserved.";
+
+  revision "2018-12-05" {
+    description
+      "Init revision.";
+  }
+
+  typedef trans-status {
+    type enumeration {
+      enum "successful" {
+        value 1;
+      }
+      enum "failed" {
+        value 2;
+      }
+      enum "in-progress" {
+        value 3;
+      }
+    }
+    description
+      "status of transport ";
+  }
+
+  typedef ftpc-trans-cmd-type {
+    type enumeration {
+      enum "put" {
+        value 1;
+        description
+          "Upload local files to the remote server.";
+      }
+      enum "get" {
+        value 2;
+        description
+          "Download files from the remote server to the client.";
+      }
+    }
+    description
+      "FTP client transfer command type";
+  }
+  
+  rpc ftpc-transfer-file {
+    description
+      "FTP client transfer file.";
+    input {
+        leaf server-address {
+          type inet:ipv4-address-no-zone;
+          description
+            "Use this IPv4 address or Hostname as the server IPv4 address or server hostname and transfer files to this server.";
+        }
+        leaf server-port {
+          type uint16 {
+            range "1..65535";
+          }
+          default "21";
+          description
+            "Use this server port to transfer the file.";          
+        }
+        leaf vpn-name {
+          type co-type:vpn-name;
+          description
+            "Use this VPN name to connect to the server, null: public net.";
+        }
+        leaf source-address {
+          type inet:ipv4-address-no-zone;
+          description
+            "Use this source IPv4 address to transfer the file.";
+        }
+        
+        leaf username {
+          type string {
+            length "1..64";
+          }
+          description
+            "Use this username to authenticate the connection before transferring files.";
+        }
+        leaf password {
+          type string {
+            length "1..64";
+          }
+          description
+            "Use this password to authenticate the connection before transferring files.";
+        }
+        
+        leaf command-type {
+          type ftpc-trans-cmd-type;
+          description
+            "Specify the type of the operation to be performed.";
+        }        
+        leaf local-filename {
+          type string {
+            length "1..1024";
+          }
+          description
+            "Transfer this file to the server, absolute path.";
+        }
+        leaf remote-filename {
+          type string {
+            length "1..1024";
+          }
+          description
+            "The server stores the received file using this file name, absolute path.";
+        }
+    }
+  }
+
+}

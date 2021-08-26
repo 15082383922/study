@@ -1,0 +1,517 @@
+module chinaunicom-ospfv3 {
+
+    /*** NAMESPACE / PREFIX DEFINITION ***/
+
+    namespace "http://chinaunicom.com/yang/ipprotocol/routing/chinaunicom-ospfv3";  
+
+    prefix "ospfv3";
+
+    /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+    import ietf-yang-types {	revision-date 2013-07-15; prefix "yang"; }
+
+    import ietf-inet-types {	revision-date 2013-07-15;prefix "inet"; }
+	
+	import chinaunicom-ipprefix {	revision-date 2017-01-01; prefix "ipprefix"; }
+	
+    import chinaunicom-datatype-common {	revision-date 2020-08-14;prefix "co-type"; }
+
+	import chinaunicom-routemap {	revision-date 2019-12-30; prefix "routemap"; }
+	
+	import chinaunicom-ospfv3-type {	revision-date 2018-07-27; prefix "ospfv3-type"; }
+	
+	
+    organization "Fiberhome Systems, Inc.";
+	
+
+    contact
+    "Fiberhome Communications Techlonogy Co., Ltd.
+     
+      Postcode: 430073
+      Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+     
+      E-mail: yang- author@fiberhome.com";
+
+    description
+    "This module contains a collection of YANG definitions
+      for Fiberhome  ospfv3 package configuration.
+     
+      This module contains definitions
+      for the following management objects:
+        ospfv3:  configuration
+     
+      Copyright (c) 2013-2020 by Fiberhome Systems, Inc.
+      All rights reserved.";
+      
+    revision 2020-05-16 {
+    description
+		"1.add container distribute-list";
+    }
+	
+    revision 2019-12-06 {
+    description
+		"In order to support for configuration inversion
+		  1.change leaf route-id type from inet:ipv4-address-no-zone to yang:dotted-quad
+		  2.change leaf area-id type from inet:ipv4-address-no-zone to yang:dotted-quad
+		  3.change leaf neighbor-id type from inet:ipv4-address-no-zone to yang:dotted-quad";
+    }
+	
+	revision 2019-10-16 {
+    description
+		"add key instance-id to list ospf-interface";
+    }
+	
+    revision 2018-07-27 {
+    description
+		"Initial version.";
+    } 
+    
+	container ospfv3{
+	description "ospfv3 container";
+		container ospfv3-processes{
+		description "ospfv3 process";
+			list ospfv3-process{
+				   key "process-id";
+				   description "list ospfv3 process";
+			  
+				leaf process-id{
+					type uint32{
+					range "1..65535";
+					}
+				
+				}  
+			    
+				leaf vrf-name{
+				   type co-type:vpn-name-with-global;
+				   description "name of a VPN instance";
+				}
+
+				list ospf-redistribute{
+					description
+					"To import the routes learned from other routing protocols.";
+					key "protocol ospf-process-id isis-process-name";
+					leaf protocol{
+					   type ospfv3-type:import-route-protocol;
+					   description "redistribute protocol type: in type of isis or ospf ,import routes filter by process info. in type of bgp  connect or static,only the routes from the same vrf of this ospf process can be import.";
+					}    
+				   
+					leaf isis-process-name{
+					   type ospfv3-type:redistribute-instance-name;
+					must "(../protocol='isis') or (../protocol='bgp' and ../isis-process-name='nil') or (../protocol='connect' and ../isis-process-name='nil') or (../protocol='static' and ../isis-process-name='nil') or (../protocol='ospf' and ../isis-process-name='nil')";
+					description
+						"It needs to be set only when the protocol is isis. other type must be pattern nil.";
+					   
+					}   
+					
+					leaf ospf-process-id{
+					   type uint16{
+					   range "0..65535";
+					   }
+					must "(../protocol='ospf' and ../ospf-process-id>0 and ../ospf-process-id<65536) or (../protocol='bgp' and ../ospf-process-id=0) or (../protocol='connect' and ../ospf-process-id=0) or (../protocol='static' and ../ospf-process-id=0) or (../protocol='isis' and ../ospf-process-id=0)";
+					description
+						"Process ID of the routing protocol whose routes are imported. It needs to be set only when the protocol is OSPF. The value is an integer ranging from 0 to 65535. ospf range from 1 - 65535,others value is 0.";
+					   
+					}    
+
+					leaf route-policy-name{
+					   type routemap:policy-name;
+					   description "route policy name";
+					}  
+
+					leaf cost{
+					   type uint32{
+					   range "0..16777214";
+					   }
+					   default 1;
+					   description "cost value";
+					}    
+
+					leaf type{
+					   type ospfv3-type:metric-type{
+					   }
+					   default "Type2";
+					   description "metric type";
+					}    	
+				}				  
+					  
+				leaf capablity-te{
+				   type co-type:is-enable{
+				   }
+				   default "disable";
+				}   
+
+				leaf capability-cspf{
+				   type co-type:is-enable{
+				   }
+				   default "disable";
+				}   
+
+				leaf route-id{
+				   type yang:dotted-quad;
+				   description "route id";
+				}    
+
+				leaf max-ecmp-path{
+				   type uint32{
+				   range "1..16";
+				   }
+				   default 4;
+				   description "max ecmp path";
+				}    	   
+				  
+				container distance{
+					leaf admin-distance{
+					   type uint8{
+					   range "1..255";
+					   }
+					   default 110;
+					   description "admin distance ,defaule is 110";
+					}    
+
+					leaf intra-distance{
+					   type uint8{
+					   range "1..255";
+					   }
+					   default 110;
+					   description "intra distance";
+					}    
+				   
+					leaf inter-distance{
+					   type uint8{
+					   range "1..255";
+					   }
+					   default 110;
+					   description "inter- istance";
+					}     
+
+					leaf external-distance{
+					   type uint8{
+					   range "1..255";
+					   }
+					   default 110;
+					   description "external distance";
+					}    
+				}				  
+				  
+				container spf-intelligent-timer{
+					leaf spf-start-interval{
+					   type uint32{
+					   range "0..600000";
+					   }
+						default 500;
+						 units "millisecond";
+					   description "spf start interval,in milliseconds";
+					}    
+
+					leaf spf-max-wait-interval{
+					   type uint32{
+					   range "0..600000";
+					   }
+						default 5000;
+						units "millisecond";
+					   description "spf max wait interval,in milliseconds";
+					}      
+				   
+				}				  
+				
+				container ospf-gr{
+				   leaf capability-gr{
+					  type co-type:is-enable;
+					  default "disable";
+					  description "gr capability";
+				   }    
+				   
+				   leaf helper-never{
+					  type co-type:is-enable;
+					   default "disable";
+					  description "helper never flag";
+				   }
+
+				   leaf helper-max-peroid{
+					  type uint16{
+					  range "1..1800";
+					  }
+					  default 300;
+					  units "second";
+					  description "helper max peroid,in seconds";
+				   }
+				   
+				   leaf gr-restarter-peroid{
+					  type uint16{
+					  range "1..1800";
+					  }
+					  default 120;
+					  units "second";
+					  description "gr restarter peroid,in seconds";
+				   }    
+				}  			 	   
+
+				list passive-interface{
+					key "interface-name";
+					description "passive-interfaces";
+
+					leaf interface-name{
+					   type ospfv3-type:if-name-ref;
+					   description "interface name";
+				   }   
+				}  			 	   
+
+				container distribute-list{
+					leaf prefix-list-name{
+						type ipprefix:list-name;
+						description "prefix name";
+					}
+				}				
+
+				list area{
+					key "area-id";
+					leaf area-id{
+					   type yang:dotted-quad;
+					   description "area id";
+					}    
+
+					leaf area-type{
+					   type ospfv3-type:ospf-area-type;
+					   default "normal";
+					   description "area type";
+					}
+
+					leaf ipsec-policy{
+					   type string{
+					   length "0..32";
+					   }
+					   description "ipsec policy";
+					}   	
+				
+					list abr-summary{
+						key "summary-prefix";
+						leaf summary-prefix{
+							   type inet:ipv6-prefix;
+							   description "summary prefix";
+							}   
+	
+						leaf not-advertise{
+						   type boolean;
+							default "false";
+						}     
+				
+					}
+
+					leaf stub-no-summary{
+					when "../area-type = 'stub'";
+						type boolean;
+						 default "false";
+					}    
+					
+					container nssa{
+					when "../area-type = 'nssa'";
+						leaf translator-role{
+						   type ospfv3-type:translator-role;
+						   default "candidate";
+						   description "translator role";
+						}    
+						
+						leaf default-enable{
+						   type co-type:is-enable;
+						   default "disable";
+						   description "default config enable";
+						}  
+						
+						leaf type{
+						   type ospfv3-type:metric-type	{
+						   }
+						   default "Type2";
+						   description "the type of metric";
+						}     
+				 
+						leaf cost{
+						   type uint32{
+						   range "0..16777214";
+						   }
+						   default 1;
+						   description "cost value";
+						}    
+
+						leaf no-summary{
+							type boolean;
+							default "false";
+							description "no summary";
+						}  
+					
+					}
+
+					list virtual-link{
+						key "neighbor-id";
+						leaf neighbor-id{
+						   type yang:dotted-quad;
+						   description "neighbor ip addr";
+						}    
+						
+						leaf dead-interval{
+						   type uint16{
+						   range "1..65535";
+						   }
+						   default 40;
+						   units "second";
+						   description "dead interval,in seconds";
+						}    
+					   
+						leaf retransmit-interval{
+						   type uint16{
+						   range "1..65535";
+						   }
+						   default 5;
+						   units "second";
+						   description "retransmit interval,in seconds";
+						}      
+				 
+						leaf transmit-delay-interval{
+						   type uint16{
+						   range "1..65535";
+						   }
+						   default 1;
+						   units "second";
+						   description "transmit delay interval,in seconds";
+						}    
+
+						leaf hello-interval{
+						   type uint32{
+						   range "1..65535";
+						   }
+						   default 10;
+						   units "second";
+						   description "hello interva,in seconds";
+						}       
+						
+						leaf ipsec-policy{
+						   type string{
+						   length "0..32";
+						   }
+						   description "ipsec policy";
+						}   
+					
+					}
+
+					list ospf-interface{
+						key "if-name instance-id";
+						description "interface ospf config info";
+						leaf if-name{
+						   type ospfv3-type:if-name-ref;
+						   description "interface name";
+						}    
+
+						leaf instance-id{
+							type uint16{
+							range "0..255";
+							}
+						   description "instance id";
+						} 
+						
+						leaf cost{
+						   type uint16{
+						   range "1..65535";
+						   }
+						   default 1;
+						   description "cost value";
+						}    
+					   
+						leaf dead-interval{
+						   type uint16{
+						   range "1..65535";
+						   }
+						   default 40;
+						   units "second";
+						   description "dead interval,in seconds";
+						}       
+						
+						leaf network-type{
+						   type ospfv3-type:network-type;
+						   description "network type";
+						}   		
+
+						leaf dr-priority{
+						   type uint8{
+						   range "0..255";
+						   }
+						   default 1;
+						   description "dr priority";
+						}      
+								
+						leaf retransmit-interval{
+						   type uint16{
+						   range "1..65535";
+						   }
+						   default 5;
+						   units "second";
+						   description "retransmit interval,in seconds";
+						}      		
+						
+						leaf transmit-delay{
+						   type uint16{
+						   range "1..65535";
+						   }
+						   default 1;
+						   units "second";
+						   description "transmit delay,in seconds";
+						}      
+								
+						leaf hello-interval{
+						   type uint16{
+						   range "1..65535";
+						   }
+						   default 10;
+						   units "second";
+						   description "hello interval,in seconds";
+						}   
+						
+						leaf ipsec-policy{
+						   type string{
+						   length "0..32";
+						   }
+						   description "ipsec policy";
+						}   	
+
+						list ospf-neighbor{
+							key "address";
+							leaf address{
+								type inet:ipv6-address-no-zone;
+								description "neighbor address";
+							} 
+
+							leaf priority{
+								type uint16{	
+									range "0..255"; 
+								}
+								default 1;
+								description "priority";
+							} 
+
+							leaf poll-interval{
+								type uint32{	
+									range "1..65535"; 
+								}
+								default 120;
+								units "second";
+								description "poll interval,in seconds";
+							} 
+							
+							leaf cost{
+								type uint32{	
+									range "1..65535"; 
+								}
+								default 1;
+								description "cost value";
+							} 			
+						}	
+						
+					}					
+				
+				}			
+
+			}
+
+		}
+	
+	}
+	     
+}

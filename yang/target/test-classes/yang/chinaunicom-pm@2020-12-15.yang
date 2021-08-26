@@ -1,0 +1,414 @@
+module chinaunicom-pm {
+
+  namespace "http://chinaunicom.com/yang/systemmanage/chinaunicom-pm";
+  prefix "pm";
+  
+  import ietf-yang-types {
+    prefix yang;
+	revision-date 2013-07-15;
+  }
+  organization 
+    "China Unicom";
+    
+  contact 
+    "";
+    
+  description 
+    "This module describes pm management.
+     Copyright (c) China Unicom. All rights reserved.";
+     
+  revision 2020-12-15{
+      description 
+        "Add enumeration items for pm-object-type.";
+  } 
+
+  revision 2020-10-15{
+      description 
+        "Add Performance configuration item pm-cfgs.";
+  } 
+      
+  revision 2020-04-03{
+      description 
+        "First draft.";
+  } 
+  
+
+  typedef float2 {
+    type decimal64 {
+		fraction-digits 2;
+    }
+  }
+  
+  typedef string64 {
+    type string {
+		length 0..64;
+    }
+  }  
+
+  typedef string255 {
+    type string {
+		length 0..255;
+    }
+  }
+  
+  typedef pm-value-type{
+    type enumeration {
+      enum int64 {
+        value 1;
+        description 
+          "Note the performance value is 64-bit signed integer.";
+      }
+      enum float2 {
+        value 2;
+        description 
+          "Note the performance value is float number.";
+      }
+      enum string64 {
+        value 3;
+        description 
+          "Note the performance value is string which has specific meaning.";
+      }
+    }
+  }
+
+  typedef pm-quantity-type{
+    type enumeration {
+      enum digital-quantity{
+        value 1;
+        description 
+          "Note the performance is digital quantity.";
+      }
+      enum analog-quantity {
+        value 2;
+        description 
+          "Note the performance is analog quantity.";
+      }
+    }
+    description 
+      "The quantity type of performance";
+  }
+  
+  typedef pm-value {
+    type union {
+      type int64;
+      type float2;
+      type string64;
+    }
+    description 
+      "The datatype of performance value";
+  }
+    
+  typedef granularity-type{
+    type enumeration {   
+      enum 15min {
+        value 1;
+        description 
+          "Fifteen-minutes granularity.";
+      }
+      enum 24h {
+        value 2;
+        description 
+          "Twenty-four-hours granularity.";
+      }
+    }  
+  }
+
+  typedef pm-object-type{
+    type enumeration {   
+      enum port {
+        value 1;
+        description 
+          "Port type.";
+      }
+			enum eth {
+        value 2;
+        description 
+          "ethernet type.";
+      }
+      enum rmon {
+        value 3;
+        description 
+          "rmon type.";
+      }
+      enum ospi {
+        value 4;
+        description 
+          "ospi type.";
+      }
+      enum eth-pw {
+        value 5;
+        description 
+          "ethernet pw type.";
+      }
+      enum sub-if {
+        value 6;
+        description 
+          "sub interface type.";
+      }
+ 			enum memory {
+        value 7;
+        description 
+          "memory usage type.";
+      }
+      enum temperature {
+        value 8;
+        description 
+          "temperature type.";
+      }
+      enum cpu-usage {
+        value 9;
+        description 
+          "cpu usage type.";
+      }
+      enum clock {
+        value 10;
+        description 
+          "clock type.";
+      }
+      enum flexe {
+        value 11;
+        description 
+          "Flexe type.";
+      }
+      enum ptp {
+        value 12;
+        description 
+          "ptp type.";
+      }
+    }  
+  }  
+ 
+  grouping pm-data {
+    description
+    "Definitions of performance data properties.";
+
+    leaf quantity-type{
+      type pm-quantity-type;
+	  default digital-quantity;
+      description 
+        "The quantity type of performance";
+    }
+    
+    leaf value-type{
+      type pm-value-type;
+      description
+        "The value type of performance.";
+    }
+    
+    leaf current-value{
+      type pm-value;
+      description                     
+        "Current instant value of performance.";
+    }
+    
+    leaf max-value{
+      type pm-value;
+      description
+        "Maximum value of performance.";
+    }
+    
+    leaf min-value{
+      type pm-value;
+      description
+        "Minimum value of performance.";
+    }   
+
+    leaf average-value{
+      type pm-value;
+      description
+        "Average value of performance.";
+    }       
+  }
+
+  typedef status-type {
+    type enumeration {
+      enum "on" {
+	    value 1;
+        description
+          "State On.";
+      }
+      enum "off" {
+	    value 0;
+        description
+          "State Off.";
+      }
+    }
+    description
+      "The type of monitor state";
+  }
+  grouping pm-base-parameters{
+    description
+      "The base information of performance object.";
+    
+    leaf object-name{
+      type string255;
+      description
+        "Characteristic identification of an performance object,
+        like'prarm1=,prarm2=,prarm3=,...'.";
+    }
+
+    leaf object-type{
+      type pm-object-type;
+      description
+        "Type of performance object, e.g. ME and PTP.";
+    }
+    
+    leaf pm-id{
+      type uint32;
+      description
+        "Characteristic id of a performance parameter.";
+    }
+    
+    leaf pm-type-qualifier{
+      type string64;
+      description
+        "Characteristic name of a performance parameter.";
+    }    
+  }
+  
+  grouping performance-parameters{
+    description
+      "Definition of performance object.";
+    
+    uses pm-base-parameters;
+    
+    leaf granularity{
+      type granularity-type;
+      mandatory true;
+      description
+        "Granularity type of performance object, e.g. 15min and 24h.";
+    }
+ 
+    uses pm-data;
+  }
+    
+  grouping tca-parameters{    
+    description
+      "Definition of threshold-crossing-alert(TCA) parameter.";
+    
+    uses pm-base-parameters;
+    
+    leaf granularity{
+      type granularity-type; 
+      mandatory true;      
+      description
+        "Granularity type of tca object, e.g. 1min, 15min and 24h.";
+    }
+    
+    leaf threshold-value-type{
+      type pm-value-type;
+      description
+        "The value type of the threshold.";
+    }
+    
+    leaf threshold-value-high{
+      type pm-value;
+      description
+        "High threshold.";
+    }
+
+    leaf threshold-value-low{
+      type pm-value;
+      description
+        "Low threshold.";
+    }   
+    
+    leaf threshold-value-warning-high{   
+      type pm-value;
+      description
+        "Early high warning threshold.";
+    }
+    
+    leaf threshold-value-warning-low{   
+      type pm-value;
+      description
+        "Early low warning threshold.";
+    }          
+  }
+
+  rpc pm-clean {
+    description "Config to clean performance data.";
+    input {	
+      uses pm-base-parameters;
+      
+      leaf granularity{
+        type granularity-type;
+        description
+          "Granularity type of performance object, e.g. 15min and 24h.
+           Not set match all granularity type.";
+      }
+    }
+  }
+  
+  container performances{
+  
+	  container pm-cfgs {
+	      description
+	        "Performance configuration,include interface,card,service catagories";
+	      list pm-cfg {
+	        key "pm-id object-type object-name";
+	        description
+	          "Performance configuration.";
+	 	  uses pm-base-parameters;
+		  leaf monitor-state {
+	          type status-type;
+	          default "off";
+	          description
+	            "Monitor status.";
+	        }
+	      }
+	  }
+ 
+  
+    container current-performances{
+      description 
+        "Current performances in the system.";
+      config false;
+      list current-performance{
+        description "The list of performances";
+        uses performance-parameters;
+        
+        leaf statistic-time{
+          type yang:date-and-time;
+          description
+            "Time when performance value counted.";
+        }  
+      }
+    }
+    
+    container history-performances{
+      description 
+        "The history performances in the system.";
+      config false;
+      list history-performance{
+        description 
+          "The list of history performance.";
+        
+        uses performance-parameters; 
+        
+        leaf start-time{
+          type yang:date-and-time;
+          description
+          "Time start to filter performance value generated.";
+        }        
+        leaf end-time{
+          type yang:date-and-time;
+          description
+          "Time end to filter performance value generated.";      
+        }
+      }
+    }
+    
+    container tcas {
+      description 
+        "TCAs in the system.";
+      list tca{
+        description "The list of TCA";
+        key "object-name object-type pm-id";
+        
+        uses tca-parameters;
+      }
+    }
+  }    
+}
+

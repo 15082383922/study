@@ -1,0 +1,453 @@
+module chinaunicom-l2vpn-oper{
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/vpnservice/chinaunicom-l2vpn-oper";
+
+  prefix "l2vpn-oper";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+  
+  import chinaunicom-protectgroup-common {	revision-date 2019-12-12; prefix "protgrp-co"; }
+  
+  import chinaunicom-l2vpn {	revision-date 2020-06-19; prefix "l2vpn"; }
+
+  
+  import chinaunicom-extension {	revision-date 2020-03-30; prefix "ext"; }
+  
+  /*** META INFORMATION ***/
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+     
+		Postcode: 430073 
+		Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+		Tel: +XXXXXXXXXXXX
+
+		E-mail: yang- author@fiberhome.com";
+
+
+  description 
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom-R8000 l2vpn package configuration.
+
+     This module contains definitions
+     for the following management objects:
+       l2vpn: Layer 2 VPN configuration
+
+     Copyright (c) 2013-2016 by Fiberhome Systems, Inc.
+     All rights reserved.";
+	 
+  revision "2019-12-17" {
+    description
+      "Surport receive and send aps display-in-hex.";
+  }		
+  
+  revision "2017-11-23" {
+    description
+      "chinaunicom R8000 6.0 revision.";
+  }
+  
+	typedef vsi-name{
+		type string{
+			length "1..47";
+		}
+		description "vsi name";
+	}
+  
+	typedef ins-state {
+		type enumeration {
+			enum down {
+				value 0;
+				description "Instance down state";
+			}
+			enum up {
+				value 1;
+				description "Instance up state";
+			}
+		}
+		description "Instance state";
+	}
+    
+	typedef pw-state {
+		type enumeration {
+		enum down {
+			value 0;
+			description "Pw down state";
+			}
+        enum up {
+			value 1;
+			description "Pw up state";
+			}	
+		enum standby {
+			value 2;
+			description "Pw standby state";
+			}
+		}
+		description "Pw state";
+	}	
+  
+	typedef pw-active {
+		type enumeration {
+			enum false {
+				value 0;
+				description "Pw down active";
+			}
+			enum true {
+				value 1;
+				description "Pw up active";
+			}
+		}
+		description "Pw active";
+	}
+	
+  	/* GROUPINGS */
+	grouping basic-state {
+        leaf switch-state {
+            type protgrp-co:lps-switch-state; 		 
+            description "switch state";
+        }		  
+	    leaf pri-path-state {	
+            type protgrp-co:path-state;
+            description "primary path state";
+        }
+		leaf sec-path-state {	
+            type protgrp-co:path-state;
+            description "backup path state";
+        }
+    }
+	
+	grouping detail-state {
+		leaf pri-vcid{
+			type l2vpn:pw-id;
+			description "Id of the layer 2 circuit";
+		}
+		
+		leaf pri-peerip{
+			type inet:ipv4-address;
+			description "Peer IP address such as A.B.C.D of the layer 2 circuit";
+		}
+		
+		leaf sec-vcid{
+			type l2vpn:pw-id;
+			description "Id of the layer 2 circuit";
+		}
+		
+		leaf sec-peerip{
+			type inet:ipv4-address;
+			description "Peer IP address such as A.B.C.D of the layer 2 circuit";
+		}
+		
+		leaf protect-type{
+			type l2vpn:protection-type;
+			description "protection type";
+		}
+		
+		leaf hold-off-time{
+			type uint32{
+				range "0..255";
+			}
+			description "hold off time";
+		}
+		
+		leaf return-type{
+			type l2vpn:revertive-mode;
+			description "return type";
+		}
+		
+		leaf return-time{
+			type uint32{
+				range "0..12";
+			}
+			description "return time";
+		}
+		
+		leaf rx-aps{
+			type uint32{
+				range "0..4294967295";
+				ext:display-in-hex;
+			}
+			description "receive aps";
+		}
+		
+		leaf tx-aps{
+			type uint32{
+				range "0..4294967295";
+				ext:display-in-hex;
+			}
+			description "transit aps";
+		}
+		
+		leaf pri-rx-pw-label{
+			type uint32{
+			range "16..4294967295";
+			}
+			description "primary receive pw label";
+		}
+		
+		leaf pri-tx-pw-label{
+			type uint32{
+			range "16..4294967295";
+			}
+			description "primary transit pw label";
+		}
+		
+		leaf sec-rx-pw-label{
+			type uint32{
+			range "16..4294967295";
+			}
+			description "secondary receive pw label";
+		}
+		
+		leaf sec-tx-pw-label{
+			type uint32{
+			range "16..4294967295";
+			}
+			description "secondary transit pw label";
+		}
+		
+		leaf alm-detect-mode{
+			type protgrp-co:detect-mode;
+			description "alarm detect mode";
+		}
+
+		leaf pri-detect-id{
+			type uint32{
+			  range "0..4294967295";
+			}
+			description "primary detect id";
+		}
+		
+		leaf sec-detect-id{
+			type uint32{
+			  range "0..4294967295";
+			}
+			description "backup detect id";
+		}
+		
+		leaf protect-entity-id{
+			type uint32{
+			  range "0..4294967295";
+			}
+			description "protect entity id";
+		}
+    }
+	
+	/* L2VPN-OPER YANG Model */	
+	container l2vpn-oper {
+		config false;
+		container l2vc-states {
+			description "Pw state show";
+	 
+			/* L2VC STATUS SUM YANG Model */
+			container l2vc-sum{
+				config false;
+				description "l2vc status sum";
+			  
+				leaf l2vc-summary{
+					type uint32{
+						range "0..4294967295";
+					}
+					description "l2vc summary";
+				}
+			}
+	 
+			list l2vc-state{
+				key "pw-id peer-ip";
+		
+				leaf pw-id{
+					type l2vpn:pw-id;
+					description "Id of the layer 2 circuit";
+				}
+	  
+				leaf peer-ip{
+					type inet:ipv4-address;  
+					description "Peer IP address such as A.B.C.D of the layer 2 circuit";
+				}
+		
+				leaf pw-state{
+					type pw-state;  
+					description "Pw status";
+				}
+		
+				leaf in-label{
+					type uint32{
+					range "16..4294967295";
+					} 
+					description "Pw in label";
+				}
+		
+				leaf out-label{
+					type uint32{
+					range "16..4294967295";
+					} 
+					description "Pw out label";
+				}
+			}
+		}
+  
+		container vsi-states {
+			description "Vpls state show";
+	
+			/* VSI STATUS SUM YANG Model */
+			container vsi-sum{
+				config false;
+				description "vsi status sum";
+			  
+				leaf vsi-summary{
+					type uint32{
+					range "0..4294967295";
+					}
+					description "vsi summary";
+				}
+			}
+  
+			list vsi-state{
+				key "vsi-name";
+		
+				leaf vsi-name{
+					type vsi-name;
+					description "Vpls service name";
+				}
+	  
+				leaf vsi-id{
+					type uint32{
+					range "1..65535";
+					} 
+					description "Vsi id";
+				}
+	  
+				leaf peers{
+					type uint32{
+					range "1..4294967295";
+					} 
+					description "Pw number";
+				}
+		
+				leaf ins-state{
+					type ins-state;  
+					description "Instatnce status";
+				}
+			}
+		}
+  
+		container vsi-peer-states {
+			description "vpls peer state";
+	
+			/* VSI PEER STATUS SUM YANG Model */
+			container vsi-peer-sum{
+				config false;
+				description "vsi peer status sum";
+			  
+				leaf vsi-peer-summary{
+					type uint32{
+					range "0..4294967295";
+					}
+					description "vsi peer summary";
+				}
+			}		
+	 
+			list vsi-peer-state{
+				key "vsi-name peer-ip pw-id";
+		
+				leaf vsi-name{
+					type vsi-name;
+					description "Vpls service name";
+				}
+	  
+				leaf peer-ip{
+					type inet:ipv4-address;  
+					description "Peer IP address such as A.B.C.D of the layer 2 circuit";
+				}
+		
+				leaf pw-id{
+					type l2vpn:pw-id;
+					description "Id of the layer 2 circuit";
+				}
+		
+				leaf pw-active{
+					type pw-active;  
+					description "Pw active";
+				}
+		
+				leaf in-label{
+					type uint32{
+					range "16..4294967295";
+					} 
+					description "Pw in label";
+				}	
+		
+				leaf out-label{
+					type uint32{
+					range "16..4294967295";
+					} 
+					description "Pw out label";
+				}
+
+			}
+		}	
+  
+		container l2circuit-protect-states{
+			description "l2circuit protect";
+	
+			/* L2CIRCUIT PROTECT SUM YANG Model */
+			container l2circuit-sum{
+				config false;
+				description "l2circuit protect sum";
+			  
+				leaf l2circuit-summary{
+					type uint32{
+					range "0..4294967295";
+					}
+					description "l2circuit protect summary";
+				}
+			}
+	
+			list l2circuit-protect-state{
+				key "vpws-name";
+	  
+				leaf vpws-name{
+					type l2vpn:vpws-name;
+					description "Name of the vpws instance";
+				}
+				
+				uses basic-state{
+		        }
+			}
+			
+			list l2circuit-protect-detail-state{
+				key "vpws-name";
+	  
+				leaf vpws-name{
+					type l2vpn:vpws-name;
+					description "Name of the vpws instance";
+				}
+				
+				uses basic-state{
+		        }
+				
+				uses detail-state{
+		        }
+			}
+		}
+	}
+	
+	/* L2CIRCUIT PROTECT CMD RPC */
+	rpc set-l2circuit-protect-switch {
+	  input {
+		leaf vpws-name{
+			type l2vpn:vpws-name;
+			description "Name of the vpws instance";
+		}
+	    leaf switch-cmd-type{
+		    type protgrp-co:lps-switch-cmd-type;
+		    description "switch-cmd-type";
+	    }
+	  }
+	}
+}
+

@@ -1,0 +1,218 @@
+module chinaunicom-ethif-lag-oper
+{
+    namespace "http://chinaunicom.com/yang/interface/ethinterface/chinaunicom-ethif-lag-oper";
+    prefix "ethlagif-oper";
+    import chinaunicom-interface-common 
+    {
+	revision-date 2020-12-31;
+        prefix if;
+    }
+	
+	import chinaunicom-ethif-common-oper
+    {
+	revision-date 2020-07-22;
+        prefix ethif-oper;
+    }
+	
+	import chinaunicom-ethif-lag
+    {
+	revision-date 2021-05-21;
+        prefix ethlagif;
+    }
+	
+	import ietf-yang-types
+    {
+	revision-date 2013-07-15;
+        prefix yang;
+    }
+
+    description
+        "The module defined to config the lag configures";
+
+	revision 2019-10-28
+    {
+        description
+            "Support veth-name, Add new typedef:lag-member-role-status";
+    }
+	
+    revision 2018-04-11
+    {
+        description
+            "version 1.0";
+    }	
+	
+	typedef select-state {
+	  type enumeration {
+		enum Active {
+			value 1;
+			description "Active state";
+		}
+		enum Deactive {
+			value 2;
+			description "Deactive state";
+		}
+		enum Standby {
+			value 3;
+			description "Standby state";
+		}	
+      }
+    }
+  typedef if-ref {
+	type union 
+	{
+		type if:ethlag-name;
+		type if:ethsub-name;
+	}
+  }	   
+  
+	typedef aps-active-status
+	{
+		type enumeration{
+			enum aps-none{
+				value 0;
+				description "aps none state";
+			}
+			enum aps-active{
+				value 1;
+				description "aps active state";
+			}
+			enum aps-inactive{
+				value 2;
+				description "aps inactive state";
+			}
+		}
+	}
+
+	typedef lag-member-role-status
+	{
+		type enumeration 
+		{
+			enum master 
+			{
+				value 1;
+				description "Designated master";
+			}
+			enum backup 
+			{
+				value 2;
+				description "backup";
+			}
+			enum member 
+			{
+				value 3;
+				description "member";
+			}
+			enum master-elected
+			{
+				value 4;
+				description "Elected master";
+			}
+		}
+ 	} 
+
+	grouping lag-basic-info 
+	{
+		leaf state
+		{
+			type ethif-oper:if-state;
+			description
+				"lag state";
+		}
+		
+		leaf lag-mode
+		{
+			type ethlagif:lag-mode;
+			description
+				"lag mode";
+		}
+
+		leaf load-balance
+		{
+			type ethlagif:lag-arithmetic;
+			description
+				"load balance algorithm";
+		}	
+
+		leaf mac-address
+		{
+			type yang:mac-address;
+			description
+				"mac address";
+		}
+
+		leaf max-active-links
+		{
+			type uint8;
+			description
+				"max active links";
+		}	
+
+		leaf latest-active-links
+		{
+			type uint8;
+			description
+				"latest active links";
+		}	
+	}
+	
+	grouping lag-member-info
+	{	
+		leaf member-status
+		{
+			type ethif-oper:if-state;
+			description
+				"member status";
+		}
+
+		leaf select-state
+		{
+			type ethlagif-oper:select-state;
+			description
+				"lag member select state";
+		}	
+
+		leaf member-role
+		{
+			type ethlagif-oper:lag-member-role-status;
+			description
+				"lag member role status";
+		}	
+
+		leaf member-active-status
+		{
+			type ethlagif-oper:aps-active-status;
+			description
+				"member aps acitve status";
+		}		
+	}
+	
+	container ethlagif-oper{
+	
+	    config false;
+        description "ethlagif oper configuration";
+		container ethlagif-states{
+			list ethlagif-state{
+				key "lag-name";
+				description "ethlagif state info";
+				leaf lag-name{
+				    type ethlagif-oper:if-ref;
+					description
+						"ethlagif name";
+				}
+				uses ethlagif-oper:lag-basic-info;
+				
+				list lag-member-info-list{
+					key "lag-member-name";
+					description "ethlagif member state info";
+					leaf lag-member-name{
+					
+					   type ethlagif:if-ref;
+					   description
+						  "ethlagif member name";	
+					}
+					uses ethlagif-oper:lag-member-info;
+				}
+			}
+		}
+	}
+}

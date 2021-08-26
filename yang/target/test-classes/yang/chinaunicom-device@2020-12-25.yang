@@ -1,0 +1,193 @@
+module chinaunicom-device {
+namespace "http://chinaunicom.com/yang/devicemanager/chinaunicom-device";
+ prefix "device";
+  import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type"; }
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+    Postcode: 430073
+    Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+    Tel: +XXXXXXXXXXXX
+    
+    E-mail: yang- author@fiberhome.com";
+
+  description
+    "This YANG module defines the device configuration.
+    
+    This module contains definitions
+    for the following management objects:
+         ***
+    E-mail: yang- author@fiberhome.com
+    All rights reserved.";
+    
+    	revision "2020-12-25" {
+    description
+      "deleate container ethmode-cfgs and update-mode-cfgs";
+	}
+	
+	revision "2020-01-07" {
+    description
+      "set threshold-value and restore-value mandatory true.";
+	}
+	
+	revision "2019-12-12" {
+    description
+      "new container:system-name-cfgs.";
+	}
+
+	revision "2019-11-20" {
+    description
+      "change cpu-id range.";
+	}
+
+	revision "2019-02-27" {
+    description
+      "chinaunicom 1.0 revision.";
+	}
+	typedef port-name {
+        type co-type:string64 {
+            pattern '\d+/\d+/\d+/\d+' {
+                description "A/B/C/D，rack/slot/card/port";
+            }
+        }
+        description "port-name type，without if-type and rate";
+    }
+	
+	typedef fanctrl-runmode-type {
+    description "fanctrl runmode type";
+      type enumeration {
+        enum manual {
+          value 0;
+          description "manual";
+        }
+        enum auto {
+          value 1;
+          description "auto";
+        }      
+      }
+    }
+	
+ container device {
+    description "device configuration for all instances";	
+	/* cpu-threshold-cfgs */
+	container cpu-threshold-cfgs {
+			
+			list	cpu-threshold-cfg {
+				key "slot-id";
+				leaf  slot-id{	
+				type co-type:slot-num-string;
+				description 
+					"board_slot_id";	
+				}
+				leaf  threshold-value {			
+				type uint8 {
+					range "1..100";
+				}
+				mandatory true;
+				description 
+					"board_cpu_threshold";	
+				}
+				leaf  restore-value{
+				type uint8 {
+					range "1..100";
+				}
+				mandatory true;
+				description 
+					"board_cpu_restore";	
+				}
+			}
+		}	
+		/* memory-threshold-cfgs */
+	container memory-threshold-cfgs {
+			list memory-threshold-cfg{
+				key "slot-id";
+				leaf  slot-id{			
+				type co-type:slot-num-string;
+				description 
+					"board_slot_id";	
+				}
+				leaf  threshold-value {			
+				type uint8 {
+					range "1..100";
+				}
+				mandatory true;
+				description 
+					"board_memory_threshold";	
+				}
+				leaf  restore-value{			
+				type uint8 {
+					range "1..100";
+				}
+				mandatory true;
+				description 
+					"board_memory_restore";	
+				}
+			}	
+		}
+		/* disk-threshold-cfgs */
+	container disk-threshold-cfgs {
+			list disk-threshold-cfg{
+				key "slot-id cpu-id";
+				leaf  slot-id{			
+				type co-type:slot-num-string;
+				description 
+					"board_slot_id";	
+				}
+				leaf  threshold-value {			
+				type uint8 {
+					range "1..100";
+				}
+				mandatory true;
+				description 
+					"board_disk_threshold";	
+				}
+				leaf  restore-value{			
+				type uint8 {
+					range "1..100";
+				}
+				mandatory true;
+				description 
+					"board_disk_restore";	
+				}
+				leaf  cpu-id{				
+				type uint8 {
+					range "1..255";
+				}
+				description 	
+					"board_disk_value";	
+				}	
+			}
+		}
+
+		
+			container fanctrl-runmode-cfgs {
+			list fanctrl-runmode-cfg{
+				key "chassis-no";
+				leaf chassis-no {
+				type co-type:shelf-num-string ;
+				description
+				"chassis no which uniquely identifies a board.";
+			  }	
+				leaf run-mode {
+				type fanctrl-runmode-type ;
+				default auto; 
+				}
+				leaf level {
+				type uint8 {
+				range "0..7";
+				}
+				}
+			}
+		}
+	container system-name-cfgs {
+				leaf system-name {
+				type string {
+				length "1..64";
+				}
+				description 
+				"system name";
+				}
+		}
+	}
+}

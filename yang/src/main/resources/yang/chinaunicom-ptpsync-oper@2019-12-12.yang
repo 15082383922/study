@@ -1,0 +1,512 @@
+module chinaunicom-ptpsync-oper {
+
+  // namespace
+  namespace "http://chinaunicom.com/yang/systemmanage/chinaunicom-ptpsync-oper";
+  
+  prefix "ptp-oper";
+
+  // import 
+  import chinaunicom-ptpsync { 
+    prefix "ptp"; 
+	revision-date 2021-01-27;
+  }
+  
+	
+  import chinaunicom-interface-common { 
+    prefix "if"; 
+	revision-date 2020-12-31;
+  }
+  
+  
+  import chinaunicom-extension { 
+    prefix "ext"; 
+	revision-date 2020-03-30;
+  }
+  
+  organization "Fiberhome Telecommunication Technologies Co.,LTD";
+
+  contact
+    "Fiberhome Telecommunication Technologies Co.,LTD.
+     
+      Postcode: 430073 
+      Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+      Tel: +86 027-81611973
+	  
+      E-mail: zengl@fiberhome.com";
+
+  description
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom ptp package status.
+
+     This module contains definitions
+     for the following management objects:
+       ptp: IEEE 1588v2 status
+
+	 This YANG module augments the
+       openconfig-interfaces
+     module with status data.
+
+     Copyright (c) 2013-2020 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision "2019-12-12" {
+    description
+      "import chinaunicom-extension to support dec displayed in-hex";
+  }
+
+  revision "2018-04-09" {
+    description
+     "Initial revision.";
+  }
+  
+
+  
+  /* typedefs */
+  typedef ptp-if-ref {
+	type union {
+	  type if:ethphy-name;
+	  type if:otnphy-name;
+	  type if:oscphy-name;
+	  type if:otheroptphy-name;
+	  type if:flexephy-name;
+	}
+	description "ptp interfaces name ref";
+  }
+  
+  typedef ptp-ssm-info {
+    type enumeration {
+      enum unknown {
+        value 0;
+        description "UNKNOWM";
+      }
+      enum prc {
+        value 2;
+        description "PRC G.811";
+      }
+      enum ssu-a {
+        value 4;
+        description "SSU-A G.812";
+      }
+	  enum ssu-b {
+        value 8;
+        description "SSU-B G.812";
+      }
+	  enum sec {
+        value 11;
+        description "SEC G.813";
+      }
+	  enum dnu {
+        value 15;
+        description "DNU";
+      }
+    }
+    description "Ssm info";
+  }
+  
+  typedef ptp-device-status {
+    type enumeration {
+      enum free-run {
+        value 0;
+        description "FREE RUN";
+      }
+      enum locked {
+        value 1;
+        description "LOCKED";
+      }
+      enum holdover {
+        value 2;
+        description "HOLDOVER";
+      }
+    }
+    description "Ptp device status";
+  }
+  
+  // grouping statements
+  grouping ptp-base-info {
+    description
+      "status data for global PTP basic information";
+
+    leaf work-mode {
+      type ptp:ptp-global-work-mode;
+      description
+        "Global 1588 work mode";
+    }
+	  
+	leaf clock-model {
+      type ptp:ptp-clock-model;
+      description
+        "Clock model";
+    }
+	  
+	leaf sync-mode {
+      type ptp:ptp-sync-mode;
+      description
+        "Sync mode";
+    }
+	
+	leaf slave-only {
+	  type ptp:ptp-enable-flag;
+	  description
+	    "Slave only";
+    }
+		  
+    leaf sync-domain {
+      type uint8 {
+        range "0..255";
+      }
+      description
+        "Sync domain";
+    }
+	
+	leaf local-domain {
+	  type uint8 {
+	    range "0..255";
+	  }
+	  description
+	    "Local clock domain";
+    }	  
+  }
+  
+  grouping ptp-local-clock-info {
+    description
+      "Status data for PTP local clock";
+    
+    leaf local-clock-id {
+      type uint64 {
+        range "0..18446744073709551615";
+		ext:display-in-hex;
+      }
+      description
+        "Clock identity";
+    }
+	
+	leaf local-time-source {
+	  type ptp:ptp-time-source;
+	  description
+	    "Clock time source";
+    }
+		  
+	leaf local-priority1 {
+	  type uint8 {
+	    range "0..255";
+	  }
+	  description
+	    "Clock priority1";
+    }
+			
+    leaf local-priority2 {
+	  type uint8 {
+	    range "0..255";
+	  }
+	  description
+	    "Clock priority2";
+    }
+	
+	leaf local-clock-class {
+      type uint8 {
+        range "0..255";
+      }
+      description
+        "Clock class";
+    }
+			  
+	leaf local-clock-accuracy {
+	  type ptp:ptp-clock-accuracy;
+      description
+        "Clock accuracy";
+    }
+  }
+  
+  grouping ptp-sync-source-info {
+    description
+      "Status data for PTP sync source clock";
+    
+    leaf sync-source-clock-id {
+      type uint64 {
+        range "0..18446744073709551615";
+		ext:display-in-hex;
+      }
+      description
+        "Clock identity";
+    }
+	
+	leaf sync-source-time-source {
+	  type ptp:ptp-time-source;
+	  description
+	    "Clock time source";
+    }
+		  
+	leaf sync-source-priority1 {
+	  type uint8 {
+	    range "0..255";
+	  }
+	  description
+	    "Clock priority1";
+    }
+			
+    leaf sync-source-priority2 {
+	  type uint8 {
+	    range "0..255";
+	  }
+	  description
+	    "Clock priority2";
+    }
+	
+	leaf sync-source-clock-class {
+      type uint8 {
+        range "0..255";
+      }
+      description
+        "Clock class";
+    }
+			  
+	leaf sync-source-clock-accuracy {
+	  type ptp:ptp-clock-accuracy;
+      description
+        "Clock accuracy";
+    }
+	
+	leaf utc-offset {
+	  type int8 {
+	    range "-128..127";
+	  }
+      description
+        "Utc offset";
+    }
+	
+	leaf utc-offset-valid {
+	  type ptp:ptp-valid-flag;
+      description
+        "Utc offset valid flag";
+    }
+	
+	leaf sync-source-status {
+	  type ptp:ptp-sync-src-status;
+      description
+        "Sync source status";
+    }
+	
+	leaf sync-slot {
+	  type string {
+        length 0..32;
+      }
+      description
+        "Sync slot";
+    }
+	
+	leaf sync-card {
+	  type string {
+        length 0..32;
+      }
+      description
+        "Sync card";
+    }
+	
+	leaf sync-port {
+	  type string {
+        length 0..32;
+      }
+      description
+        "Sync port";
+    }
+	
+	leaf sync-hop {
+	  type uint8 {
+	    range "0..255";
+	  }
+      description
+        "Sync hop";
+    }
+  }
+  
+  grouping ptp-sync-time-info {
+    description
+      "Status data for PTP sync source clock";
+	
+	leaf ptp-second {
+	  type uint32 {
+	    range "0..4294967295";
+	  }
+      description
+        "Ptp second";
+    }
+	
+	leaf date {
+	  type string {
+        length 0..32;
+      }
+      description
+        "Date";
+    }
+	
+	leaf offset-attribute {
+	  type ptp:ptp-ext-inf-comp-attr;
+      description
+        "Offset attribute";
+    }
+	
+	leaf offset-value {
+	  type uint32 {
+	    range "0..4294967295";
+	  }
+      description
+        "Offset value";
+    }
+	
+	leaf lock-status {
+	  type ptp:ptp-lock-flag;
+      description
+        "Lock status";
+    }
+	
+	leaf master-to-slave-path-delay {
+	  type uint32 {
+	    range "0..4294967295";
+	  }
+      description
+        "Master to slave path delay";
+    }
+	
+	leaf slave-to-master-path-delay {
+	  type uint32 {
+	    range "0..4294967295";
+	  }
+      description
+        "Slave to master path delay";
+    }
+	
+	leaf average-path-delay {
+	  type uint32 {
+	    range "0..4294967295";
+	  }
+      description
+        "Average path delay";
+    }
+  }
+  
+  grouping ptp-sync-source-extend-info {
+    description
+      "Status data for PTP sync source extend clock";
+    
+    leaf version {
+      type string {
+        length 0..16;
+      }
+      description
+        "Version";
+    }
+	
+	leaf sync-port-number {
+	  type uint8 {
+	    range "0..255";
+	  }
+	  description
+	    "Enabled port number";
+    }
+		  
+	leaf sync-source-offset-scaled-log-variance {
+	  type uint16 {
+	    range "0..65535";
+        ext:display-in-hex;
+	  }
+	  description
+	    "Clock offset scaled log variance";
+    }
+			
+    leaf sync-source-local-priority {
+	  type uint8 {
+	    range "0..255";
+	  }
+	  description
+	    "Clock local priority";
+    }
+	
+	leaf sync-ssm {
+      type ptp-ssm-info;
+      description
+        "Sync ssm info";
+    }
+
+	leaf sync-device-time-status {
+	  type ptp-device-status;
+      description
+        "Sync device time status";
+    }
+  }
+  
+  container ptp-oper {
+	config false;
+	
+	container base-state {
+  
+      description "PTP base status";
+	
+	  uses ptp-base-info;
+    }
+	
+	container local-clock-state {
+  
+      description "PTP local clock status";
+	
+	  uses ptp-local-clock-info;
+    }
+	
+	container sync-source-state {
+  
+      description "PTP sync source status";
+	
+	  uses ptp-sync-source-info;
+    }
+	
+	container sync-time-state {
+  
+      description "PTP sync time status";
+	
+	  uses ptp-sync-time-info;
+    }
+	
+	container sync-source-extend-state {
+  
+      description "PTP sync source extend status";
+	
+	  uses ptp-sync-source-extend-info;
+    }
+	
+	container interface-states {
+	  
+      description "PTP interface status";
+      
+	  container interface-summary {
+  
+        description "Interface items";
+	
+		leaf summary {
+		  type uint32 {
+	        range "0..4294967295";
+	      }
+		  description
+	        "Summary items count of interface states";
+	    }	
+      }
+	  
+	  list interface-state {
+	    key "if-name";
+	    description
+		  "List of interface status";
+
+	    leaf if-name {
+		  type ptp-if-ref;
+		  description
+	        "Interface name";
+	    }
+		
+	    leaf work-status {
+          type ptp:ptp-port-work-status;
+          description
+            "Work Status";  
+	    }
+	  }
+    }
+  } 
+}
+ 

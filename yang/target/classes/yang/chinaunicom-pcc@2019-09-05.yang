@@ -1,0 +1,107 @@
+module chinaunicom-pcc {
+
+  namespace "http://chinaunicom.com/yang/pce/chinaunicom-pcc";
+
+  prefix "pcc";
+
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+  import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type"; }
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+    
+           Postcode: 430073
+           Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+           Tel: +XXXXXXXXXXXX
+    
+           E-mail: gzxu@fiberhome.com";
+
+  description
+    "This module contains a collection of YANG definitions
+        for Fiberhome chinaunicom pcep pcc domain configuration.
+    
+        This module contains definitions
+        for the following management objects:
+          domain configuration for all instances
+    
+        Copyright (c) 2013-2016 by Fiberhome Systems, Inc.
+        All rights reserved.";
+
+  revision "2019-09-05" {
+    description "Supports VRF.";
+  }
+  
+  revision "2018-07-24" {
+    description "pcc config first version.";
+  }
+  
+  typedef pcc-session-mode {
+    type enumeration {
+      enum prefer {
+        value 0;
+        description "Prefer";
+      }
+      enum multi {
+        value 1;
+        description "Multi";
+      }
+    }
+    description "pcc session mode";
+  }
+
+  
+  container pcc {
+    description
+      "pcc configuration commands";
+      
+    container global-cfg {
+      description
+        "pcc global configuration";
+  
+      leaf local-ip {
+        type inet:ip-address-no-zone;
+        description "pcc local ipv4 or ipv6 address.";
+      } 
+      
+      leaf session-mode {
+        type pcc-session-mode;
+        default prefer;
+        description "pcc session mode.";
+      }
+    }
+    
+    
+    container pcc-server-cfg {
+      description
+        "pcc server configuration";
+      
+      list server-ip-list {
+        key "server-ip";
+        description
+          "pcc server ip address list.";
+        
+        leaf server-ip {
+          type inet:ip-address-no-zone;
+          description
+            "pcc server ipv4 or ipv6 address.";
+        }
+        
+        leaf preference {
+          type uint8 {
+            range "0..7";
+          }
+          default "0";
+          description
+            "config the initial priority, the bigger value the higher priority.";
+        }
+        
+        leaf vpn-instance-name{
+          type co-type:vpn-name-with-global;
+          description "an vpn instance name";
+        }
+      }
+    }
+  }
+}

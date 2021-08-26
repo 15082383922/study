@@ -1,0 +1,254 @@
+module chinaunicom-ospf-type {
+
+    /*** NAMESPACE / PREFIX DEFINITION ***/
+
+	namespace "http://chinaunicom.com/yang/datatype/chinaunicom-ospf-type";
+
+	prefix "ospf-type";
+	
+    /*** LINKAGE (IMPORTS / INCLUDES) ***/
+    
+    import chinaunicom-interface-common{	revision-date 2020-12-31;prefix "if";}
+    
+    organization "Fiberhome Systems, Inc.";
+
+    contact
+    "Fiberhome Communications Techlonogy Co., Ltd.
+     
+      Postcode: 430073
+      Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+     
+      E-mail: yang- author@fiberhome.com";
+
+    description
+    "This module contains a collection of YANG definitions
+      for Fiberhome  ospf package configuration.
+     
+      This module contains definitions
+      for the following management objects:
+        ospf:  configuration
+     
+      Copyright (c) 2013-2020 by Fiberhome Systems, Inc.
+      All rights reserved.";
+
+    revision 2020-01-02 {
+    description
+		"1.add typedef key-type";
+    } 
+	
+    revision 2018-07-27 {
+    description
+		"Initial version.";
+    } 
+    
+	typedef redistribute-instance-name{
+		type union {
+			type string{
+				length "1..32";
+				}
+			type string {
+				pattern "nil";
+			}
+		}
+	}  	
+ 
+	typedef if-name-ref{
+		type union {
+		type if:ethphy-name;
+		type if:ethvir-name;
+		type if:ethlag-name;
+		type if:veth-name;
+		type if:flexetunnel-name;
+		type if:tunnel-name;
+		type if:lb-name;
+		type if:mgmt-name;
+		type if:ethsub-name;
+		type if:dcn-name;
+		type if:wlan-name;
+        type if:lte-name;
+		}
+	} 
+
+    typedef import-route-protocol{
+		type enumeration {
+			enum connect   {
+				value 1;
+				description "connect ";
+			}
+			enum static {
+				value 2;
+				description "static";
+			}
+			enum bgp {
+				value 3;
+				description "bgp";
+			}
+			enum ospf {
+				value 4;
+				description "ospf";
+			}
+			enum isis {
+				value 5;
+				description "isis";
+			}
+		}
+	}  
+
+    typedef metric-type{
+		type enumeration {
+			enum Type1 {
+				value 1;
+				description "Type1";
+			}
+			enum Type2 {
+				value 2;
+				description "Type2";
+			}
+
+		}
+	}  
+
+    typedef ospf-area-type{
+		type enumeration {
+			enum normal {
+				value 1;
+				description "normal";
+			}
+			enum stub {
+				value 2;
+				description "stub";
+			}
+			enum nssa {
+				value 3;
+				description "nssa";
+			}
+		}
+	}  
+  
+    typedef translator-role{
+		type enumeration {
+			enum candidate {
+				value 1;
+				description "candidate";
+			}
+			enum always {
+				value 2;
+				description "always";
+			}
+		}
+	}  
+  
+    typedef auth-type{
+		type enumeration {
+			enum none {
+				value 1;
+				description "none";
+			}
+			enum simple {
+				value 2;
+				description "simple";
+			}
+			enum MD5 {
+				value 3;
+				description "MD5";
+			}
+		}
+	}  
+
+    typedef key-type{
+		type enumeration {
+			enum none {
+				value 0;
+				description "none";
+			}
+			enum plain {
+				value 1;
+				description "plaintexts";
+			}
+			enum cipher {
+				value 2;
+				description "ciphertexts";
+			}
+		}
+	}
+
+    typedef ospf-prefix-sid-type{
+		type enumeration {
+			enum absolute {
+				value 1;
+				description "absolute";
+			}
+			enum index {
+				value 2;
+				description "index";
+			}
+			enum not-set {
+				value 3;
+				description "not set";
+			}
+		}
+	} 
+
+	typedef filter-type{
+		type enumeration {
+			enum in {
+				value 1;
+				description "in";
+			}
+			enum out {
+				value 2;
+				description "out";
+			}
+		}
+	} 
+
+    typedef advertise-type{
+		type enumeration {
+			enum not-advertisedvertise {
+				value 1;
+				description "not advertisedvertise";
+			}
+			enum advertisedvertise {
+				value 2;
+				description "advertisedvertise";
+			}
+		}
+	} 
+
+    typedef frr-protect-type{
+		type enumeration {
+			enum node-protect {
+				value 1;
+				description "node protect";
+			}
+			enum link-protect {
+				value 2;
+				description "link protect";
+			}
+		}
+	} 
+
+    typedef network-type{
+		type enumeration {
+			enum broadcast {
+				value 1;
+				description "broadcast";
+			}
+			enum non-broadcast   {
+				value 2;
+				description "non broadcast";
+			}
+			enum point-to-point  {
+				value 3;
+				description "point to point";
+			}
+			enum point-to-multipoint {
+				value 4;
+				description "point to multipoint";
+			}
+		}
+	} 
+
+	
+     
+}

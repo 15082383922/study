@@ -1,0 +1,162 @@
+module chinaunicom-urpf {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace  "http://chinaunicom.com/yang/securitymanage/chinaunicom-urpf";
+
+  prefix "urpf";
+  
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  //import ietf-yang-types {	revision-date 2013-07-15; prefix "yang"; }  
+  //import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type";}
+  import chinaunicom-interface-common {	revision-date 2020-12-31; prefix "if";}
+  
+  organization "UTStarcom Telecom Co., Ltd.";
+
+  contact
+    "UTStarcom Telecom Co., Ltd.
+     
+     Postcode: 310053 
+     Address: 368 Liuhe Road, Binjiang District,Hangzhou, Zhejiang
+
+     E-mail: sheng.yu@utstar.com";
+
+  description
+    "This module contains a collection of YANG definitions
+     for UTStarcom IPRAN Unicast Reverse Path Forwarding (URPF) 
+	 configuration based on interface.
+     
+	 By combining traditional RTBH filtering with URPF ,a network operator
+	 can filter based upon the source address. URPF performs a route lookup 
+	 of the source address of the packet and checks to see if the ingress interface
+	 of the packet is a valid egress interface for the packet source address(strict
+	 mode) or if any route to the source address of the packet exists (loose mode).
+	 If check fails, the packet is typically dropped.
+	 
+     Copyright (c) 2013-2020 by UTStarcom Telecom Co., Ltd.
+     All rights reserved.";
+
+  revision 2020-11-03 {
+    description
+     "Remove unused import modules to keep the compiler silence.";
+  }
+
+  revision 2020-10-20 {
+    description
+     "Add system-wide on/off control for uRPF allow default route.";
+  }
+
+  revision 2020-10-15 {
+    description
+     "Initial version. ";
+  }
+
+  // typedef statements
+
+	typedef if-ref {
+	    type union {
+		    type if:ethphy-name;
+		    type if:ethlag-name;
+		    type if:ethvir-name;
+		    type if:ethsub-name;
+		}
+	}
+    
+  typedef urpf-mode {
+    type enumeration {
+	 enum NONE {
+		value 0;
+        description
+          "initial state, interface is not enable urpf ";
+      }
+      enum LOOSE {
+		value 1;
+        description
+          "enable urpf loose mode, Loose mode causes the router to check if a route 
+		   for the source address of the traffic exists. This may also cause legitimate
+		   traffic to be discarded";
+      }
+      enum STRICT {
+		value 2;
+        description
+          "enable urpf strict mode, Strict mode will cause the router to drop all ingress 
+		  traffic if the best path back to the source address of the traffic is not the
+		  interface from which the traffic was received. Asymmetric routing will cause 
+		  strict mode uRPF to drop legitimate traffic";
+      }
+    }
+    description
+      "Describes the URPF mode, loose or strict";
+    reference "";
+  }
+
+  typedef urpf-allow-default {
+    type enumeration {
+      enum NOT_ALLOW_DEFAULT {
+		value 0;  
+        description
+          "not allow source address of the traffic that match default route pass the check of urpf.
+		   NOT_ALLOW_DEFAULT , once the source address of the traffic does not exist a router, 
+		    if the default route is configured on the router, the traffic will be discarded still";
+      }
+	  enum ALLOW_DEFAULT {
+		value 1;
+        description
+          "allow source address of the traffic that match default route pass the check of urpf.
+		   ALLOW_DEFAULT ,after the default route is configured on the router,
+		   automatically check the default route for the packets whose source address is not found.";
+      }   
+    }
+    description
+      "allow default route pass or not";
+  }
+  
+ 
+  container urpf {
+	
+    container urpf-config{             
+        leaf allow-default-global{
+            type urpf:urpf-allow-default;
+            description "urpf allow default route or not. Node global level control";			
+        } 						
+
+        container urpf-ipv4-interfaces{	
+        list urpf-ipv4-interface{
+            key "ifname";
+            description "enable urpf interface";      
+            leaf ifname{
+                type urpf:if-ref;
+                description "ifname";			
+            } 
+            leaf mode{
+                type urpf:urpf-mode;
+                description "urpf mode,ie loose or strict";			
+            } 		
+            leaf allow-default{
+                type urpf:urpf-allow-default;
+                description "urpf allow default route or not";			
+            } 						
+	    }	
+	    }
+
+     	container urpf-ipv6-interfaces{		
+        list urpf-ipv6-interface{
+            key "ifname";
+            description "enable urpf ipv6 interface";       
+           leaf ifname{
+                type urpf:if-ref;
+                description "ifname";			
+            } 
+            leaf mode{
+                type urpf:urpf-mode;
+                description "urpf mode,ie loose or strict";			
+            } 		
+            leaf allow-default{
+                type urpf:urpf-allow-default;
+                description "urpf allow default route or not";			
+            } 						
+            }            
+        }
+    }	
+  }	
+}

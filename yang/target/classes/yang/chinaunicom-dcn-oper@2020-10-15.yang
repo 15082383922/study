@@ -1,0 +1,415 @@
+module chinaunicom-dcn-oper {
+
+  namespace "http://chinaunicom.com/yang/systemmanage/chinaunicom-dcn-oper";
+
+  prefix "dcn-oper";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+  import ietf-yang-types {	revision-date 2013-07-15; prefix "yang"; }
+  import chinaunicom-datatype-common {	revision-date 2020-08-14;prefix "co-type"; }
+  import chinaunicom-interface-common {	revision-date 2020-12-31; prefix "if"; }
+
+  organization "UTStarcom Telecom Co. Ltd.";
+
+  contact
+    " UTStarcom Telecom Co. Ltd.
+    Postcode: 310053
+    Address: 368 Liuhe Road, Binjiang District,Hangzhou, Zhejiang
+    Tel: +XXXXXXXXXXXX
+    
+    E-mail: sheng.yu@utstar.com";
+
+  description
+    "This module contains a collection of YANG definitions
+    for UTStarcom device info.
+    
+    This module contains definitions
+    for the following management objects:
+         DCN Operational
+    E-mail: sheng.yu@utstar.com
+    All rights reserved.";
+
+   revision "2020-10-15" {
+    description
+      "1. Add ipv6 prefix length into table of dcn-ne-info and dcn-management-ip-info.
+2. Change the format of mask in table dcn-management-ip-info to A.B.C.D, to align w/ mask format in table dcn-port-states.
+3. Remove dcn-area-states, since this info has been included in the dcn-port-states table already. ";
+  }
+	
+  
+ /* typedefs */ 
+ typedef if-ref {
+    type union {
+      type if:ethphy-name;
+      type if:ethsub-name;
+      type if:otnphy-name;
+    }
+    description "if-ref";    
+  }
+
+  typedef enable {
+    type enumeration {
+      enum  enable {
+        value 0;
+        description "enable";
+      }
+      enum disable {
+        value 1;
+        description "disable";
+      }
+    }
+    description "enable";
+  }  
+  
+  typedef link-up {
+    type enumeration {
+      enum  up {
+        value 0;
+        description "up";
+      }
+      enum down {
+        value 1;
+        description "down";
+      }
+    }
+    description "link-up";
+  }    
+  
+  typedef packet-status {
+    type enumeration {
+      enum  normal {
+        value 0;
+        description "normal";
+      }
+      enum interrupt {
+        value 1;
+        description "interrupt";
+      }
+    }
+    description "state";
+  }
+  
+ 
+  typedef interface-name {
+    type union {
+      type if:lb-name;
+      type if:mgmt-name;
+    }
+    
+    description "interface name";
+  }
+  
+
+  typedef ip-config-mode {
+  type enumeration {
+    enum  ip-configured-by-cli {
+        value 1;
+        description "ip configured by cli";
+      }
+      enum ip-configured-by-sn {
+        value 2;
+        description "ip configured by sn";
+      }
+    }
+    description "state";
+  }
+  
+  /* DCN OPER YANG Model */
+  container dcn-oper {
+    config false;
+    description "dcn oper";
+    
+  container dcn-port-states {
+    description
+      "dcn port status information.";
+	list dcn-port-state {
+	  key "interface-name";
+		description
+			"dcn port status information.";	
+	
+		leaf interface-name {
+		  type string {
+				length "1..64";
+			}
+			description
+			"interface name";
+		}
+
+		leaf ip-type {	
+			type enumeration{
+				enum ipv4 {
+					value 1;
+				}
+				enum ipv6 {
+					value 2;
+				}
+			}				
+			description 
+			"ipv4 or ipv6 address type";
+		}
+
+		leaf ip {
+			type inet:ip-address;
+			description 
+			"interface ip address";
+		}
+		
+        leaf  mask{
+			type uint32 {
+		    	range "0..4294967295";
+			}
+			description
+			"pdcn interface ip mask";
+		}
+
+        leaf  prefix-length {
+			type uint32 {
+		    	range "1..128";
+			}
+			description
+			"pdcn interface ipv6 prefix length";
+		}
+
+
+		leaf unnumbered-interface-name {
+		    type string {
+				length "1..64";
+			}
+			description
+			"unnumbered interface name";
+		}
+				
+		leaf link-up {
+			type link-up;
+			description
+			"pdcn port link up status";
+		}
+
+		leaf area-id {
+			type string {
+				length "1..32";
+			}
+			description
+			"area id which uniquely identifies a dcn config";
+		}
+					
+		leaf neighbour-interface-name {
+		    type string {
+				length "1..64";
+			}
+			description
+			"neighbour ne interface name";
+		}
+
+		leaf sn {
+			type string {
+			length "1..32";
+		}
+			description
+			"neighbour ne sn";
+		}
+	  }
+  }
+
+/* remove dcn-area-states, since this info has been included in the dcn-port-states table already.
+  container dcn-area-states {
+    description
+      "dcn area information.";
+	list dcn-area-state {
+	  key "dcn-port";
+		description
+			"dcn area information.";	
+	
+		leaf dcn-port {
+			type string {
+				length "1..64";
+			}
+			description
+			"dcn port which uniquely identifies a dcn config";
+		}
+		
+		leaf area-id {
+			type string {
+				length "1..32";
+			}
+			description
+			"area id which uniquely identifies a dcn config";
+		}
+	  }
+
+	} 
+*/
+
+	container dcn-ne {
+		description 
+		"dcn network element operational data";			
+		container dcn-ne-sum {
+			description 
+			"dcn network element status sum";			
+			leaf summary {
+				type uint32 {
+					range "0..4294967295";
+				}
+				description 
+				"dcn network element status summary";
+			}
+		}
+		
+		container dcn-ne-infos {
+			description 
+			"dcn network element information container";			
+			list dcn-ne-info {
+				key "ne-id";
+				description 
+				"dcn network element information";
+				leaf ne-id {
+					type string {
+						length "1..255";
+					}
+					description 
+					"network element id";
+				}
+
+				leaf ip-type {
+					type enumeration{
+						enum ipv4 {
+							value 1;
+						}
+						enum ipv6 {
+							value 2;
+						}
+					}				
+					description 
+					"ipv4 or ipv6 address type";
+				}
+
+				leaf ne-ip {
+					type inet:ip-address;
+					description 
+					"network element ip address";
+				}
+				
+				leaf ne-hop {
+					type uint32 {
+						range "0..4294967295";
+					}
+					description 
+					"network element hops";
+				}
+				
+				leaf ne-life-cyc {
+					type uint32 {
+						range "0..255";
+					}
+					description 
+					"network element life cycle";
+				}
+
+				leaf mask {
+					type uint32 {
+						range "0..32";
+					}
+					description 
+					"network element mask length";				
+				}
+				
+				leaf del-flag {
+					type co-type:is-enable {
+					}
+					default "disable";
+					description 
+					"delete flag";
+				}
+				
+				container dcn-device-info {
+					description 
+					"dcn network element device information";					
+					leaf manufacturer {
+						type string {
+							length "1..255";
+						}
+						description 
+						"the name of device manufacturer";
+					}
+
+					leaf device-type {
+						type string {
+							length "1..255";
+						}
+						description 
+						"device type";
+					}
+					
+					leaf mac {
+						type yang:mac-address;
+						description 
+						"device mac address";
+					}
+				}						
+			}						
+		}  						
+	}
+	
+	
+	container pdcn-manage-ip-infos {
+       description
+       "pdcn manage IP info.";
+	   list pdcn-manage-ip-info {
+	      key "ip-addr";
+		  description
+		    "manage ip address.";	
+	
+		    leaf ip-addr {
+			  type inet:ip-address;
+			  description
+			  "manage ip address";
+		    }
+
+		    leaf interface-name {
+			   type interface-name;
+			   description
+			   "interface name";
+		    }
+		
+		    leaf ip-type {
+			  type enumeration{
+				enum ipv4 {
+					value 1;
+				}
+				enum ipv6 {
+					value 2;
+				}
+			  }				
+			  description 
+			  "ipv4 or ipv6 address type";
+		    }
+		
+		    leaf mask {
+			  type uint32 {
+		    	range "0.. 4294967295";
+			  }
+			  description
+			  "pdcn interface ip mask";
+		    }
+
+	        leaf  prefix-length {
+			type uint32 {
+		    	range "1..128";
+			}
+			description
+			"pdcn interface ipv6 prefix length";
+		}
+
+		    leaf ip-config-mode {
+			  type ip-config-mode;	
+			  description
+			  "ip config mode";
+		    }
+	    }
+
+		
+	} 
+	}
+}

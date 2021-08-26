@@ -1,0 +1,294 @@
+module chinaunicom-route-oper{
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/ipprotocol/routing/chinaunicom-route-oper";
+
+  prefix "route-oper";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+		
+  import chinaunicom-staticroute{	revision-date 2020-06-17; prefix "s-route"; }
+  
+  import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type"; }
+  
+  
+    import chinaunicom-interface-common {	revision-date 2020-12-31; prefix "if"; }
+  
+  /*** META INFORMATION ***/
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+     
+		Postcode: 430073 
+		Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+		Tel: +XXXXXXXXXXXX
+
+		E-mail: yang- author@fiberhome.com";
+
+  description 
+    "This module contains a collection of YANG definitions
+     for Fiberhome routing package operational data.
+
+     This module contains definitions for the following management objects:
+       route: routing operational data
+
+     Copyright (c) 2013-2016 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision "2019-01-28" {
+    description
+      "chinaunicom V5 1.0 revision.";
+  } 
+  typedef route-protocol-type {
+    type enumeration {  
+      enum total {
+        value 0;
+        description "total";
+      }    
+      enum local {
+        value 1;
+        description "local";
+      }
+	  enum connected {
+        value 2;
+        description "connected";
+      }
+	  enum static {
+        value 3;
+        description "static";
+      }
+	  enum ospf {
+        value 4;
+        description "ospf";
+      }
+	  enum isis {
+        value 5;
+        description "isis";
+      }
+	  enum rip {
+        value 6;
+        description "rip";
+      }
+	  enum bgp {
+        value 7;
+        description "bgp";
+      }
+	  enum rtm {
+        value 8;
+        description "rtm";
+      }
+    }
+    description "route-protocol-type";
+  }
+  typedef nh-flag {
+    type enumeration { 
+      enum none {
+        value 0;
+        description "none";
+      }	
+      enum primary {
+        value 1;
+        description "primary";
+      }
+	  enum secondary {
+        value 2;
+        description "secondary";
+      }
+	  enum ecmp {
+        value 3;
+        description "ecmp";
+      }	  
+    }
+    description "nh-flag";
+  }
+  typedef nh-relay {
+    type enumeration { 
+      enum not-relay {
+        value 0;
+        description "not-relay";
+      }	
+      enum relay {
+        value 1;
+        description "relay";
+      }
+    }
+    description "nh-relay";
+  }
+  typedef nh-state {
+    type enumeration { 
+      enum inactive {
+        value 0;
+        description "inactive";
+      }	
+      enum active {
+        value 1;
+        description "active";
+      }
+    }
+    description "nh-state";
+  }
+  typedef priority {
+    type enumeration { 
+      enum low {
+        value 0;
+        description "low";
+      }	
+      enum high {
+        value 1;
+        description "high";
+      }
+    }
+    description "priority";
+  }
+  
+  	typedef if-ref {
+	  type union {
+		type if:ethphy-name;
+		type if:ethvir-name;
+        type if:ethlag-name;
+        type if:veth-name;
+        type if:ethsub-name;
+        type if:flexetunnel-name;
+        type if:mgmt-name;
+        type if:tunnel-name;
+		type if:lb-name;
+		type if:dcn-name;
+		type if:null-name;
+	}
+  }
+  
+  grouping detail-state{
+        leaf prot-type{
+			type route-protocol-type;
+			description "protect type";
+		}
+		leaf ad-distance{
+		    type uint16;
+			description "Administrative distance";
+		}
+		leaf cost{
+		    type uint32;
+			description "cost";
+		}	
+        leaf nexthop{
+			type inet:ip-address;			  
+			description "nexthop";
+		}	
+        leaf nh-flag{
+			type nh-flag;
+			description "nexthop flag";
+		}	
+		 leaf label{
+			type uint32;
+			description "out label";
+		}						
+		leaf tunnel-id{
+			type uint32;
+			description "tunnel index";
+		}
+		leaf out-if{
+			type if-ref;
+			description "out interface";
+		}
+		leaf relay{
+			type nh-relay;
+			description "relay flag";
+		}		
+        leaf active-state{
+			type nh-state;
+			description "active state";
+		}	
+        leaf priority{
+			type priority;
+			description "priority";
+		}	
+        leaf sr-in-label{
+			type uint32;
+			description "inlabel";
+		}	
+    }
+
+	
+    container route-oper{
+	    config false;
+	    description "route oper container";
+		container vrf-route-states{ 
+			description "route"; 
+			
+			list vrf-route-state{
+				key "vrf-name af-mode";
+				description "vrf list";				
+				leaf vrf-name{
+					type co-type:vpn-name-with-global;
+					description "vrf name";
+				}	
+                leaf af-mode{
+					type s-route:af-mode-enum;
+					description "Address family identifier mode";
+				}	
+				
+				/* prefix SUM YANG Model */
+			    container prefix-sum {
+			      description "prefix-sum";
+				  
+				  leaf prefix-summary{
+				    type uint32{
+				      range "0..4294967295";
+				    }
+				    description "prefix-summary";
+			      }
+				  leaf active-prefix-summary{
+				    type uint32{
+				      range "0..4294967295";
+				    }
+				    description "active-prefix-summary";
+			      }
+			    }			
+				
+				/* route SUM YANG Model */
+			    list route-sum {
+				  key "protocol";
+			      description "route-sum";
+			  
+			      leaf protocol{
+				    type route-protocol-type;
+				    description "route protocol type";
+			      }
+				  
+				  leaf route-summary{
+				    type uint32{
+				      range "0..4294967295";
+				    }
+				    description "route-summary";
+			      }
+				  leaf active-route-summary{
+				    type uint32{
+				      range "0..4294967295";
+				    }
+				    description "active-route-summary";
+			      }
+			    }				
+			
+			
+			    list route-detail{
+				    key "destination";
+				    description "route-detail list";				
+				    leaf destination{
+					    type inet:ip-prefix;
+					    description "destination";
+				    }
+                    list nexthop-detail{
+				        description "nexthop-detail";	
+                        uses detail-state{
+                        }    
+					}				
+			    }
+			}
+		}
+	}
+}

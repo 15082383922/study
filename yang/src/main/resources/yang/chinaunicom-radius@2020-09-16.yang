@@ -1,0 +1,230 @@
+module chinaunicom-radius {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://chinaunicom.com/yang/securitymanage/chinaunicom-radius";
+
+
+  prefix "rds";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+  
+  import chinaunicom-datatype-common {	revision-date 2020-08-14;prefix "co-type";}
+  
+
+  /*** META INFORMATION ***/
+
+  organization "Fiberhome Telecommunication Technologies Co.,LTD.";
+
+  contact 
+    "Fiberhome Telecommunication Technologies Co.,LTD.
+     
+      Postcode: 430073 
+	  Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+	  Tel: +86 027-81611973
+
+	  E-mail: zgzhang5713@fiberhome.com";
+
+  description 
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom radius package configuration.
+
+     This module contains definitions
+     for the following management objects:
+       radius: radius configuration for all instances
+
+     Copyright (c) 2013-2020 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision "2020-09-16" {
+    description
+      "chinaunicom V5 1.2 revision.";
+  }
+
+  revision "2020-05-23" {
+    description
+      "chinaunicom V5 1.1 revision.";
+  }
+
+  revision "2018-09-18" {
+    description
+      "chinaunicom V5 1.0 revision.";
+  }
+
+  typedef radius-profile-name {
+    type string {
+	  length "1..32";
+	}
+  }
+   
+  typedef radius-server-type {
+    type enumeration {
+	  enum authen {
+	    value 1;
+	    description "Server Type as Authentication server.";
+	  }
+	  enum acct {
+	    value 3;
+		description "Server Type as Accounting server.";
+	  }
+	}
+  }
+  
+  typedef radius-PriSec {
+    type enumeration {
+      enum authen-primary-server {
+	    value 1;
+        description
+          "Primary authen server.";
+      }
+      enum authen-secondary-server {
+	    value 2;
+        description
+          "Secondary authen server.";
+      }
+      enum acct-primary-server {
+	    value 3;
+        description
+          "primary acct server.";
+      }
+      enum acct-secondary-server {
+	    value 4;
+        description
+          "Secondary acct server.";
+      }
+    }
+    description
+      "The priority of radius server";
+  }
+  
+  typedef radius-algorithm {
+    type enumeration {
+      enum "Pri-secondary" {
+        description
+          "Group mode as Primary secondary.";
+      }
+      enum "Load-balance" {
+        description
+          "Group mode as Load balance.";
+      }
+    }
+    description
+      "The type of radius server mode";
+  }
+   
+  container radius 
+  {
+    description "radius top container";
+	container radius-profiles {
+		description
+		  "radius configurations";
+
+		list radius-profile {
+		  key "radius-profile-name";
+		  description
+			"radius-profile configuration";
+
+		  leaf radius-profile-name {
+			type rds:radius-profile-name;
+			description
+			  "radius profile name";
+		  }
+		  
+		  leaf retransmit {
+			type uint32 {
+			  range "1..5";
+			}
+			default "3";
+			description 
+			  "Number of times packet retransmission will happen if server is not responding.
+			   Default retransmit value is 3.";
+		  }
+		  
+		  leaf timeout {
+			type uint32 {
+			  range "3..10";
+			}
+			default "3";
+			description 
+			  "Server response timeout value. The default server response timeout value is 5 seconds.";
+		  }
+		  
+		  leaf domain-included {
+			type boolean;
+			default "false";
+			description "The type of domain mode";
+		  }
+		  
+		  leaf server-secret {
+			type string {
+			  length "1..64";
+			}
+			description "To configure shared key value for a particular group";
+		  }
+		  
+		  leaf recovery-time {
+			type uint16 {
+			  range "1..65535";
+			}
+			default "30";
+			description "time for radius-server recovery";
+		  }
+		  
+		  leaf radius-algorithm {
+			type rds:radius-algorithm;
+			  description "radius server algorithm";
+		  }
+			  
+		  container radius-servers {
+		    description "A set of RADIUS group configuration.";
+			list radius-server {
+		      key "server-type server-addr vpn-name";
+		      description
+			    "radius-server configuration";
+			  
+		      leaf server-type {
+			    type rds:radius-server-type;
+			    description "radius server type";
+		      }
+			  leaf server-mode {
+			    type rds:radius-PriSec;
+			    description "radius server mode";
+			  }
+		  
+		      leaf server-addr {
+			    type inet:ipv4-address;
+			    description "the ip address of the radius-server";
+		      }
+		  
+		      leaf server-port {
+			    type uint32 {
+			      range "1..65535";
+			    }
+                default 1812;
+			    description "the port of the radius-server";
+		      }
+		  
+		      leaf source-ip {
+			    type inet:ipv4-address;
+			    description "the source ip of the nas";
+		      }
+		  
+		      leaf vpn-name {
+			    type co-type:vpn-name-with-global;
+			    description "vpn name";
+		      }
+			  
+			  leaf weight {
+			    type uint8 {
+				  range "0..100";
+				}
+				description "the weight of the radius server";
+			  }
+		    }
+		  }
+		}
+	}
+  } 
+}

@@ -1,0 +1,426 @@
+module chinaunicom-interface-l0l1common
+{ 
+    namespace "http://chinaunicom.com/yang/interface/chinaunicom-interface-l0l1common";
+    prefix "l0l1-if";
+    import chinaunicom-datatype-common
+    {
+	revision-date 2020-08-14;
+        prefix co-type;
+    } 
+    import chinaunicom-interface-common
+    {
+	revision-date 2020-12-31;
+        prefix if;
+    }
+    import chinaunicom-otnif-common
+    {
+	revision-date 2018-03-15;
+        prefix otnif;
+    }
+    description
+        "The module defined to config the och configures";
+    revision 2019-12-13
+    {
+        description
+            "Delete and add some elements to fec-cfg";
+    }
+    revision 2019-10-28
+    {
+        description
+            "Modify the value range of the frequency and add some default value to optics-power element";
+    }        
+    revision 2019-10-08
+    {
+        description
+            "Add some element description information";
+    }
+    revision 2018-03-15
+    {
+        description
+            "version 1.0";
+    }
+    
+    grouping wavelength-cfg
+    {
+        description "wavelength-cfg";
+        leaf frequency
+        {
+            type uint32
+            {
+                range "191275000..196075000";
+            }
+            default "193100000";
+            units "MHz";
+            description
+                "config the frequency of the interface";
+        }
+        leaf bandwith
+        {
+            type enumeration
+            {
+                enum 12.5GHz
+                {
+                    value 1;
+                }
+                enum 25GHz
+                {
+                    value 2;
+                }
+                enum 37.5GHz
+                {
+                    value 3;
+                }
+                enum 50GHz
+                {
+                    value 4;
+                }
+                enum 62.5GHz
+                {
+                    value 5;
+                }
+                enum 75GHz
+                {
+                    value 6;
+                }
+                enum 87.5GHz
+                {
+                    value 7;
+                }
+                enum 100GHz
+                {
+                    value 8;
+                }
+                enum 112.5GHz
+                {
+                    value 9;
+                }
+                enum 125GHz
+                {
+                    value 10;
+                }
+                enum 137.5GHz
+                {
+                    value 11;
+                }
+                enum 150GHz
+                {
+                    value 12;
+                }
+                enum 162.5GHz
+                {
+                    value 13;
+                }
+                enum 175GHz
+                {
+                    value 14;
+                }
+                enum 187.5GHz
+                {
+                    value 15;
+                }
+                enum 200GHz
+                {
+                    value 16;
+                }
+                enum INVALID
+                {
+                    value 254;
+                }
+                enum ABSENT
+                {
+                    value 255;
+                }
+            }
+            default "50GHz";
+            description
+                "config the bandwith of the interface";
+        }
+    }
+
+    grouping threshold-power
+    {
+        description "threshold-power";
+        leaf power-in-under-thre-enable
+        {
+            type co-type:is-enable;
+            default "disable";
+        }
+        leaf power-out-under-thre-enable
+        {
+            type co-type:is-enable;
+            default "disable";
+        }
+        leaf power-in-over-thre-enable
+        {
+            type co-type:is-enable;
+            default "disable";
+        }
+        leaf power-out-over-thre-enable
+        {
+            type co-type:is-enable;
+            default "disable";
+        }
+        
+        leaf power-in-under-thre
+        {
+            type int8
+            {
+                range "-28..7";
+            }
+            default -28;
+            units "dB";
+        }
+        leaf power-out-under-thre
+        {
+            type int8
+            {
+                range "-28..7";
+            }
+            default -28;
+            units "dB";
+        }
+        leaf power-in-over-thre
+        {
+            type int8 
+            {
+                range "-28..7";
+            }
+            default 7;
+            units "dB";
+        }
+        leaf power-out-over-thre
+        {
+            type int8
+            {
+                range "-28..7";
+            }
+            default 7;
+            units "dB";
+        }
+        leaf refence-optical-power-enable
+        {
+            type co-type:is-enable;
+        }
+        leaf reference-optical-power
+        {
+            type co-type:float2
+            {
+	    	    fraction-digits 2;
+                range "-30.00 .. 50.00";
+            }
+            units "dBm";
+        }
+        leaf power-offset-thre
+        {
+            type uint8
+            {
+                range "0..30";
+            }
+            units "dBm";
+        }
+    }
+  
+    grouping trail-trace 
+    {
+        description "trail-trace";
+        leaf tx-sapi 
+        {
+            type string 
+            {
+                length "0 .. 15";
+            }
+            default "CHNFIBERHOMETEL";
+            description
+                "The provisioned 15 character transmit trace SAPI. Implementations shall add the [0] field automatically per ITU-T G.709";
+        }
+        leaf tx-dapi 
+        {
+            type string 
+            {
+                length "0 .. 15";
+            }
+            default "CHNFIBERHOMETEL";            
+            description
+                "The provisioned 15 character transmit trace DAPI. Implementations shall add the [0] field automatically per ITU-T G.709";
+        }
+        leaf tx-operator 
+        {
+            type co-type:string32; 
+            description
+            "The provisioned 32 character Operator Specific field";
+        }
+        leaf expected-sapi 
+        {
+            type string 
+            {
+                length "0 .. 15";
+            }
+            default "CHNFIBERHOMETEL";  
+            description
+                "The provisioned expected SAPI, to be compared with accepted TTI";
+        }
+        leaf expected-dapi 
+        {
+            type string 
+            {
+                length "0 .. 15";
+            }
+            default "CHNFIBERHOMETEL";  
+            description
+                "The provisioned expected DAPI, to be compared with accepted TTI";
+        }
+        leaf expected-operator 
+        {
+            type co-type:string32;  
+            description
+                "The provisioned expected Operator, to be compared with accepted TTI";
+        }
+        leaf tim-act-enabled
+        {
+            type co-type:is-enable;
+            default "disable";
+            description
+            "Enables TTI Mismatch consequent actions.";
+        }
+        leaf tim-detect-mode 
+        {
+            type enumeration 
+            {
+                enum "Disabled" 
+                {
+                    value 1;
+                    description
+                    "TTI is ignored";
+                }
+                enum "SAPI" 
+                {
+                    value 2;
+                    description
+                    "Expected SAPI is compared to the Accpeted TTI. Other TTI fields are ignored";
+                }
+                enum "DAPI" 
+                {
+                    value 3;
+                    description
+                    "Expected DAPI is compared to the Accpeted TTI. Other TTI fields are ignored";
+                }
+                enum "SAPI-and-DAPI" 
+                {
+                    value 4;
+                    description
+                    "Expected SAPI and Expected DAPI are compared to the Accpeted TTI. Operator specific TTI field is ignored";
+                }
+            }
+            default "SAPI-and-DAPI";
+        }
+    }
+
+    grouping fec-cfg
+    {
+        description "fec-cfg";
+        leaf fec
+        {
+            type enumeration
+            {
+                enum enhanced
+                {
+                    value 1;
+                }
+                enum enhancedi4
+                {
+                    value 2;
+                }
+                enum enhancedi7
+                {
+                    value 3;
+                }
+                enum standard
+                {
+                    value 4;
+                }
+            }
+            default "enhanced";
+        }
+        leaf fec-enable
+        {
+            type co-type:is-enable;
+            default "disable";
+        }
+        leaf fec-bef-sd-thre
+        {
+            type uint8
+            {
+                range "2..6";
+            }
+            default 4;
+        }
+        leaf fec_encode_sd_thr
+        {
+            type uint8
+            {
+                range "2..6";
+            }
+            default 4;
+        }
+    }
+
+    grouping optics-control
+    {
+        description "optics-control";
+        leaf als-forward-enable
+        {
+            type co-type:is-enable;
+            default "disable";
+            description
+                "config the forward laser on/off";
+        }
+        leaf als-reverse-enable
+        {
+            type co-type:is-enable;
+            default "disable";
+            description
+                "config the reverse laser on/off";
+        }  
+        leaf als-forward-delaytime 
+        {
+            type uint16
+            {
+                range "0..12000";
+            }
+            default "0";
+            description
+                "config the delaytime of the forward laser,the bandwith is 5ms";
+        }   
+        leaf als-reverse-delaytime 
+        {
+            type uint16
+            {
+                range "0..12000";
+            }
+            default "0";
+            description
+                "config the delaytime of the reverse laser,the bandwith is 5ms";
+        }  
+        leaf target-output-power
+        {
+            type co-type:float2;
+            default 0;
+            units "dBm";
+        }
+    } 
+
+	augment "/if:if/if:interfaces/if:interface"
+	{
+      container optics-property
+      {
+        description "optics-property";
+        uses threshold-power{
+            when "../type = 'ETH-PHY' or
+                    ../type = 'OTN-PHY' or
+                    ../type = 'FLEXE-PHY' or
+                    ../type = 'SDH-PHY'";
+            
+        }        
+      }
+    }     
+}

@@ -1,0 +1,135 @@
+module chinaunicom-ipfrr {
+
+    /*** NAMESPACE / PREFIX DEFINITION ***/
+
+    namespace "http://chinaunicom.com/yang/ipprotocol/routing/chinaunicom-ipfrr";
+
+
+    prefix "ipfrr";
+  
+    /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+    import chinaunicom-l3vpn {	revision-date 2019-10-24; prefix "l3vpn"; }
+    import chinaunicom-routemap {	revision-date 2019-12-30; prefix "routemap"; }
+	import chinaunicom-datatype-common{
+		prefix "co-type";
+	revision-date 2020-08-14;
+	}
+    
+  
+    /*** META INFORMATION ***/
+
+    organization "Fiberhome Systems, Inc.";
+
+    contact
+    "Fiberhome Systems, Inc.
+     
+		Postcode: 430073 
+		Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+		Tel: +XXXXXXXXXXXX
+
+		E-mail: yang- author@fiberhome.com";
+
+    description 
+    "This YANG module defines the ip frr configuration.
+
+     Copyright (c) 2013-2016 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+    revision "2018-05-09" {
+        description "Initial version.";
+    }
+ 
+    typedef vrf-ref {
+	 
+		    type co-type:vpn-name;
+	}
+ 
+    typedef routemap-ref {
+        type routemap:policy-name;   
+    } 
+
+  
+    typedef af-type{
+        type enumeration {
+		    enum ipv4 {
+		        value 1;
+		        description "ipv4 address family.";
+		   }
+		    enum ipv6 {
+		        value 2;
+                description "ipv6 address family.";
+            }
+        }
+    }
+	 augment "/l3vpn:l3vpn/l3vpn:vpn-instances/l3vpn:vpn-instance/l3vpn:vpnInst" {
+		
+		container ip-frr {
+			description "ip frr container"; 
+			container ip-frr-route-policies {
+				description "ip frr configuration data"; 
+				container ip-frr-route-policy {					
+						
+					leaf route-policy {
+						description
+						"Specify ip-frr route-policy name.";
+						type ipfrr:routemap-ref;
+					} 
+					
+				}
+				
+				container hybrid-frr-route-policy {													
+						
+					leaf route-policy {
+						description
+						"Specify hybrid-frr route-policy name.";
+						type ipfrr:routemap-ref;
+					}
+					
+				}
+			}
+		}
+		
+	}
+		
+	
+	
+	
+	
+	container public-ip-frr {
+			description "public ip frr container"; 
+			container public-ip-frr-route-policies {
+			   description "public ip frr configuration data"; 
+				
+					list ip-frr-route-policy {						
+						key "af-mode";										
+						leaf af-mode {							
+							description "Specify address family."; 
+							type ipfrr:af-type;
+						}					
+						leaf route-policy {							
+							description
+							"Specify ip-frr route-policy name.";
+							type ipfrr:routemap-ref;
+						} 
+					}
+				
+						
+					list hybrid-frr-route-policy {						
+						key "af-mode";					
+						leaf af-mode {								
+								description "Specify address family."; 
+								type ipfrr:af-type;
+							}						
+						leaf route-policy {								
+								description
+								"Specify ip-frr route-policy name.";
+								type ipfrr:routemap-ref;
+						} 
+					}
+					
+			}
+		}
+	
+	
+	}

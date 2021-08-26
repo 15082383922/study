@@ -1,0 +1,331 @@
+module chinaunicom-telemetry {
+
+  // namespace
+  namespace "http://chinaunicom.com/yang/telemetry/chinaunicom-telemetry";
+
+  prefix "telemetry";
+
+  // import some basic types
+  import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type"; }
+  import ietf-inet-types {	revision-date 2013-07-15; prefix inet; }
+
+  // meta
+  organization "Fiberhome Telecommunication Technologies Co.,LTD";
+
+  contact
+    "Fiberhome Telecommunication Technologies Co.,LTD.
+     
+      Postcode: 430073
+      Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+      Tel: +86 027-81611991
+     
+      E-mail: lh09@fiberhome.com";
+
+  description
+    "Data model which creates the configuration for the telemetry
+     systems and functions on the device.";
+
+  revision 2020-08-10 {
+    description
+      "Add filter for sensor configure, and local source ip-address&port-number for subscription.";
+    reference "0.1.3";
+  }
+
+  revision 2020-07-08 {
+    description
+      "Change sample-interval range, and add GRPC support.";
+    reference "0.1.2";
+  }
+
+  revision 2020-06-01 {
+    description
+      "Change sample-interval range, and add vpn-name for private network.";
+    reference "0.1.1";
+  }
+
+  revision 2019-01-18 {
+    description
+      "chinaunicom telemetry initial revision.";
+    reference "0.1.0";
+  }
+
+  typedef proto-type {
+    type enumeration {
+      enum GRPC {
+        value 2;
+        description
+          "grpc";
+      }
+      enum UDP {
+        value 3;
+        description
+          "udp";
+      }
+    }
+    description
+      "proto type";
+  }
+
+  typedef encode-type {
+    type enumeration {
+      enum GPB {
+        value 2;
+        description
+          "gpb";
+      }
+    }
+    description
+      "encode type";
+  }
+
+  typedef relation-type {
+    type enumeration {
+      enum AND {
+        value 1;
+        description
+          "and";
+      }
+      enum OR {
+        value 2;
+        description
+          "or";
+      }
+    }
+    description
+      "relation type";
+  }
+
+  typedef operation-type {
+    type enumeration {
+      enum EQ {
+        value 1;
+        description
+          "equal";
+      }
+      enum GT {
+        value 2;
+        description
+          "greater than";
+      }
+      enum GE {
+        value 3;
+        description
+          "greater than or equal";
+      }
+      enum LT {
+        value 4;
+        description
+          "less than";
+      }
+      enum LE {
+        value 5;
+        description
+          "less than or equal";
+      }
+    }
+    description
+      "operation type";
+  }
+
+  container telemetry-system {
+    description
+      "Telemetry configuration for the device's telemetry system.";
+    container sensor-groups {
+      description
+        "Sensor group configuration";
+      list sensor-group {
+        key "sensor-name";
+        description
+          "Sensor group configuration";
+        leaf sensor-name {
+          type string {
+            length "1..31";
+          }
+          description
+            "The identifier for this group";
+        }
+        container sensor-cfgs {
+          description
+            "Sensor path configuration";
+          list sensor-cfg {
+            key "sensor-path";
+            max-elements 25;
+            description
+              "Sensor path configuration";
+            leaf sensor-path {
+              type string {
+                length "1..255";
+              }
+              description
+                "Sensor Path";
+            }
+            container filters {
+              description
+                "Filters for sensor path";
+              leaf filters-name {
+                type string {
+                  length "1..31";
+                }
+                description
+                  "The identifier for the filters";
+              }
+              leaf filters-relation {
+                type relation-type;
+                default "AND";
+                description
+                  "The relation between the filters";
+              }
+              list filter {
+                key "oper-field oper-type oper-value";
+                max-elements 25;
+                description
+                  "filter configuration";
+                leaf oper-field {
+                  type string {
+                    length "1..31";
+                  }
+                  description
+                    "Operation field";
+                }
+                leaf oper-type {
+                  type operation-type;
+                  description
+                    "Operation type";
+                }
+                leaf oper-value {
+                  type string {
+                    length "1..63";
+                  }
+                  description
+                    "Operation value";
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    container destination-groups {
+      description
+        "Destination Group configuration";
+      list destination-group {
+        key "destination-name";
+        description
+          "Destination Group";
+        leaf destination-name {
+          type string {
+            length "1..31";
+          }
+          description
+            "destination group name string";
+        }
+        container destination-cfgs {
+          description
+            "Destination configuration";
+          list destination-cfg {
+            key "destination-address destination-port";
+            max-elements 5;
+            description
+              "destination IP address and port";
+            leaf destination-address {
+              type inet:ip-address;
+              description
+                "Destination IP address";
+            }
+            leaf destination-port {
+              type inet:port-number;
+              description
+                "destination port";
+            }
+            leaf vpn-name {
+              type co-type:vpn-name-with-global;
+              description
+                "vpn instance name";
+            }
+          }
+        }
+      }
+    }
+    container subscriptions {
+      description
+        "Telemetry Subscription";
+      list subscription {
+        key "subscription-name";
+        description
+          "Telemetry Subscription";
+        leaf subscription-name {
+          type string {
+            length "1..31";
+          }
+          description
+            "Subscription identifier string";
+        }
+        leaf stream-protocol {
+          type proto-type;
+          description
+            "stream protocol type";
+        }
+        leaf stream-encoding {
+          type encode-type;
+          description
+            "stream encoding type";
+        }
+        leaf local-source-address {
+          type inet:ip-address;
+          description
+            "The IP address which will be the source of packets from
+             the device to a telemetry collector destination.";
+        }
+        leaf local-source-port {
+          type inet:port-number;
+          description
+            "The source port of packets from the device to a Telemetry collector destination.";
+        }
+        container sensor-profiles {
+          description
+            "Associate Sensor Groups with Subscription";
+          list sensor-profile {
+            key "sensor-name";
+            max-elements 5;
+            description
+              "Associate Sensor Group with Subscription";
+            leaf sensor-name {
+              type string {
+                length "1..31";
+              }
+              description
+                "Reference to the telemetry sensor group through sensor-name";
+            }
+            leaf sample-interval {
+              type uint32 {
+                range "0..86400000";
+              }
+              default "60000";
+              units "millisecond";
+              description
+                "Sample interval in milliseconds, support 0/100ms/1s/5s/10s/30s/60s/180s/300s/900s/1800s etc.";
+            }
+          }
+        }
+        container destination-profiles {
+          description
+            "Associate Destination Groups with Subscription";
+          list destination-profile {
+            key "destination-name";
+            max-elements 5;
+            description
+              "Associate Destination Group with Subscription";
+            leaf destination-name {
+              type string {
+                length "1..31";
+              }
+              description
+                "Destination name to associate with Subscription";
+            }
+          }
+        }
+      }
+    }
+  }
+
+}

@@ -1,0 +1,135 @@
+module chinaunicom-flexeif-phy
+{
+  /*** NAMESPACE ***/
+  namespace "http://chinaunicom.com/yang/interface/flexeinterface/chinaunicom-flexeif-phy";
+   
+  /*** PREFIX DEFINITION ***/
+  prefix "flexephyif";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  import chinaunicom-interface-common
+  { 
+	revision-date 2020-12-31;
+    prefix "if";
+  }
+  
+  
+  /*** META INFORMATION ***/
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+    
+     Postcode: 430073
+     Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+     Email: ylhan@fiberhome.com";
+
+  description
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom flexe phy configuration.
+     
+     This module contains definitions
+     for the following management objects:
+       FlexE PHY
+     
+     Copyright (c) 2013-2018 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision "2020-06-29" 
+  {
+    description "optimize the grammar of when";
+  }
+
+  revision 2019-10-09
+  {
+    description "modify character format.";
+  }
+  
+  revision 2019-09-06
+  {
+    description "modify fec-mode.";
+  }
+  revision 2018-04-27;
+
+  typedef fec-mode 
+  {
+    type enumeration
+    {
+      enum auto
+      {
+        value 0;
+        description "auto mode";
+      }
+      enum off
+      {
+        value 1;
+        description "off mode";
+      }
+      enum kr4-fec
+      {
+        value 2;
+        description "kr4-fec mode";
+      }
+      enum kp4-fec
+      {
+        value 3;
+        description "kp4-fec mode";
+      }
+      enum enhanced
+      {
+        value 4;
+        description "enhanced mode";
+      }
+      enum enhancedi4
+      {
+        value 5;
+        description "enhancedi4 mode";
+      }
+      enum enhancedi7
+      {
+        value 6;
+        description "enhancedi7 mode";
+      }
+      enum standard
+      {
+        value 7;
+        description "standard mode";
+      }
+    }
+  }
+  
+  
+  
+  /* typedefs */
+  grouping flexe-cfg
+  {
+    leaf unavailable-timeslot-count
+    {
+      type uint8
+      {
+        range "0..80";
+      }
+      default "0";
+      description "config the unavailable-timeslot-count of the flexe-phy, range 0-10 for 50g, 0-20 for 100g, 0-40 for 200g, 0-80 for 400g";
+    }
+
+    leaf fec-mode
+    {
+      type flexephyif:fec-mode;
+      default "auto";
+      description "port fec config.auto/off/kp4-fec for 50g;100g cannot config kp4-fec;200g/400g cannot config kr4-fec";
+    }
+  }
+  
+  /* FLEXEIF PHY YANG Model */
+  augment "/if:if/if:interfaces/if:interface"
+  {
+    when "type = 'FLEXE-PHY'";
+    container flexe-ctrlinterface
+    {
+      description "flexe phy"; 
+  
+      uses flexephyif:flexe-cfg;
+    }
+  }
+}

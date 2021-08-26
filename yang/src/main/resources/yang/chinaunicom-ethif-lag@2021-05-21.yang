@@ -1,0 +1,204 @@
+module chinaunicom-ethif-lag
+{
+    namespace "http://chinaunicom.com/yang/interface/ethinterface/chinaunicom-ethif-lag";
+    prefix "ethlagif";
+    import chinaunicom-interface-common 
+    {
+	revision-date 2020-12-31;
+        prefix if;
+    }
+    import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type"; }
+	
+    description
+        "The module defined to config the lag configures";
+   
+	revision 2021-05-21
+	{
+		description
+			"add global configuration of Ethernet lag";
+	}
+	
+	revision 2020-07-03
+	{
+		description
+		"Absolute path modified to relative path. Modify ip-perfix type";
+	}
+ 
+		
+	revision "2019-10-28" 
+	{
+		description
+		"Support veth-name.";
+	}
+	
+    revision 2018-04-11
+    {
+        description
+            "version 1.0";
+    }
+	
+	typedef lag-mode {
+    type enumeration {
+		enum close {
+			value 0;
+			description "close";
+		}
+		enum work-load {
+			value 1;
+			description "work-load";
+		}
+		enum lacp-load {
+			value 2;
+			description "lacp-load";
+		}
+		enum lacp-unload {
+			value 3;
+			description "lacp-unload";
+		}
+		enum work-unload {
+			value 4;
+			description "work-unload";
+		}
+    }
+  }
+
+	typedef lag-arithmetic{
+    type enumeration {
+		enum packet {
+			value 0;
+			description "packet mode";
+		}
+		enum mac {
+			value 1;
+			description "mac mode";
+		}
+		enum ip {
+			value 2;
+			description "ip mode";
+		}
+		enum label{
+			value 3;
+			description "label mode";
+		}
+    }
+  }  
+
+	typedef lag-member-role{
+    type enumeration {
+		enum master {
+			value 1;
+			description "master";
+		}
+		enum backup {
+			value 2;
+			description "backup";
+		}
+		enum member {
+			value 3;
+			description "member";
+		}
+    }
+  }    
+
+  typedef if-ref {
+   	type union 
+		{
+          type if:ethphy-name;
+		  type if:veth-name;
+		}
+	   }
+	   
+	grouping lag-basic-cfg 
+	{
+		leaf lag-arithmetic
+		{
+			type ethlagif:lag-arithmetic;
+			default "ip";
+			description
+				"lag-arithmetic";
+		}		
+
+		leaf lag-mode
+		{
+			type ethlagif:lag-mode;
+			default "work-load";
+			description
+				"lag work-mode";
+		}				
+	}
+
+	grouping lag-unload-cfg 
+	{
+		leaf lag-return-mode
+		{
+			type co-type:is-enable;
+			default "enable";
+			description "return-mode-enable";
+		}		
+
+		leaf lag-recover-time
+		{
+			type uint8 {
+				range "0..12";
+			}
+			units minute;
+			default 5;
+			description "recover-time";
+		}				
+	}	
+	
+	grouping lag-active-link-cfg
+	{
+		leaf max-active-numbers
+		{
+			type uint32{
+            range "1..16";
+          }
+			default 16;
+			description
+				"lag max-active-numbers";
+		}		
+
+		leaf min-active-numbers
+		{
+			type uint32{
+            range "1..16";
+          }
+			default 1;
+			description
+				"lag min-active-numbers";
+		}				
+	}
+	container ethlag-global {
+		description "global configuration of Ethernet lag";
+		leaf lag-arithmetic
+		{
+			type ethlagif:lag-arithmetic;
+			default "ip";
+			description
+				"lag-arithmetic";
+		}	
+	}
+	
+	augment "/if:if/if:interfaces/if:interface"
+	{
+		when "type = 'ETH-LAG'";
+		container ethlag-interface{
+		    uses ethlagif:lag-basic-cfg;
+			uses ethlagif:lag-unload-cfg;
+            uses ethlagif:lag-active-link-cfg;
+	        list lag-add-interface-cfg{	  
+			  description "lag add interface";
+			  key "eth-ifname";
+			  leaf eth-ifname {	   
+				type ethlagif:if-ref;
+				description "Name of lag member interface";
+				}
+			  leaf member-role{
+			     type ethlagif:lag-member-role;
+				 description "Role of member interface";
+			  }
+			}
+	}
+    }
+}

@@ -1,0 +1,453 @@
+module chinaunicom-ndp {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+  namespace "http://chinaunicom.com/yang/ipservice/chinaunicom-ndp";
+  prefix "ndp";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+  import ietf-yang-types {	revision-date 2013-07-15; prefix "yang"; }
+  import ietf-inet-types {	revision-date 2013-07-15; prefix "inet"; }
+  import chinaunicom-datatype-common {	revision-date 2020-08-14; prefix "co-type"; }
+  import chinaunicom-interface-common {	revision-date 2020-12-31; prefix "if"; }
+  import chinaunicom-l2vpn {	revision-date 2020-06-19; prefix "l2vpn"; }
+  import chinaunicom-bd {	revision-date 2019-11-06; prefix "bd"; }
+
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Communications Techlonogy Co., Ltd.
+
+     Postcode: 430073
+     Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+
+     E-mail: ykou@fiberhome.com";
+
+  description
+    "This module contains a collection of YANG definitions
+     for Fiberhome chinaunicom-V5 ndp package configuration.
+
+     This module contains definitions for the following management objects:
+       ndp: ...
+
+     Copyright (c) 2013-2016 by Fiberhome Systems, Inc.
+     All rights reserved.";
+
+  revision 2015-05-04 {
+    description "Initial version.";
+  }
+
+  /* typedefs */
+  typedef if-ref {
+    type union {
+      type if:mgmt-name;
+      type if:ethphy-name;
+      type if:ethvir-name;
+      type if:ethlag-name;
+      type if:veth-name;
+      type if:ethsub-name;
+      type if:flexetunnel-name;
+      type if:dcn-name;
+      type if:bdif-name;
+      type if:wlan-name;
+      type if:lte-name;
+    }
+  }
+
+  typedef vlan-type-enum {
+    type enumeration {
+      enum none   { value 1; }
+      enum dot1q  { value 2; }
+      enum qinq   { value 3; }
+    }
+  }
+
+  typedef ra-router-preference {
+    type enumeration {
+      enum high   { value 1; }
+      enum medium { value 2; }
+      enum low    { value 3; }
+    }
+  }
+
+  container ndp {
+
+    container ndp-global {
+
+      leaf unicast-probe-times {
+
+        description "The count of NS sending use unicast, when a neighbor is expired.";
+        type uint32 {
+          range "1..10";
+        }
+        default "5";
+      }
+
+      leaf broadcast-probe-times {
+
+        description "The count of NS sending use broadcast, when a neighbor is expired.";
+        type uint32 {
+          range "1..10";
+        }
+        default "3";
+      }
+    }
+
+    container ndp-dual-sending-cfg {
+      leaf aging-time {
+
+        description "The aging-time of ndp cache for ndp-dual-sending.";
+        type uint32 {
+          range "0..86400";
+        }
+        default "3600";
+      }
+
+      leaf sending-count {
+
+        description "The count of sending speed.";
+        type uint32 {
+          range "1..200";
+        }
+        default "50";
+      }
+
+      leaf sending-interval {
+
+        description "The interval of sending speed.";
+        type uint32 {
+          range "1..10";
+        }
+        default "1";
+      }
+    }
+
+    container ndp-interfaces {
+      list ndp-interface {
+
+        key "if-name";
+
+        leaf if-name {
+          description "Interface name.";
+          type ndp:if-ref;
+        }
+
+        leaf ndp-proxy {
+          type co-type:is-enable;
+          default "disable";
+        }
+
+        leaf ndp-proxy-inter-vlan {
+          type co-type:is-enable;
+          default "disable";
+        }
+
+        leaf reachable-milliseconds {
+
+          description "The millisecond(s) of reachable state.";
+          type uint32 {
+            range "1000..3600000";
+          }
+          default "3600000";
+        }
+
+        leaf stale-seconds {
+
+          description "The second(s) of stale state.";
+          type uint32 {
+            range "60..172800";
+          }
+          default "3600";
+        }
+
+        leaf ns-retrans-interval {
+
+          description "NS retransmission interval (millisecond).";
+          type uint32 {
+            range "1000..60000";
+          }
+          default "1000";
+        }  
+
+        leaf ns-dad-attempts {
+
+          description "DAD NS attempts count.";
+          type uint32 {
+            range "0..600";
+          }
+          default "1";
+        }  
+
+        leaf na-router-flag {
+
+          description "[rfc4861]When set, it indicates that the sender is a router.";
+          type co-type:is-enable;
+          default "enable";
+        }        
+
+        container ra-cfg {
+
+          leaf ra-cur-hop-limit {
+
+            description "[rfc4861]The default value that should be placed in the Hop Count field of the IP header for outgoing IP packets.";
+            type uint8;
+          }
+
+          leaf ra-managed-flag {
+
+            description "[rfc4861]When set, it indicates that the addresses are available via DHCPv6.";
+            type co-type:is-enable;
+            default "disable";
+          }
+
+          leaf ra-other-flag {
+
+            description "[rfc4861]When set, it indicates that other configurations are available via DHCPv6.";
+            type co-type:is-enable;
+            default "disable";
+          }
+
+          leaf ra-prf {
+
+            description "[rfc4191]Default Router Preference. Indicates whether to prefer this router over other default routers.";
+            type ndp:ra-router-preference;
+          }
+
+          leaf ra-router-lifetime {
+
+            description "[rfc4861]The lifetime associated with the default router in units of seconds.";
+            type uint16;
+          }
+
+          leaf ra-reachable-time {
+
+            description "[rfc4861]The time, in milliseconds, that a node assumes a neighbor is reachable after having received a reachability confirmation.";
+            type uint32;
+          }
+
+          leaf ra-retrans-timer {
+
+            description "[rfc4861]The time, in milliseconds, between retransmitted Neighbor Solicitation messages.";
+            type uint32;
+          }
+
+          leaf ra-mtu-diable {
+
+            description "[rfc4861]When set, the MTU option will not be contained in the RA message.";
+            type co-type:is-enable;
+            default "disable";
+          }
+
+          leaf ra-prefix-diable {
+
+            description "[rfc4861]When set, the default Prefix option(prefix of interface) will not be contained in the RA message.";
+            type co-type:is-enable;
+            default "disable";
+          }
+
+        }
+
+        container ra-prefix-cfg {
+
+          leaf ra-prefix-valid-lifetime {
+
+            description "[rfc4861]The length of time in seconds (relative to the time the packet is sent) that the prefix is valid for the purpose of on-link determination.";
+            type uint32;
+          }
+
+          leaf ra-prefix-preferred-lifetime {
+
+            description "[rfc4861]The length of time in seconds (relative to the time the packet is sent) that addresses generated from the prefix via stateless address autoconfiguration remain preferred [ADDRCONF].";
+            type uint32;
+          }
+
+          leaf ra-prefix-on-link-flag {
+
+            description "[rfc4861]When set, indicates that this prefix can be used for on-link determination.";
+            type co-type:is-enable;
+            default "disable";
+          }
+
+          leaf ra-prefix-autonomous-flag {
+
+            description "[rfc4861]When set, indicates that this prefix can be used for stateless address configuration as specified in [ADDRCONF].";
+            type co-type:is-enable;
+            default "enable";
+          }
+        }
+      }
+    }
+
+    container ipv6-neighbor-statics {
+      list ipv6-neighbor-static {
+
+        key "if-name ip6-addr";
+
+        leaf if-name {
+
+          description "Interface name.";
+          type ndp:if-ref;
+        }
+
+        leaf ip6-addr {
+
+          description "ipv6 address.";
+          type inet:ipv6-address;
+        }
+
+        leaf mac-addr {
+
+          description "mac address.";
+          type yang:mac-address;
+          mandatory true;
+        }
+
+        leaf vlan-type {
+
+          description "vlan-type[Dot1Q or QinQ].";
+          type ndp:vlan-type-enum;
+          default "none";
+        }
+
+        container dot1q {
+          must "../vlan-type='dot1q'";
+
+          leaf vlan-id {
+
+            description "Dot1Q vlan id.";
+            type uint16 {
+              range "1..4094";
+            }
+          }
+        }
+
+        container qinq {
+          must "../vlan-type='qinq'";
+
+          leaf svlan-id {
+
+            description "QinQ svlan id.";
+            type uint16 {
+              range "1..4094";
+            }
+          }
+
+          leaf cvlan-id {
+
+            description "QinQ cvlan id.";
+            type uint16 {
+              range "1..4094";
+            }
+          }
+        }
+      }
+    }
+
+    /*
+    container ipv6-neighbor-vrf-statics {
+      list ipv6-neighbor-vrf-static {
+
+        key "vrf-name ip6-addr";
+
+        leaf vrf-name {
+
+          description "vrf name.";
+          type co-type:vpn-name-with-global;
+        }
+
+        leaf ip6-addr {
+
+          description "ipv6 address.";
+          type inet:ipv6-address;
+        }
+
+        leaf mac-addr {
+
+          description "mac address.";
+          type yang:mac-address;
+        }
+
+        leaf vlan-type {
+
+          description "vlan-type[Dot1Q or QinQ].";
+          type ndp:vlan-type-enum;
+          default "none";
+        }
+
+        container dot1q {
+          must "../vlan-type='dot1q'";
+
+          leaf vlan-id {
+
+            description "Dot1Q vlan id.";
+            type uint16 {
+              range "1..4094";
+            }
+          }
+        }
+
+        container qinq {
+          must "../vlan-type='qinq'";
+
+          leaf svlan-id {
+
+            description "QinQ svlan id.";
+            type uint16 {
+              range "1..4094";
+            }
+          }
+
+          leaf cvlan-id {
+
+            description "QinQ cvlan id.";
+            type uint16 {
+              range "1..4094";
+            }
+          }
+        }
+      }
+    }
+    */
+  }
+
+  augment "/l2vpn:l2vpn/l2vpn:vpws/l2vpn:vpws-list/l2vpn:accessif-list"
+  {
+    container ndp-vpws-ac
+    {
+      leaf ndp-dual-sending
+      {
+        description "ndp-dual-sending enable.";
+        type co-type:is-enable;
+        default "disable";
+      }
+    }
+  }
+
+  augment "/bd:bd/bd:bridge-domains/bd:bridge-domain"
+  {
+    container ndp-bd
+    {
+      leaf ndp-suppress
+      {
+        description "ndp-suppress enable.";
+        type co-type:is-enable;
+        default "disable";
+      }
+
+      leaf ndp-suppress-expire
+      {
+        description "ndp-suppress cache expire second(s).";
+        type uint32 {
+          range "300..86400";
+        }
+        default "1800";
+      }
+    }
+  }
+}
+
+
+
+
+
+
+

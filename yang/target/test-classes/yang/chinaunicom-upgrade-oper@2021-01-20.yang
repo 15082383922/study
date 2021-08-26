@@ -1,0 +1,164 @@
+module chinaunicom-upgrade-oper {
+
+  namespace "http://chinaunicom.com/yang/upgrademanager/chinaunicom-upgrade-oper";
+
+  prefix "upgrade-oper";
+    import chinaunicom-datatype-common {
+        prefix "co-type";
+	revision-date 2020-08-14;
+    }
+
+
+  
+  organization "Fiberhome Systems, Inc.";
+
+  contact
+    "Fiberhome Systems, Inc.
+     Postcode: 430073
+     Address: No.6,Gaoxin 4 Rd,Donghu Hi-Tech Development Zone, Wuhan, Hubei
+     Tel: +XXXXXXXXXXXX
+     
+     E-mail: yang-author@fiberhome.com";
+
+  description
+    "This module contains a collection of YANG definitions
+     for Fiberhome upgrade info.
+     
+     This module contains definitions
+     for the following management objects:
+         ***
+     E-mail: yang-author@fiberhome.com
+     All rights reserved.";
+     
+  revision "2021-01-20" {
+    description
+        "add descriptions for container startup-status and 
+        rpc startup-cmd";
+  }
+	revision 2018-12-12;
+
+    
+    
+  typedef upgrade-global-state {
+    type enumeration {
+            enum IDLE {
+                value 0;
+            }
+            enum BUSY {
+                value 1;
+            }
+            enum CANSTARTUP {
+                value 2;
+            }
+            enum CANCOMMIT {
+                value 3;
+            }
+
+
+    }
+    description "upgrade task global state.";
+  }
+    
+  typedef startup-state {
+        type co-type:string64 {
+            pattern '(startup-processing-(([0-9]%)|([1-9][0-9]%)|(100%)))|(startup-successful|file-not-exist|file-error|startup-error|backup-file-error)' {
+                description 
+                    "(startup-processing-x%|startup-successful|file-not-exist|file-error|startup-error|backup-file-error)
+                     x:0~100";
+            }
+        }
+
+  }
+
+    
+  container upgrade-oper {
+    config false;
+    description
+      "upgrade process information.";
+    container upgrade-global-status {
+
+        description
+            "upgrade global status.";    
+    
+        leaf filename {
+            type string {
+                length "1..64";
+            }
+                mandatory true;
+
+            description
+            "upgrade remote path and name.";
+        }
+        
+        leaf upgrade-global-state {
+            type upgrade-global-state;
+            description
+            "upgrade global state.";
+        }
+        
+      }
+
+        container startup-status {
+            description "startup status informaiton,this container is optional.";
+
+        leaf startup-state {
+            type startup-state;
+            description
+            "detailed startup state info.";
+        }
+        
+        }
+    }
+
+    /* remote startup CMD RPC */
+    rpc startup-cmd {
+        description "startup operation,this rpc is optional.";
+        input                   {
+                
+                leaf filename {
+                    type string {
+                   length "1..64";
+                 }
+                mandatory true;
+
+                }
+            }
+        }
+
+    rpc startup-commit-cmd {
+            
+        description "startup commit command";
+        input                   {
+                
+                leaf delay {
+                type uint32;
+                
+             }
+            leaf commit-type {
+                type enumeration {
+                    enum COMMIT_SLOT {
+                        value 1;
+                    }
+
+                    enum COMMIT_ALL {
+                        value 2;
+                    }
+
+                    enum COMMIT_BACKUP_MAINBOARD {
+                        value 3;
+                    }
+                
+                }
+                mandatory true;
+
+
+                    
+            }
+
+            }
+    }
+
+    /* startup rollback RPC */
+    rpc startup-rollback-cmd  {
+    }
+}
