@@ -1,5 +1,5 @@
-com\utstar\jna\App.class
-com\utstar\jna\LibTest.class
-com\utstar\jna\GoString$ByValue.class
-com\utstar\jna\GoString$ByReference.class
-com\utstar\jna\GoString.class
+com\utstar\utils\GoString.class
+com\utstar\utils\Lib.class
+com\utstar\utils\GoString$ByValue.class
+com\utstar\utils\App.class
+com\utstar\utils\GoString$ByReference.class
